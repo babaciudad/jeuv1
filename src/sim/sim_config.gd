@@ -15,6 +15,11 @@ const TICK_RATE: int = 60
 ## eux-mêmes restent toujours des entiers.
 const TICK_DURATION_USEC: float = 1_000_000.0 / float(TICK_RATE)
 
+## Durée d'un tick en secondes. Sert uniquement à faire avancer les
+## AnimationPlayer des calendriers d'attaque (invariant 8) : c'est la seule
+## interface du moteur qui parle en secondes.
+const TICK_DURATION_SEC: float = 1.0 / float(TICK_RATE)
+
 ## Invariant 4 : l'hôte est un joueur et porte toujours le peer id 1.
 const HOST_PEER_ID: int = 1
 

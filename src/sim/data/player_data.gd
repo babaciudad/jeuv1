@@ -1,0 +1,39 @@
+## Réglages du personnage joueur. Invariant 7.
+class_name PlayerData
+extends Resource
+
+@export_group("Vitalité")
+@export var max_health: int = 100
+@export var max_stamina: int = 100
+@export var max_poise: int = 40
+@export var radius: float = 0.45
+
+@export_group("Locomotion")
+@export var move_speed: float = 5.0
+## Accélération et freinage, en mètres par seconde carrée.
+@export var acceleration: float = 60.0
+@export var deceleration: float = 45.0
+@export var turn_degrees_per_tick: float = 12.0
+
+@export_group("Roulade")
+@export var dodge_speed: float = 9.5
+@export var dodge_duration_ticks: int = 24
+## Ticks d'invulnérabilité, comptés depuis le début de la roulade.
+@export var dodge_invulnerable_from_tick: int = 3
+@export var dodge_invulnerable_to_tick: int = 15
+@export var dodge_stamina_cost: int = 25
+
+@export_group("Endurance")
+## Régénération par tick, en centièmes de point : évite l'arithmétique
+## flottante sur une valeur qui doit rester identique sur toutes les machines.
+@export var stamina_regen_per_tick_centi: int = 90
+## Ticks d'attente après une dépense avant que la régénération reprenne.
+@export var stamina_regen_delay_ticks: int = 30
+
+@export_group("Réactions")
+@export var stagger_duration_ticks: int = 30
+## Ticks avant que la poise cassée ne se reconstitue entièrement.
+@export var poise_recovery_ticks: int = 180
+
+@export_group("Armes")
+@export var attacks: Array[AttackData] = []

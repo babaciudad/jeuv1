@@ -15,9 +15,27 @@ extends RefCounted
 
 ## Type de commande. Ces valeurs partent sur le réseau : on ne les réordonne
 ## jamais, on ne les recycle jamais, on ne fait qu'en ajouter à la fin.
-## Le gameplay n'existe pas encore, d'où l'unique valeur NONE.
+##
+## Les charges utiles portent des identifiants et des directions, jamais des
+## résultats. Une déclaration de touche dit « j'ai touché cet acteur avec cette
+## attaque », pas « inflige tant de dégâts » : l'hôte relit ses propres données
+## et un client ne peut donc rien gonfler (invariant 5).
 enum Type {
 	NONE = 0,
+	## {"d": Vector2} direction de déplacement souhaitée.
+	MOVE = 1,
+	## {"d": Vector2} direction de la roulade.
+	DODGE = 2,
+	## {"i": int} index de l'attaque dans les données de l'acteur.
+	ATTACK = 3,
+	## {} interaction avec ce qui est à portée : feu de camp ou raccourci.
+	INTERACT = 4,
+	## {"t": int, "a": int} cible touchée et index de l'attaque. Émise par
+	## l'attaquant, confirmée par l'hôte.
+	DECLARE_HIT = 5,
+	## {"s": int, "a": int} source des dégâts et index de son attaque. Émise
+	## par la victime, contrôlée par l'hôte.
+	REPORT_DAMAGE = 6,
 }
 
 const HEADER_SIZE: int = 13
