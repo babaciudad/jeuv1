@@ -4,10 +4,14 @@
 
 [resource]
 script = ExtResource("1_pxvsp")
-walkable = Array[Rect2]([Rect2(-10, -10, 20, 16), Rect2(-3, 6, 6, 32), Rect2(-18, 38, 32, 24), Rect2(-18, -6, 6, 44), Rect2(-12, -6, 2, 3)])
+id = &"chapelle"
+walkable = Array[Rect2]([Rect2(-9, -18, 18, 20), Rect2(-6, 2, 12, 5), Rect2(0, 7, 6, 31), Rect2(-18, 38, 32, 24), Rect2(-18, -6, 6, 44), Rect2(-12, -6, 3, 3)])
+obstacles = Array[Rect2]([Rect2(-7.1, -15.6, 1.2, 1.2), Rect2(-7.1, -11.6, 1.2, 1.2), Rect2(-7.1, -7.6, 1.2, 1.2), Rect2(-7.1, -3.6, 1.2, 1.2), Rect2(5.9, -15.6, 1.2, 1.2), Rect2(5.9, -11.6, 1.2, 1.2), Rect2(5.9, -7.6, 1.2, 1.2), Rect2(5.9, -3.6, 1.2, 1.2), Rect2(-4.3, 4.85, 2.6, 1.5), Rect2(-5.42, 3.58, 0.84, 0.84), Rect2(4.58, 3.58, 0.84, 0.84)])
+obstacle_heights = Array[float]([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.35, 1.3, 1.3])
+ceiling_heights = Array[float]([7.6, 5.8, 3.6, 6.6, 3.6, 3.6])
 shortcut_gate = Rect2(-18, 36, 6, 4)
-bonfire_position = Vector2(0, -4)
+bonfire_position = Vector2(-3, 4.4)
 shortcut_switch_position = Vector2(-15, 41)
-player_spawns = Array[Vector2]([Vector2(-2, -4), Vector2(2, -4), Vector2(-2, -7), Vector2(2, -7)])
-enemy_spawns = Array[Vector2]([Vector2(0, 14), Vector2(-1.5, 25), Vector2(1.5, 34)])
+player_spawns = Array[Vector2]([Vector2(-1.6, -12), Vector2(1.6, -12), Vector2(-1.6, -14.6), Vector2(1.6, -14.6)])
+enemy_spawns = Array[Vector2]([Vector2(3, 15), Vector2(1.8, 26), Vector2(4.2, 35)])
 boss_spawn = Vector2(0, 54)

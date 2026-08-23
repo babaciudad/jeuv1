@@ -126,6 +126,22 @@ Exclusivement par pistes d'appel de méthode dans l'`AnimationPlayer`.
   l'animation. Une hitbox pilotée par un minuteur est un bug, même si elle
   fonctionne.
 
+**Deux systèmes d'animation coexistent et ne doivent jamais être confondus :**
+
+| | `src/sim/attack_runner.gd` | `src/presentation/actor_view.gd` |
+|---|---|---|
+| Ce qu'il anime | l'ouverture et la fermeture des hitboxes | la démarche, le geste d'arme, la pose |
+| Horloge | ticks, avancés à la main par la simulation | secondes réelles, `delta` d'affichage |
+| Autorité | oui : c'est lui qui décide des touches | aucune : il ne décide de rien |
+| Si on le supprime | le jeu n'a plus de combat | le jeu est laid, et se joue pareil |
+
+Le second LIT l'état du premier (`runner.hitbox_open`, `runner.attack`).
+L'inverse serait une faute : une hitbox ne doit jamais dépendre de la
+fréquence d'affichage. C'est pour cela que la vue anime par procédure — depuis
+la position, l'état et l'attaque en cours — au lieu de jouer ses propres
+`Animation`s : deux `AnimationPlayer` sur des horloges différentes finiraient
+par diverger, et personne ne saurait lequel a raison.
+
 ### 9. La couche gameplay ignore le transport
 ENet en développement local, `SteamMultiplayerPeer` en production.
 
@@ -173,10 +189,12 @@ src/net/            Transport, sérialisation, synchronisation.
   net_bootstrap.gd    Point d'entrée d'une instance.
 src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
   main_menu.gd        Choix de classe, hôte ou client, tutoriel.
-  actor_view.gd       Assemble un personnage depuis son skin.
+  actor_view.gd       Squelette de pivots habillé d'un skin, animé par procédure.
   skin_library.gd     Résout un skin par identifiant, avec cache.
-  data/               Schémas des skins : pièces primitives.
-  game_view.gd        Miroir visuel du monde et des projectiles.
+  primitive_factory.gd Formes et matériaux, partagés par personnages et décor.
+  vfx.gd              Effets brefs : impact, touche, soin, lancer.
+  data/               Schémas des skins et du décor : pièces primitives.
+  game_view.gd        Miroir visuel du monde, des projectiles et des effets.
   tutorial.gd         Apprend les mécaniques en observant ce que fait le joueur.
   level_view.gd       Géométrie déduite de la zone praticable.
   camera_rig.gd       Caméra troisième personne et son dégagement.
@@ -187,6 +205,7 @@ data/               Ressources de réglage (invariant 7).
   attacks/            Calendriers et valeurs des attaques.
   classes/            Les quatre classes jouables.
   skins/              Apparences, une par classe et par espèce.
+  decor/              Décor d'un niveau, purement visuel : res://data/decor/<id>.tres.
   actors/             Gobelin et boss.
   level/              Géométrie et points d'intérêt de la tranche verticale.
 scenes/             Scènes Godot.
@@ -221,10 +240,35 @@ n'est pas décoratif : **c'est le seul repère de rythme du jeu**, le tutoriel
 l'enseigne explicitement. Un skin sans pièce d'arme rend son porteur illisible
 en combat.
 
+**Un personnage est articulé, pas empilé.** Chaque pièce déclare un `role`
+(`SkinPart.Role`) qui l'accroche à un pivot : tête, bras, avant-bras, cuisse,
+tibia — gauche et droite. `SkinData` décrit le squelette en six mesures
+(`shoulder`, `elbow_drop`, `hip`, `knee_drop`, `neck`, plus `stride_degrees`
+et `idle_bob`) et `ActorView` en construit la hiérarchie de `Node3D`.
+
+Conséquence à ne pas oublier : **l'`offset` d'une pièce est relatif à SON
+pivot**, pas au sol. Une pièce de bras a donc un `y` négatif — elle pend. Seule
+une pièce `STATIC` se mesure depuis le sol. `tests/skin_test.gd` verrouille les
+deux règles, plus un plancher de huit pièces articulées par skin : sans lui, un
+skin peut redevenir un tas de caisses sans que rien ne le signale, puisque tout
+resterait affiché — simplement plus rien ne bougerait.
+
+**Un effet visuel naît d'un écart déjà constaté, jamais d'un événement.**
+`Vfx` (impact, touche, soin, lancer) est déclenché par `GameView` qui compare
+l'état à celui de l'image précédente : des points de vie qui ont baissé, un
+projectile qui a disparu. La simulation n'émet aucun signal pour cela, et c'est
+volontaire — un client qui rejoue ses commandes repasserait deux fois sur le
+même signal.
+
 **La géométrie visible est déduite de la zone praticable.** Les murs ne sont
 pas décrits à la main : `LevelView` place un bloc sur chaque case pleine qui
 touche une case praticable. Décrire séparément ce qu'on voit et ce contre quoi
 on se cogne, c'est signer pour le jour où ils ne correspondront plus.
+
+La hauteur suit la même règle. `LevelData.ceiling_heights` donne une hauteur
+sous plafond par rectangle praticable ; un mur monte à la hauteur de la case
+la plus haute qu'il borde. C'est ce qui fait qu'une nef à 7,6 m et un boyau à
+3,6 m ne se ressemblent pas, sans qu'on ait à le dire deux fois.
 
 ## Modèle de collision
 
@@ -235,6 +279,24 @@ essaie le mouvement complet puis chaque axe séparément.
 C'est un choix, pas un raccourci : la simulation reste testable en headless
 sans arbre de scène, déterministe, et sans corps physique à tenir synchronisé
 avec l'état réseau. Pour un couloir, cinq rectangles suffisent.
+
+Ce qui bloque est déclaré une seule fois, dans `LevelData` :
+
+- `walkable` — l'union des rectangles où un acteur peut se trouver ;
+- `obstacles` — les rectangles pleins À L'INTÉRIEUR du praticable (colonnes,
+  autel, braseros). Ils arrêtent les déplacements ET les projectiles, par la
+  même liste : `World.blockers()` ;
+- `shortcut_gate` — la porte du raccourci, qui rejoint `blockers()` tant
+  qu'elle est fermée.
+
+**Un obstacle est DESSINÉ à partir de son emprise, jamais posé à côté.**
+`LevelView` en tire base, fût et chapiteau ; `obstacle_heights` décide s'il
+monte jusqu'au plafond (un pilier) ou s'arrête (un meuble). Un obstacle
+dessiné ailleurs que là où il bloque est le pire des bugs : on cherche du côté
+du réseau pendant des heures.
+
+Symétriquement, `res://data/decor/<id>.tres` ne contient QUE ce qui se
+traverse. Une pièce de décor ne bloque rien, jamais.
 
 ## Commandes du jeu
 
@@ -340,7 +402,20 @@ de classe et de session. Tutoriel en neuf étapes qui se valident en agissant.
 Feu de camp avec repos, soin, réapparition et remise en place des ennemis.
 Couloir et raccourci à grille. Trois gobelins et un boss à deux phases.
 Roulade avec fenêtre d'invulnérabilité, endurance, poise. Caméra troisième
-personne qui se dégage des murs, interface, banc réseau, 56 tests.
+personne qui se dégage des murs, interface, banc réseau, 64 tests.
+
+**Le niveau est une chapelle abandonnée** (`data/level/vertical_slice.tres`,
+identifiant `chapelle`) : nef à 7,6 m sous plafond avec deux rangs de colonnes
+qui bloquent pour de vrai, vitraux, bancs renversés et poutres tombées ; chœur
+à 5,8 m avec autel, croix, cierges et braseros, autour du feu de camp ; boyau
+à 3,6 m vers l'arène du boss ; raccourci parallèle fermé par une grille. Le
+décor purement visuel vit dans `data/decor/chapelle.tres`.
+
+**Les personnages sont articulés.** Six skins humanoïdes — quatre classes, le
+gobelin, le warden — bâtis sur un squelette de pivots et animés par procédure :
+foulée calée sur la distance parcourue, coude et genou qui plient, geste d'arme
+distinct pour la préparation, la frappe, le lancer et le soin. Quatre effets
+brefs : impact de projectile, touche, soin, lancer.
 
 **Pas fait, et hors périmètre.** Verrouillage de cible, blocage ou parade,
 montée en niveau, sauvegarde, sons, modèles et animations importés, second

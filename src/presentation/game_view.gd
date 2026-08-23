@@ -6,6 +6,12 @@
 class_name GameView
 extends Node3D
 
+## Un coup se lit en rouge, un soin en vert. Deux couleurs, pas plus : un
+## joueur doit pouvoir dire d'un coup d'œil, au fond du couloir, si son
+## coéquipier prend cher ou remonte.
+const COLOR_HIT: Color = Color(1.0, 0.30, 0.24)
+const COLOR_HEAL: Color = Color(0.42, 1.0, 0.52)
+
 @export var bootstrap_path: NodePath
 
 var _bootstrap: NetBootstrap
@@ -17,6 +23,16 @@ var _views: Dictionary[int, ActorView] = {}
 ## pas repeinte.
 var _view_data_index: Dictionary[int, int] = {}
 var _flights: Dictionary[int, MeshInstance3D] = {}
+## Dernière position connue de chaque projectile. Un projectile qui disparaît
+## ne dit pas où il s'est éteint : il faut l'avoir noté avant.
+var _flight_positions: Dictionary[int, Vector3] = {}
+var _flight_colors: Dictionary[int, Color] = {}
+## Points de vie à l'image précédente. Les effets naissent d'un ÉCART déjà
+## constaté, jamais d'un événement que la vue aurait deviné : la simulation ne
+## prévient personne, et c'est très bien ainsi (invariant 2).
+var _last_health: Dictionary[int, int] = {}
+## Attaques déjà saluées par un anneau de lancer, pour n'en poser qu'un.
+var _cast_seen: Dictionary[int, int] = {}
 var _shortcut_shown: bool = false
 
 func _ready() -> void:
@@ -40,7 +56,7 @@ func _on_world_ready(world: World) -> void:
 	_shortcut_shown = world.shortcut_open
 	_level_view.set_shortcut_open(_shortcut_shown)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _bootstrap == null or _bootstrap.world == null:
 		return
 	var world: World = _bootstrap.world
@@ -48,6 +64,7 @@ func _process(_delta: float) -> void:
 		_shortcut_shown = world.shortcut_open
 		_level_view.set_shortcut_open(_shortcut_shown)
 
+	_watch_health(world)
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	var eye: Vector3 = camera.global_position if camera != null else Vector3.ZERO
 	var local: Actor = world.local_actor()
@@ -62,13 +79,17 @@ func _process(_delta: float) -> void:
 			view = null
 		if view == null:
 			view = _make_view(world, actor)
-		view.refresh(actor, eye, actor.id == world.local_actor_id, player_distance)
+		view.refresh(actor, eye, actor.id == world.local_actor_id, player_distance,
+			delta)
+		_watch_cast(actor)
 
 	for actor_id: int in _views.keys():
 		if not world.actors.has(actor_id):
 			_views[actor_id].queue_free()
 			_views.erase(actor_id)
 			_view_data_index.erase(actor_id)
+			_last_health.erase(actor_id)
+			_cast_seen.erase(actor_id)
 
 	_refresh_projectiles(world)
 
@@ -83,13 +104,22 @@ func _refresh_projectiles(world: World) -> void:
 				continue
 		var at: Vector2 = world.projectile_position(projectile)
 		view.position = Vector3(at.x, 1.1, at.y)
+		_flight_positions[projectile.id] = view.position
 		var heading: Vector3 = Vector3(projectile.direction.x, 0.0, projectile.direction.y)
 		if not heading.is_zero_approx():
 			view.look_at(view.position + heading, Vector3.UP)
 	for flight_id: int in _flights.keys():
 		if not world.projectiles.has(flight_id):
+			# Éteint : mur, cible, ou portée épuisée. La simulation ne dit pas
+			# laquelle, et la vue n'a pas à le savoir — un éclat au dernier
+			# point connu dit tout ce que le joueur a besoin de lire.
+			var where: Vector3 = _flight_positions.get(flight_id, Vector3.ZERO)
+			var tone: Color = _flight_colors.get(flight_id, Color.WHITE)
+			Vfx.spawn(_actors_root, Vfx.Kind.IMPACT, where, tone)
 			_flights[flight_id].queue_free()
 			_flights.erase(flight_id)
+			_flight_positions.erase(flight_id)
+			_flight_colors.erase(flight_id)
 
 func _make_flight(world: World, projectile: Projectile) -> MeshInstance3D:
 	var attack: AttackData = world.projectile_attack(projectile)
@@ -110,7 +140,41 @@ func _make_flight(world: World, projectile: Projectile) -> MeshInstance3D:
 	view.material_override = material
 	_actors_root.add_child(view)
 	_flights[projectile.id] = view
+	_flight_colors[projectile.id] = attack.projectile.color
 	return view
+
+## Un écart de points de vie déjà arrivé se traduit en gerbe. La vue ne
+## décide de rien : elle n'a même pas le moyen de savoir QUI a frappé.
+func _watch_health(world: World) -> void:
+	for actor: Actor in world.actors.values():
+		var previous: int = _last_health.get(actor.id, actor.health)
+		_last_health[actor.id] = actor.health
+		if actor.health == previous:
+			continue
+		var at: Vector3 = Vector3(actor.position.x, 0.0, actor.position.y)
+		if actor.health < previous:
+			Vfx.spawn(_actors_root, Vfx.Kind.HIT, at, COLOR_HIT)
+		else:
+			Vfx.spawn(_actors_root, Vfx.Kind.HEAL, at, COLOR_HEAL)
+
+## Anneau au sol au premier tick d'un lancer. Compté en ticks écoulés et non
+## par un signal : la simulation n'en émet aucun, et un client qui rejoue ses
+## commandes repasserait deux fois sur le même signal s'il y en avait un.
+func _watch_cast(actor: Actor) -> void:
+	var runner: AttackRunner = actor.runner
+	if runner == null or runner.finished or runner.attack == null:
+		_cast_seen.erase(actor.id)
+		return
+	if runner.attack.projectile == null and runner.attack.heal <= 0:
+		return
+	var started: int = _cast_seen.get(actor.id, -1)
+	if started >= 0:
+		return
+	_cast_seen[actor.id] = runner.elapsed_ticks
+	var tone: Color = COLOR_HEAL if runner.attack.heal > 0 \
+		else runner.attack.projectile.color
+	Vfx.spawn(_actors_root, Vfx.Kind.CAST,
+		Vector3(actor.position.x, 0.06, actor.position.y), tone)
 
 func _make_view(world: World, actor: Actor) -> ActorView:
 	var view: ActorView = ActorView.new()

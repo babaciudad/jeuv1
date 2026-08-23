@@ -207,10 +207,16 @@ func actor_or_null(actor_id: int) -> Actor:
 func local_actor() -> Actor:
 	return actor_or_null(local_actor_id)
 
+## Tout ce qui bloque un déplacement ou un projectile à cet instant : les
+## obstacles fixes du niveau, plus la porte du raccourci tant qu'elle est
+## fermée. Une seule liste, consultée par la marche comme par le vol : un
+## pilier qui arrête un joueur et laisse passer une flèche serait un mensonge.
 func blockers() -> Array[Rect2]:
-	if shortcut_open:
-		return []
-	return [level.shortcut_gate]
+	var out: Array[Rect2] = []
+	out.append_array(level.obstacles)
+	if not shortcut_open:
+		out.append(level.shortcut_gate)
+	return out
 
 func data_for(actor: Actor) -> EnemyData:
 	if actor.data_index < 0 or actor.data_index >= enemy_data.size():

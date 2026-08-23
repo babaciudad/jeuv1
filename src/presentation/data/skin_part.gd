@@ -1,4 +1,4 @@
-## Une pièce d'un skin : une primitive posée sur le personnage.
+## Une pièce d'un skin : une primitive posée sur un os du personnage.
 ##
 ## Présentation pure. La simulation ignore que ce type existe — un skin ne
 ## change ni une hitbox, ni une portée, ni un rayon de collision. Ce qu'on voit
@@ -6,7 +6,9 @@
 ##
 ## Pas de modèle importé : la direction artistique PS1/PS2 se tient très bien
 ## en boîtes et en cônes, et un personnage entier coûte ici quelques dizaines
-## de triangles.
+## de triangles. Ce qui fait un personnage plutôt qu'un tas de caisses, ce
+## n'est pas le nombre de pièces : c'est `role`, qui les accroche à un pivot
+## articulé.
 class_name SkinPart
 extends Resource
 
@@ -20,7 +22,24 @@ enum Shape {
 	PRISM,
 }
 
+## Os auquel la pièce est accrochée. STATIC reste solidaire du buste ; tous les
+## autres suivent le pivot correspondant, qui tourne pendant la marche et
+## l'attaque. Une pièce mal rôlée ne casse rien, elle ne bouge simplement pas.
+enum Role {
+	STATIC,
+	HEAD,
+	ARM_L,
+	ARM_R,
+	FOREARM_L,
+	FOREARM_R,
+	THIGH_L,
+	THIGH_R,
+	SHIN_L,
+	SHIN_R,
+}
+
 @export var shape: Shape = Shape.BOX
+@export var role: Role = Role.STATIC
 
 ## Dimensions, interprétées selon la forme :
 ##   BOX, PRISM : largeur, hauteur, profondeur
@@ -31,7 +50,10 @@ enum Shape {
 ##   TORUS      : rayon intérieur, —, rayon extérieur
 @export var size: Vector3 = Vector3.ONE
 
-## Position relative au personnage : y = 0 au sol, -z vers l'avant.
+## Position RELATIVE AU PIVOT de son rôle, pas au sol. Pour une pièce STATIC le
+## pivot est le sol du personnage, donc y = 0 au sol ; pour un bras, le pivot
+## est l'épaule, et une pièce de bras a donc un y négatif — elle pend.
+## -z est l'avant du personnage.
 @export var offset: Vector3 = Vector3.ZERO
 @export var rotation_degrees: Vector3 = Vector3.ZERO
 

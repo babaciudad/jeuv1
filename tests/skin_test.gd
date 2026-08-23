@@ -71,10 +71,63 @@ func test_les_pieces_ont_des_dimensions_utilisables() -> void:
 			assert_float(part.size.x) \
 				.override_failure_message("Piece de dimension nulle dans %s." % path) \
 				.is_greater(0.0)
-			# Aucune piece ne doit flotter sous le sol.
-			assert_float(part.offset.y) \
-				.override_failure_message("Piece sous le sol dans %s." % path) \
-				.is_greater_equal(0.0)
+			# L'offset d'une piece articulee est RELATIF a son pivot : un bras
+			# a forcement un y negatif, il pend. Seules les pieces statiques
+			# sont mesurees depuis le sol, et celles-la ne doivent pas
+			# s'enterrer.
+			if part.role == SkinPart.Role.STATIC:
+				assert_float(part.offset.y) \
+					.override_failure_message("Piece sous le sol dans %s." % path) \
+					.is_greater_equal(0.0)
+
+## Un personnage doit etre articule, pas empile. Sans ce seuil, un skin peut
+## repasser en tas de caisses sans que rien ne le signale : tout resterait
+## affiche, simplement plus rien ne bougerait.
+func test_chaque_skin_est_articule() -> void:
+	var tout: Array[String] = []
+	tout.append_array(CLASSES)
+	tout.append_array(ENEMIES)
+	for path: String in tout:
+		var skin: SkinData = SkinLibrary.for_id(_id_of(path))
+		assert_object(skin).is_not_null()
+		var articulees: int = 0
+		for part: SkinPart in skin.parts:
+			if part.role != SkinPart.Role.STATIC:
+				articulees += 1
+		assert_int(articulees) \
+			.override_failure_message(
+				"Le skin %s n'a que %d piece(s) articulee(s) : c'est une statue." \
+				% [path, articulees]) \
+			.is_greater_equal(8)
+
+## Le squelette doit etre declare. Un skin dont toutes les mesures valent zero
+## accroche tous ses membres au meme point : le personnage s'affiche, replie
+## sur lui-meme, et on cherche longtemps pourquoi.
+func test_chaque_skin_declare_son_squelette() -> void:
+	var tout: Array[String] = []
+	tout.append_array(CLASSES)
+	tout.append_array(ENEMIES)
+	for path: String in tout:
+		var skin: SkinData = SkinLibrary.for_id(_id_of(path))
+		assert_object(skin).is_not_null()
+		assert_float(skin.shoulder.y) \
+			.override_failure_message("Epaule non declaree dans %s." % path) \
+			.is_greater(0.0)
+		assert_float(skin.hip.y) \
+			.override_failure_message("Hanche non declaree dans %s." % path) \
+			.is_greater(0.0)
+		assert_float(skin.neck.y) \
+			.override_failure_message("Cou non declare dans %s." % path) \
+			.is_greater(skin.shoulder.y)
+		assert_float(skin.elbow_drop) \
+			.override_failure_message("Coude non declare dans %s." % path) \
+			.is_greater(0.0)
+		assert_float(skin.knee_drop) \
+			.override_failure_message("Genou non declare dans %s." % path) \
+			.is_greater(0.0)
+		assert_float(skin.stride_degrees) \
+			.override_failure_message("Foulee nulle dans %s : il glissera." % path) \
+			.is_greater(0.0)
 
 ## L'identifiant d'une fiche, quelle que soit sa nature.
 func _id_of(path: String) -> StringName:

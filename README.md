@@ -1,11 +1,14 @@
 # souls-like
 
 Souls-like coopératif en ligne. Tranche verticale jouable : un menu de choix
-de classe, un tutoriel, un feu de camp, un couloir avec raccourci, trois
-gobelins, un boss. Quatre classes, jusqu'à quatre joueurs.
+de classe, un tutoriel, une chapelle abandonnée, un feu de camp, un couloir
+avec raccourci, trois gobelins, un boss. Quatre classes, jusqu'à quatre
+joueurs.
 
 Godot 4.5, GDScript en typage statique strict. Direction artistique low-poly
-non texturée, assumée : la lisibilité du combat ne dépend d'aucun asset.
+non texturée, assumée : la lisibilité du combat ne dépend d'aucun asset. Les
+personnages sont assemblés en primitives sur un squelette de pivots et animés
+par procédure — pas un modèle importé dans le dépôt.
 
 ## Prérequis
 
@@ -95,10 +98,17 @@ Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
 - `data/actors/gobelin.tres`, `data/actors/warden.tres` — ennemis et boss
 - `data/attacks/*.tres` — dégâts, portées, angles, et le **calendrier** de
   chaque attaque sous forme de pistes d'appel de méthode
-- `data/level/vertical_slice.tres` — géométrie du niveau et postes des ennemis
-- `data/skins/*.tres` — apparences, en primitives assemblées. Une pièce marquée
-  « arme » passe au jaune quand la hitbox s'ouvre : c'est le repère de rythme
-  du combat, n'en privez aucun personnage.
+- `data/level/vertical_slice.tres` — géométrie du niveau et postes des ennemis.
+  `walkable` dit où l'on marche, `ceiling_heights` la hauteur de chaque salle,
+  `obstacles` ce qui bloque à l'intérieur (colonnes, autel, braseros)
+- `data/decor/chapelle.tres` — le décor, et RIEN QUE ce qui se traverse : ce
+  qui doit arrêter un personnage va dans `obstacles`, jamais ici
+- `data/skins/*.tres` — apparences, en primitives assemblées sur un squelette.
+  Chaque pièce déclare un `role` (tête, bras, avant-bras, cuisse, tibia) qui
+  l'accroche à un pivot ; son `offset` est relatif à CE pivot, pas au sol — une
+  pièce de bras a donc un `y` négatif, elle pend. Une pièce marquée « arme »
+  passe au jaune quand la hitbox s'ouvre : c'est le repère de rythme du combat,
+  n'en privez aucun personnage.
 
 Le rythme d'une attaque se règle dans l'éditeur d'animation, pas dans le code.
 Une clé destinée au tick N se pose à `(N - 0,5)/60` seconde : voir `CLAUDE.md`.
