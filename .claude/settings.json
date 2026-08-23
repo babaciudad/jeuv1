@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pwsh -File tools/verify.ps1:*)",
+      "Bash(pwsh -File tools/test.ps1:*)",
+      "Bash(pwsh -File tools/netharness.ps1:*)",
+      "Bash(pwsh -NoLogo -File tools/verify.ps1:*)",
+      "Bash(pwsh -NoLogo -File tools/test.ps1:*)",
+      "Bash(pwsh -NoLogo -File tools/netharness.ps1:*)",
+      "Bash(./tools/verify.ps1:*)",
+      "Bash(./tools/test.ps1:*)",
+      "Bash(./tools/netharness.ps1:*)",
+      "Bash(godot --version)",
+      "Bash(godot --headless:*)"
+    ]
+  }
+}
