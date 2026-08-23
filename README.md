@@ -5,10 +5,15 @@ de classe, un tutoriel, une chapelle abandonnée, un feu de camp, un couloir
 avec raccourci, trois gobelins, un boss. Quatre classes, jusqu'à quatre
 joueurs.
 
-Godot 4.5, GDScript en typage statique strict. Direction artistique low-poly
-non texturée, assumée : la lisibilité du combat ne dépend d'aucun asset. Les
-personnages sont assemblés en primitives sur un squelette de pivots et animés
-par procédure — pas un modèle importé dans le dépôt.
+Godot 4.5 en **Forward+**, GDScript en typage statique strict. Aucun asset
+importé : personnages et décor sont assemblés en primitives, les matières sont
+des bruits générés à l'exécution, et tout ce qui éclaire est une pièce qu'on
+voit briller. Ombres portées, occlusion ambiante, halo, brouillard
+volumétrique.
+
+Une carte graphique compatible Vulkan est donc nécessaire pour jouer. Le repli
+`gl_compatibility` reste déclaré pour le mobile, mais il perd tout l'éclairage
+— ce serait un autre jeu, visuellement.
 
 ## Prérequis
 
@@ -103,12 +108,19 @@ Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
   `obstacles` ce qui bloque à l'intérieur (colonnes, autel, braseros)
 - `data/decor/chapelle.tres` — le décor, et RIEN QUE ce qui se traverse : ce
   qui doit arrêter un personnage va dans `obstacles`, jamais ici
+- `data/decor/chapelle.tres` et `data/skins/*.tres` sont **générés** par
+  `godot --headless --path . -s tools/make_data.gd`. Les `.tres` font foi et
+  se retouchent dans l'inspecteur, mais le script les réécrit entièrement :
+  un réglage gardé doit être reporté dans `make_data.gd`
 - `data/skins/*.tres` — apparences, en primitives assemblées sur un squelette.
   Chaque pièce déclare un `role` (tête, bras, avant-bras, cuisse, tibia) qui
   l'accroche à un pivot ; son `offset` est relatif à CE pivot, pas au sol — une
   pièce de bras a donc un `y` négatif, elle pend. Une pièce marquée « arme »
   passe au jaune quand la hitbox s'ouvre : c'est le repère de rythme du combat,
-  n'en privez aucun personnage.
+  n'en privez aucun personnage. Chaque pièce déclare aussi une matière
+  (`PLAIN`, `STONE`, `WOOD`, `METAL`, `CLOTH`, `GLOW`) et, si elle brille,
+  une portée de lumière — c'est le seul moyen d'éclairer quoi que ce soit
+  dans ce projet : pas de lampe sans source visible.
 
 Le rythme d'une attaque se règle dans l'éditeur d'animation, pas dans le code.
 Une clé destinée au tick N se pose à `(N - 0,5)/60` seconde : voir `CLAUDE.md`.

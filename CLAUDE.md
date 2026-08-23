@@ -206,11 +206,13 @@ data/               Ressources de réglage (invariant 7).
   classes/            Les quatre classes jouables.
   skins/              Apparences, une par classe et par espèce.
   decor/              Décor d'un niveau, purement visuel : res://data/decor/<id>.tres.
+                      Généré par tools/make_data.gd.
   actors/             Gobelin et boss.
   level/              Géométrie et points d'intérêt de la tranche verticale.
 scenes/             Scènes Godot.
 tests/              Suites gdUnit4.
 tools/              Scripts PowerShell de vérification, test et banc réseau.
+  make_data.gd        Génère les skins et le décor. Voir ci-dessous.
 addons/             Dépendances tierces, NON versionnées, installées par test.ps1.
 ```
 
@@ -260,6 +262,45 @@ projectile qui a disparu. La simulation n'émet aucun signal pour cela, et c'est
 volontaire — un client qui rejoue ses commandes repasserait deux fois sur le
 même signal.
 
+## Rendu
+
+Le projet tourne en **Forward+** (`renderer/rendering_method` dans
+`project.godot`). Ce n'est pas un détail de confort : c'est ce qui donne les
+ombres portées, l'occlusion ambiante, le halo et le brouillard volumétrique.
+
+Il a tourné en `gl_compatibility` pendant toute sa première moitié, et cela
+donnait exactement l'aspect qu'on lui reprochait : aplats gris, pas d'ombre,
+pas de relief. **En `gl_compatibility` tout le bloc `_build_atmosphere()` est
+ignoré en silence** — aucune erreur, aucun avertissement, seulement une
+chapelle en carton. Si un jour le rendu redevient plat sans qu'on ait touché
+au décor, c'est la première chose à vérifier.
+
+Trois règles tiennent l'aspect :
+
+**Les matières sont déclarées, pas réglées pièce par pièce.**
+`SkinPart.Surface` — `PLAIN`, `STONE`, `WOOD`, `METAL`, `CLOTH`, `GLOW` —
+décide de la rugosité, de la métallicité et du grain. Deux pièces d'acier
+brillent pareil sans qu'on ait à s'en souvenir.
+
+**Les textures sont fabriquées, jamais chargées.** Le dépôt ne contient aucune
+image. `PrimitiveFactory` génère un bruit de Perlin par matière et le projette
+en triplanaire : le grain suit le monde et non la boîte, donc une colonne de
+six mètres et un pavé de un mètre ont le même grain. Le contraste du bruit
+reste faible — à pleine amplitude, un bruit ne fait pas de la pierre, il fait
+du camouflage.
+
+**Ce qui brille éclaire, et rien n'éclaire sans qu'on voie quoi.** Il n'y a
+aucune liste de lampes dans ce projet. Une lumière naît toujours d'une pièce
+`GLOW` dont le champ `light_range` est non nul, et ce seul nombre décide à la
+fois de sa portée, de son énergie et de l'intensité de sa lueur. Une lampe
+sans source visible, ou une flamme qui n'éclaire pas, c'est l'incohérence
+qu'on ne remarque pas en la posant et qu'on ne s'explique plus six mois après.
+
+Corollaire appris en se cognant dedans : **la lumière prend la teinte de la
+pièce, mais désaturée de moitié.** Une flamme est rouge orangé ; ce qu'elle
+éclaire ne l'est pas. Seize torches à leur couleur pleine transforment un
+couloir en chambre noire de photographe, et plus rien n'a de couleur propre.
+
 **La géométrie visible est déduite de la zone praticable.** Les murs ne sont
 pas décrits à la main : `LevelView` place un bloc sur chaque case pleine qui
 touche une case praticable. Décrire séparément ce qu'on voit et ce contre quoi
@@ -269,6 +310,16 @@ La hauteur suit la même règle. `LevelData.ceiling_heights` donne une hauteur
 sous plafond par rectangle praticable ; un mur monte à la hauteur de la case
 la plus haute qu'il borde. C'est ce qui fait qu'une nef à 7,6 m et un boyau à
 3,6 m ne se ressemblent pas, sans qu'on ait à le dire deux fois.
+
+Là où une salle basse touche une salle haute, `LevelView` bouche la bande de
+vide entre les deux plafonds. Sans ce pan, on voit à travers le décor — et la
+première version l'oubliait, ce qui ouvrait un trou sur le néant au-dessus de
+l'arcade du chœur.
+
+Le dallage se pose en deux passes : un lit sombre pleine largeur, puis les
+dalles rétrécies de quatre centimètres. Ce sont ces quatre centimètres qui
+font le joint de mortier. Quarante mètres de sol sans joint sont une seule
+surface lisse, et aucune texture ne rattrape ça.
 
 ## Modèle de collision
 
@@ -348,6 +399,23 @@ puis le `PATH`.
 
 Les deux doivent passer avant tout commit.
 
+## Le générateur de données
+
+`godot --headless --path . -s tools/make_data.gd` réécrit `data/skins/*.tres`,
+`data/decor/chapelle.tres` et `data/level/vertical_slice.tres`.
+
+Il existe parce qu'un personnage fait une trentaine de pièces et la chapelle
+sept cents : les poser une par une dans l'inspecteur est faisable, les tenir
+cohérentes ne l'est pas. Huit colonnes doivent partager leur profil, six skins
+doivent partager leur ossature, seize torches doivent se ressembler.
+
+**Lequel fait foi : les `.tres`.** Ce sont eux que le jeu charge, eux qui sont
+versionnés, eux qu'on peut retoucher dans l'inspecteur pour essayer une
+valeur. Mais le script les réécrit INTÉGRALEMENT : un réglage trouvé à la main
+et jugé bon doit être reporté dans `make_data.gd`, sinon la prochaine
+exécution l'écrase. C'est le seul piège de ce fichier ; il n'y en a pas
+d'autre.
+
 ## Conventions
 
 - **Code** : identifiants en anglais, commentaires et documentation en
@@ -410,6 +478,10 @@ qui bloquent pour de vrai, vitraux, bancs renversés et poutres tombées ; chœu
 à 5,8 m avec autel, croix, cierges et braseros, autour du feu de camp ; boyau
 à 3,6 m vers l'arène du boss ; raccourci parallèle fermé par une grille. Le
 décor purement visuel vit dans `data/decor/chapelle.tres`.
+
+**Le rendu est en Forward+**, avec ombres portées, occlusion ambiante, halo,
+brouillard volumétrique et tonemapping ACES ; matières PBR et grain
+procédural, sans aucun fichier image dans le dépôt.
 
 **Les personnages sont articulés.** Six skins humanoïdes — quatre classes, le
 gobelin, le warden — bâtis sur un squelette de pivots et animés par procédure :
