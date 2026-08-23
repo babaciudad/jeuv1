@@ -116,10 +116,21 @@ func _make_view(world: World, actor: Actor) -> ActorView:
 	var view: ActorView = ActorView.new()
 	view.name = "Actor_%d" % actor.id
 	_actors_root.add_child(view)
-	view.setup(actor, _color_for(world, actor), actor.id == world.local_actor_id)
+	view.setup(actor, _color_for(world, actor), actor.id == world.local_actor_id,
+		SkinLibrary.for_id(_skin_id(world, actor)))
 	_views[actor.id] = view
 	_view_data_index[actor.id] = actor.data_index
 	return view
+
+## Le skin se résout par l'identifiant de la fiche : res://data/skins/<id>.tres.
+## Aucune table dans le code — ajouter une classe et son skin ne demande de
+## toucher à aucun fichier .gd.
+func _skin_id(world: World, actor: Actor) -> StringName:
+	if actor.kind == Actor.Kind.ENEMY:
+		var data: EnemyData = world.data_for(actor)
+		return data.id if data != null else &""
+	var fiche: PlayerData = world.class_for(actor)
+	return fiche.id if fiche != null else &""
 
 ## La couleur vient de la fiche de l'acteur, jamais d'une table à part : une
 ## classe ajoutée dans res://data/ se voit sans toucher à la présentation.

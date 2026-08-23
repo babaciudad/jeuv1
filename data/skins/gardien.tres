@@ -1,0 +1,125 @@
+[gd_resource type="Resource" script_class="SkinData" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/data/skin_part.gd" id="1_6p5n4"]
+[ext_resource type="Script" path="res://src/presentation/data/skin_data.gd" id="2_uokys"]
+
+[sub_resource type="Resource" id="Resource_3i0et"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.19, 0.6, 0.28)
+offset = Vector3(-0.13, 0.3, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.42
+
+[sub_resource type="Resource" id="Resource_p2yre"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.19, 0.6, 0.28)
+offset = Vector3(0.13, 0.3, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.42
+
+[sub_resource type="Resource" id="Resource_tjqes"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.58, 0.14, 0.42)
+offset = Vector3(0, 0.66, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.22
+
+[sub_resource type="Resource" id="Resource_fb65k"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.62, 0.66, 0.42)
+offset = Vector3(0, 1.02, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+
+[sub_resource type="Resource" id="Resource_ylk66"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.16, 0.46, 0.2)
+offset = Vector3(-0.39, 1.05, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.16
+
+[sub_resource type="Resource" id="Resource_ftsmm"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.16, 0.46, 0.2)
+offset = Vector3(0.39, 1.05, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.16
+
+[sub_resource type="Resource" id="Resource_p67bo"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.27, 0.19, 0.46)
+offset = Vector3(-0.4, 1.33, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.22
+
+[sub_resource type="Resource" id="Resource_p1xjj"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.27, 0.19, 0.46)
+offset = Vector3(0.4, 1.33, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.22
+
+[sub_resource type="Resource" id="Resource_8njk5"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.34, 0.32, 0.34)
+offset = Vector3(0, 1.53, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.1
+
+[sub_resource type="Resource" id="Resource_eybx4"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.32, 0.08, 0.05)
+offset = Vector3(0, 1.53, -0.2)
+color = Color(0.05, 0.045, 0.07, 1)
+
+[sub_resource type="Resource" id="Resource_rnpm1"]
+script = ExtResource("1_6p5n4")
+shape = 6
+size = Vector3(0.09, 0.26, 0.34)
+offset = Vector3(0, 1.8, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.36
+
+[sub_resource type="Resource" id="Resource_p4pb7"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.09, 0.86, 0.62)
+offset = Vector3(-0.54, 1.05, -0.14)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.14
+
+[sub_resource type="Resource" id="Resource_5m7bu"]
+script = ExtResource("1_6p5n4")
+shape = 2
+size = Vector3(0.1, 0, 0)
+offset = Vector3(-0.59, 1.05, -0.14)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.42
+
+[sub_resource type="Resource" id="Resource_4mg7l"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.07, 0.07, 0.62)
+offset = Vector3(0.47, 1.02, -0.26)
+color = Color(0.35, 0.26, 0.18, 1)
+
+[sub_resource type="Resource" id="Resource_o2udb"]
+script = ExtResource("1_6p5n4")
+size = Vector3(0.23, 0.23, 0.27)
+offset = Vector3(0.47, 1.02, -0.66)
+color = Color(1, 1, 1, 1)
+is_weapon = true
+
+[resource]
+script = ExtResource("2_uokys")
+id = &"gardien"
+parts = Array[ExtResource("1_6p5n4")]([SubResource("Resource_3i0et"), SubResource("Resource_p2yre"), SubResource("Resource_tjqes"), SubResource("Resource_fb65k"), SubResource("Resource_ylk66"), SubResource("Resource_ftsmm"), SubResource("Resource_p67bo"), SubResource("Resource_p1xjj"), SubResource("Resource_8njk5"), SubResource("Resource_eybx4"), SubResource("Resource_rnpm1"), SubResource("Resource_p4pb7"), SubResource("Resource_5m7bu"), SubResource("Resource_4mg7l"), SubResource("Resource_o2udb")])

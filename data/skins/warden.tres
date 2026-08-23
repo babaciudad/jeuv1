@@ -1,0 +1,129 @@
+[gd_resource type="Resource" script_class="SkinData" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/data/skin_part.gd" id="1_ah3wp"]
+[ext_resource type="Script" path="res://src/presentation/data/skin_data.gd" id="2_p7f0g"]
+
+[sub_resource type="Resource" id="Resource_ko01o"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.36, 1.05, 0.55)
+offset = Vector3(-0.26, 0.53, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_af80f"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.36, 1.05, 0.55)
+offset = Vector3(0.26, 0.53, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_hmnu1"]
+script = ExtResource("1_ah3wp")
+size = Vector3(1.08, 1.06, 0.68)
+offset = Vector3(0, 1.62, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+
+[sub_resource type="Resource" id="Resource_30mu0"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.26, 0.72, 0.32)
+offset = Vector3(-0.72, 1.5, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.22
+
+[sub_resource type="Resource" id="Resource_qykeg"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.26, 0.72, 0.32)
+offset = Vector3(0.72, 1.5, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.22
+
+[sub_resource type="Resource" id="Resource_gqbes"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.36, 0.44, 0.6)
+offset = Vector3(-0.7, 2.02, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.26
+
+[sub_resource type="Resource" id="Resource_0pq8g"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.36, 0.44, 0.6)
+offset = Vector3(0.7, 2.02, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.26
+
+[sub_resource type="Resource" id="Resource_0nqy1"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.5, 0.48, 0.48)
+offset = Vector3(0, 2.42, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.18
+
+[sub_resource type="Resource" id="Resource_ktsnx"]
+script = ExtResource("1_ah3wp")
+shape = 6
+size = Vector3(0.13, 0.5, 0.22)
+offset = Vector3(-0.27, 2.78, 0)
+rotation_degrees = Vector3(0, 0, 22)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.4
+
+[sub_resource type="Resource" id="Resource_cuoi8"]
+script = ExtResource("1_ah3wp")
+shape = 6
+size = Vector3(0.13, 0.5, 0.22)
+offset = Vector3(0.27, 2.78, 0)
+rotation_degrees = Vector3(0, 0, -22)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.4
+
+[sub_resource type="Resource" id="Resource_ciyty"]
+script = ExtResource("1_ah3wp")
+shape = 2
+size = Vector3(0.072, 0, 0)
+offset = Vector3(-0.14, 2.43, -0.26)
+color = Color(1, 0.55, 0.18, 1)
+unshaded = true
+
+[sub_resource type="Resource" id="Resource_mlvxl"]
+script = ExtResource("1_ah3wp")
+shape = 2
+size = Vector3(0.072, 0, 0)
+offset = Vector3(0.14, 2.43, -0.26)
+color = Color(1, 0.55, 0.18, 1)
+unshaded = true
+
+[sub_resource type="Resource" id="Resource_kg7ui"]
+script = ExtResource("1_ah3wp")
+shape = 2
+size = Vector3(0.17, 0, 0)
+offset = Vector3(0, 1.7, -0.37)
+color = Color(1, 0.55, 0.18, 1)
+unshaded = true
+
+[sub_resource type="Resource" id="Resource_pk0dy"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.14, 0.14, 1.2)
+offset = Vector3(0.92, 1.52, -0.48)
+color = Color(0.26, 0.26, 0.3, 1)
+
+[sub_resource type="Resource" id="Resource_6yeqx"]
+script = ExtResource("1_ah3wp")
+size = Vector3(0.3, 0.11, 1.1)
+offset = Vector3(0.92, 1.52, -1.55)
+color = Color(1, 1, 1, 1)
+is_weapon = true
+
+[resource]
+script = ExtResource("2_p7f0g")
+id = &"warden"
+parts = Array[ExtResource("1_ah3wp")]([SubResource("Resource_ko01o"), SubResource("Resource_af80f"), SubResource("Resource_hmnu1"), SubResource("Resource_30mu0"), SubResource("Resource_qykeg"), SubResource("Resource_gqbes"), SubResource("Resource_0pq8g"), SubResource("Resource_0nqy1"), SubResource("Resource_ktsnx"), SubResource("Resource_cuoi8"), SubResource("Resource_ciyty"), SubResource("Resource_mlvxl"), SubResource("Resource_kg7ui"), SubResource("Resource_pk0dy"), SubResource("Resource_6yeqx")])

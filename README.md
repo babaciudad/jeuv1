@@ -96,6 +96,9 @@ Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
 - `data/attacks/*.tres` — dégâts, portées, angles, et le **calendrier** de
   chaque attaque sous forme de pistes d'appel de méthode
 - `data/level/vertical_slice.tres` — géométrie du niveau et postes des ennemis
+- `data/skins/*.tres` — apparences, en primitives assemblées. Une pièce marquée
+  « arme » passe au jaune quand la hitbox s'ouvre : c'est le repère de rythme
+  du combat, n'en privez aucun personnage.
 
 Le rythme d'une attaque se règle dans l'éditeur d'animation, pas dans le code.
 Une clé destinée au tick N se pose à `(N - 0,5)/60` seconde : voir `CLAUDE.md`.

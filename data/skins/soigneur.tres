@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="SkinData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/data/skin_part.gd" id="1_e6w05"]
+[ext_resource type="Script" path="res://src/presentation/data/skin_data.gd" id="2_xlsq5"]
+
+[sub_resource type="Resource" id="Resource_3bmk3"]
+script = ExtResource("1_e6w05")
+shape = 4
+size = Vector3(0.42, 0.88, 0)
+offset = Vector3(0, 0.44, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.2
+
+[sub_resource type="Resource" id="Resource_ew066"]
+script = ExtResource("1_e6w05")
+size = Vector3(0.36, 0.4, 0.28)
+offset = Vector3(0, 1.04, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+
+[sub_resource type="Resource" id="Resource_iyq6o"]
+script = ExtResource("1_e6w05")
+size = Vector3(0.13, 0.34, 0.18)
+offset = Vector3(-0.28, 1, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.12
+
+[sub_resource type="Resource" id="Resource_cetva"]
+script = ExtResource("1_e6w05")
+size = Vector3(0.13, 0.34, 0.18)
+offset = Vector3(0.28, 1, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.12
+
+[sub_resource type="Resource" id="Resource_it8sb"]
+script = ExtResource("1_e6w05")
+size = Vector3(0.46, 0.1, 0.32)
+offset = Vector3(0, 1.26, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.45
+
+[sub_resource type="Resource" id="Resource_v0hoe"]
+script = ExtResource("1_e6w05")
+shape = 2
+size = Vector3(0.19, 0, 0)
+offset = Vector3(0, 1.4, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.14
+
+[sub_resource type="Resource" id="Resource_75gwh"]
+script = ExtResource("1_e6w05")
+shape = 2
+size = Vector3(0.16, 0, 0)
+offset = Vector3(0, 1.42, 0.15)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.18
+
+[sub_resource type="Resource" id="Resource_yokd5"]
+script = ExtResource("1_e6w05")
+shape = 5
+size = Vector3(0.17, 0, 0.25)
+offset = Vector3(0, 1.78, 0)
+color = Color(1, 0.9, 0.52, 1)
+unshaded = true
+
+[sub_resource type="Resource" id="Resource_pmhlh"]
+script = ExtResource("1_e6w05")
+size = Vector3(0.08, 0.08, 0.6)
+offset = Vector3(0.33, 1.02, -0.34)
+color = Color(1, 1, 1, 1)
+is_weapon = true
+
+[resource]
+script = ExtResource("2_xlsq5")
+id = &"soigneur"
+parts = Array[ExtResource("1_e6w05")]([SubResource("Resource_3bmk3"), SubResource("Resource_ew066"), SubResource("Resource_iyq6o"), SubResource("Resource_cetva"), SubResource("Resource_it8sb"), SubResource("Resource_v0hoe"), SubResource("Resource_75gwh"), SubResource("Resource_yokd5"), SubResource("Resource_pmhlh")])

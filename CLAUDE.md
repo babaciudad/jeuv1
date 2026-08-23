@@ -173,10 +173,12 @@ src/net/            Transport, sérialisation, synchronisation.
   net_bootstrap.gd    Point d'entrée d'une instance.
 src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
   main_menu.gd        Choix de classe, hôte ou client, tutoriel.
+  actor_view.gd       Assemble un personnage depuis son skin.
+  skin_library.gd     Résout un skin par identifiant, avec cache.
+  data/               Schémas des skins : pièces primitives.
   game_view.gd        Miroir visuel du monde et des projectiles.
   tutorial.gd         Apprend les mécaniques en observant ce que fait le joueur.
   level_view.gd       Géométrie déduite de la zone praticable.
-  actor_view.gd       Vue d'un acteur, estompage des occultants.
   camera_rig.gd       Caméra troisième personne et son dégagement.
   player_input.gd     SEUL endroit autorisé à lire le clavier et la souris.
   hud.gd              Vie, endurance, boss, invites.
@@ -184,6 +186,7 @@ src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
 data/               Ressources de réglage (invariant 7).
   attacks/            Calendriers et valeurs des attaques.
   classes/            Les quatre classes jouables.
+  skins/              Apparences, une par classe et par espèce.
   actors/             Gobelin et boss.
   level/              Géométrie et points d'intérêt de la tranche verticale.
 scenes/             Scènes Godot.
@@ -205,6 +208,18 @@ déclenche une fois sur deux au tick suivant.
 lorsqu'il se déplace ; à l'arrêt, sans direction visée, il frapperait toujours
 vers son dernier pas. La présentation joint donc la direction de la caméra à
 la commande `ATTACK`, parce qu'elle seule connaît la caméra (invariant 2).
+
+**Un skin ne change rien au jeu.** Ni hitbox, ni portée, ni rayon de
+collision : il habille un cylindre de simulation, il ne le remplace pas. C'est
+pourquoi il vit dans `res://data/skins/<id>.tres` et non dans la fiche de
+classe — et pourquoi `PlayerData` ignore que le type `SkinData` existe. Le skin
+se résout par l'identifiant de la fiche ; ajouter une classe et son apparence
+ne demande de toucher à aucun `.gd`.
+
+Une pièce marquée `is_weapon` passe au jaune quand la hitbox est ouverte. Ce
+n'est pas décoratif : **c'est le seul repère de rythme du jeu**, le tutoriel
+l'enseigne explicitement. Un skin sans pièce d'arme rend son porteur illisible
+en combat.
 
 **La géométrie visible est déduite de la zone praticable.** Les murs ne sont
 pas décrits à la main : `LevelView` place un bloc sur chaque case pleine qui
