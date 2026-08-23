@@ -34,7 +34,7 @@ func _make_world(authority: World.Authority) -> World:
 	return world
 
 func _step(world: World, commands: Array[Command] = []) -> void:
-	world.step(commands)
+	world.step(world.tick + 1, commands)
 
 func _command(world: World, actor_id: int, type: Command.Type,
 		payload: Dictionary = {}) -> Command:
@@ -73,7 +73,7 @@ func test_l_hote_applique_les_degats_declares() -> void:
 	var before: int = enemy.health
 
 	world.hit_declared.connect(func(target_id: int, index: int) -> void:
-		world.step([Command.new(world.tick, 1, Command.Type.DECLARE_HIT,
+		world.step(world.tick, [Command.new(world.tick, 1, Command.Type.DECLARE_HIT,
 			{"t": target_id, "a": index})]))
 
 	_step(world, [_command(world, 1, Command.Type.ATTACK, {"i": 0})])

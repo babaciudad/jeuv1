@@ -2,7 +2,8 @@
 ##
 ## Un message est un octet de genre suivi d'un corps. Les commandes de gameplay
 ## voyagent dans le genre COMMAND et ne sont pas relues ici : leur format
-## appartient à Command (invariant 3).
+## appartient à Command (invariant 3). Les instantanés voyagent dans le genre
+## SNAPSHOT et appartiennent à WorldSnapshot.
 ##
 ## Toutes les valeurs sont petit-boutistes.
 class_name NetMessage
@@ -12,6 +13,7 @@ enum Kind {
 	PING = 1,
 	PONG = 2,
 	COMMAND = 3,
+	SNAPSHOT = 4,
 }
 
 const PING_SIZE: int = 13

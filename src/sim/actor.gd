@@ -61,6 +61,12 @@ var home_position: Vector2 = Vector2.ZERO
 ## Index dans le tableau des données d'ennemis. -1 pour un joueur.
 var data_index: int = -1
 
+## Vrai si cette machine calcule elle-même le mouvement de cet acteur. Sur
+## l'hôte, tout le monde. Sur un client, son seul personnage : les autres sont
+## interpolés depuis les instantanés (invariant 4), et les intégrer localement
+## les ferait dériver de ce que l'hôte affirme.
+var simulated: bool = true
+
 func is_alive() -> bool:
 	return state != State.DEAD
 

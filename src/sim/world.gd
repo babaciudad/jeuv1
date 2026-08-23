@@ -104,6 +104,17 @@ func spawn_enemies() -> void:
 	if boss != null:
 		_spawn_enemy(boss, level.boss_spawn)
 
+## Crée un ennemi dont l'hôte a annoncé l'existence. Le client ne décide ni de
+## sa position ni de sa vie : il ouvre seulement la place.
+func adopt_enemy(actor_id: int, index: int, spawn: Vector2) -> Actor:
+	if index < 0 or index >= enemy_data.size():
+		return null
+	var actor: Actor = _spawn_enemy(enemy_data[index], spawn)
+	actors.erase(actor.id)
+	actor.id = actor_id
+	actors[actor_id] = actor
+	return actor
+
 func _spawn_enemy(data: EnemyData, spawn: Vector2) -> Actor:
 	var actor: Actor = Actor.new()
 	actor.id = _next_enemy_id
@@ -183,8 +194,11 @@ func attacks_for(actor: Actor) -> Array[AttackData]:
 # Pas de simulation
 # ---------------------------------------------------------------------------
 
-func step(commands: Array[Command]) -> void:
-	tick += 1
+## Avance le monde d'un tick. Le numero de tick vient de la boucle de
+## simulation et n'est jamais compte ici : deux compteurs finiraient par
+## diverger, et c'est exactement ce que l'invariant 1 interdit.
+func step(at_tick: int, commands: Array[Command]) -> void:
+	tick = at_tick
 	for command: Command in commands:
 		_apply_command(command)
 	if authority == Authority.HOST:
@@ -348,6 +362,8 @@ func _advance_attacks() -> void:
 		if actor.runner == null or actor.runner.finished:
 			continue
 		actor.runner.advance_tick()
+		if not actor.simulated:
+			continue
 		if actor.runner.finished and actor.state == Actor.State.ATTACKING:
 			actor.attack_index = -1
 			actor.enter_state(Actor.State.IDLE, tick)
@@ -456,6 +472,8 @@ func _integrate() -> void:
 	var walkable: Array[Rect2] = level.walkable
 	var active_blockers: Array[Rect2] = blockers()
 	for actor: Actor in actors.values():
+		if not actor.simulated:
+			continue
 		_update_velocity(actor)
 		if actor.velocity.is_zero_approx():
 			continue
@@ -525,7 +543,7 @@ func _update_attack_movement(actor: Actor) -> void:
 func _separate() -> void:
 	var list: Array[Actor] = []
 	for actor: Actor in actors.values():
-		if actor.is_alive():
+		if actor.is_alive() and actor.simulated:
 			list.append(actor)
 	var walkable: Array[Rect2] = level.walkable
 	var active_blockers: Array[Rect2] = blockers()
@@ -545,12 +563,44 @@ func _separate() -> void:
 			b.position = SimMath.slide(b.position, b.position + correction, b.radius,
 				walkable, active_blockers)
 
+## Rejoue le mouvement du personnage local depuis un tick corrigé par l'hôte.
+##
+## Ne rejoue que MOVE et DODGE. Les calendriers d'attaque ne sont jamais
+## rembobinés : leurs pistes d'appel de méthode retomberaient, et une touche
+## déjà déclarée le serait une seconde fois. La conséquence assumée est qu'une
+## correction pendant une attaque replace le personnage sans replacer son
+## avancée d'attaque, ce qui se voit à peine et coûte cent lignes de moins.
+func replay_local(actor: Actor, history: CommandHistory, from_tick: int, to_tick: int) -> void:
+	var restore_tick: int = tick
+	var walkable: Array[Rect2] = level.walkable
+	var active_blockers: Array[Rect2] = blockers()
+	for replay_tick: int in range(from_tick, to_tick + 1):
+		tick = replay_tick
+		for command: Command in history.commands_at(replay_tick):
+			match command.type:
+				Command.Type.MOVE:
+					_command_move(actor, command)
+				Command.Type.DODGE:
+					_command_dodge(actor, command)
+				_:
+					pass
+		_update_velocity(actor)
+		if not actor.velocity.is_zero_approx():
+			var target: Vector2 = actor.position + actor.velocity * SimConfig.TICK_DURATION_SEC
+			actor.position = SimMath.slide(actor.position, target, actor.radius,
+				walkable, active_blockers)
+		_recover_state(actor)
+		history.record_position(replay_tick, actor.position)
+	tick = restore_tick
+
 # ---------------------------------------------------------------------------
 # Récupération et fins d'état
 # ---------------------------------------------------------------------------
 
 func _recover() -> void:
 	for actor: Actor in actors.values():
+		if not actor.simulated:
+			continue
 		_recover_state(actor)
 		_recover_stamina(actor)
 		_recover_poise(actor)
@@ -573,7 +623,7 @@ func _recover_state(actor: Actor) -> void:
 			pass
 
 func _recover_stamina(actor: Actor) -> void:
-	if actor.kind != Actor.Kind.PLAYER or not actor.is_alive():
+	if actor.kind != Actor.Kind.PLAYER or not actor.is_alive() or not actor.simulated:
 		return
 	if tick - actor.last_stamina_spend_tick < player_data.stamina_regen_delay_ticks:
 		return

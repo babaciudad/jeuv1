@@ -27,9 +27,9 @@ func _make_world(authority: World.Authority) -> World:
 	return world
 
 func _push(world: World, actor_id: int, direction: Vector2, ticks: int) -> void:
-	world.step([Command.new(world.tick + 1, actor_id, Command.Type.MOVE, {"d": direction})])
+	world.step(world.tick + 1, [Command.new(world.tick + 1, actor_id, Command.Type.MOVE, {"d": direction})])
 	for _i: int in ticks:
-		world.step([])
+		world.step(world.tick + 1, [])
 
 func test_le_joueur_ne_traverse_pas_les_murs() -> void:
 	var world: World = _make_world(World.Authority.HOST)
@@ -71,7 +71,7 @@ func test_l_interaction_ouvre_le_raccourci_depuis_l_arene() -> void:
 	var opened: Array[bool] = []
 	world.shortcut_opened.connect(func() -> void: opened.append(true))
 
-	world.step([Command.new(world.tick + 1, 1, Command.Type.INTERACT, {})])
+	world.step(world.tick + 1, [Command.new(world.tick + 1, 1, Command.Type.INTERACT, {})])
 
 	assert_bool(world.shortcut_open).is_true()
 	assert_int(opened.size()).is_equal(1)
@@ -82,7 +82,7 @@ func test_un_client_n_ouvre_pas_le_raccourci() -> void:
 	var level: LevelData = load(LEVEL)
 	player.position = level.shortcut_switch_position
 
-	world.step([Command.new(world.tick + 1, 1, Command.Type.INTERACT, {})])
+	world.step(world.tick + 1, [Command.new(world.tick + 1, 1, Command.Type.INTERACT, {})])
 
 	assert_bool(world.shortcut_open).is_false()
 
@@ -101,7 +101,7 @@ func test_le_repos_au_feu_soigne_et_replace_les_ennemis() -> void:
 
 	var level: LevelData = load(LEVEL)
 	player.position = level.bonfire_position
-	world.step([Command.new(world.tick + 1, 1, Command.Type.INTERACT, {})])
+	world.step(world.tick + 1, [Command.new(world.tick + 1, 1, Command.Type.INTERACT, {})])
 
 	assert_int(player.health).is_equal(player.max_health)
 	assert_int(player.stamina_centi).is_equal(player.max_stamina_centi)
@@ -131,7 +131,7 @@ func test_un_ennemi_poursuit_un_joueur_a_portee_d_aggro() -> void:
 	var distance_before: float = enemy.position.distance_to(player.position)
 
 	for _i: int in 60:
-		world.step([])
+		world.step(world.tick + 1, [])
 
 	assert_int(enemy.target_id).is_equal(1)
 	assert_float(enemy.position.distance_to(player.position)).is_less(distance_before)
@@ -144,7 +144,7 @@ func test_un_ennemi_sans_cible_rentre_chez_lui() -> void:
 	enemy.position = home + Vector2(0.0, 6.0)
 
 	for _i: int in 180:
-		world.step([])
+		world.step(world.tick + 1, [])
 
 	assert_float(enemy.position.distance_to(home)).is_less(1.0)
 

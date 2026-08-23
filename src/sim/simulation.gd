@@ -29,6 +29,9 @@ const DEAD_ZONE_TICKS: int = 1
 const SNAP_THRESHOLD_TICKS: int = 12
 
 var current_tick: int = 0
+## Monde simule. Nul tant qu'aucun n'a ete installe : le noyau reste
+## utilisable sans gameplay, ce qui garde ses tests independants.
+var world: World = null
 var _buffer: CommandBuffer = CommandBuffer.new()
 ## Tick visé, fourni par NetClock sur un client. -1 sur l'hôte, qui fait
 ## autorité sur son propre temps et ne se corrige jamais.
@@ -81,6 +84,10 @@ func _steps_for_this_frame() -> int:
 	return 1
 
 func _step(tick: int) -> void:
-	for command: Command in _buffer.take(tick):
-		command_applied.emit(command)
+	var commands: Array[Command] = _buffer.take(tick)
+	if world != null:
+		world.step(tick, commands)
+	else:
+		for command: Command in commands:
+			command_applied.emit(command)
 	tick_advanced.emit(tick)
