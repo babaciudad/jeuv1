@@ -1,393 +1,588 @@
-[gd_resource type="Resource" script_class="SkinData" load_steps=47 format=3]
+[gd_resource type="Resource" script_class="SkinData" load_steps=62 format=3]
 
 [ext_resource type="Script" path="res://src/presentation/data/skin_part.gd" id="1_e6w05"]
 [ext_resource type="Script" path="res://src/presentation/data/skin_data.gd" id="2_xlsq5"]
 
 [sub_resource type="Resource" id="Resource_3bmk3"]
 script = ExtResource("1_e6w05")
+shape = 7
 surface = 4
-size = Vector3(0.4116, 0.2352, 0.28419998)
-offset = Vector3(0, 0.88199997, 0)
+size = Vector3(0.45080003, 0.37240002, 0.3528)
+offset = Vector3(0, 0.8624, 0)
 color = Color(1, 1, 1, 1)
 tinted = true
-tint_shift = -0.38
+tint_shift = -0.44
 
 [sub_resource type="Resource" id="Resource_ew066"]
 script = ExtResource("1_e6w05")
+shape = 7
 surface = 4
-size = Vector3(0.3528, 0.1568, 0.2548)
-offset = Vector3(0, 0.9996, 0)
+size = Vector3(0.58800006, 0.6664, 0.39200002)
+offset = Vector3(0, 1.1760001, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.18
+
+[sub_resource type="Resource" id="Resource_iyq6o"]
+script = ExtResource("1_e6w05")
+shape = 7
+surface = 3
+size = Vector3(0.4312, 0.45080003, 0.39200002)
+offset = Vector3(0, 1.1956, -0.049000002)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = 0.1
+
+[sub_resource type="Resource" id="Resource_cetva"]
+script = ExtResource("1_e6w05")
+shape = 5
+surface = 4
+size = Vector3(0.19600001, 0, 0.2744)
+offset = Vector3(0, 0.92120004, 0)
+color = Color(0.28, 0.2, 0.14, 1)
+
+[sub_resource type="Resource" id="Resource_it8sb"]
+script = ExtResource("1_e6w05")
+surface = 3
+size = Vector3(0.18620001, 0.3332, 0.0588)
+offset = Vector3(-0.13152218, 0.74480003, -0.2156)
+rotation_degrees = Vector3(6, -34, 0)
 color = Color(1, 1, 1, 1)
 tinted = true
 tint_shift = -0.3
 
-[sub_resource type="Resource" id="Resource_iyq6o"]
-script = ExtResource("1_e6w05")
-surface = 4
-size = Vector3(0.5194, 0.4312, 0.3136)
-offset = Vector3(0, 1.1956, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-
-[sub_resource type="Resource" id="Resource_cetva"]
-script = ExtResource("1_e6w05")
-surface = 4
-size = Vector3(0.29400003, 0.3332, 0.049000002)
-offset = Vector3(0, 1.2152001, -0.1764)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = 0.3
-
-[sub_resource type="Resource" id="Resource_it8sb"]
-script = ExtResource("1_e6w05")
-surface = 4
-size = Vector3(0.19600001, 0.098000005, 0.0294)
-offset = Vector3(0, 1.372, -0.1764)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.42
-
 [sub_resource type="Resource" id="Resource_v0hoe"]
 script = ExtResource("1_e6w05")
-shape = 3
-size = Vector3(0.0686, 0.098000005, 0.0686)
-offset = Vector3(0, 1.4112, 0)
-color = Color(0.76, 0.6, 0.48, 1)
+surface = 3
+size = Vector3(0.18620001, 0.3332, 0.0588)
+offset = Vector3(0, 0.74480003, -0.2156)
+rotation_degrees = Vector3(6, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.3
 
 [sub_resource type="Resource" id="Resource_75gwh"]
 script = ExtResource("1_e6w05")
-role = 1
-size = Vector3(0.2548, 0.2156, 0.2646)
-offset = Vector3(0, 0.18620001, 0)
-color = Color(0.76, 0.6, 0.48, 1)
+surface = 3
+size = Vector3(0.18620001, 0.3332, 0.0588)
+offset = Vector3(0.13152218, 0.74480003, -0.2156)
+rotation_degrees = Vector3(6, 34, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.3
 
 [sub_resource type="Resource" id="Resource_yokd5"]
 script = ExtResource("1_e6w05")
-role = 1
-size = Vector3(0.2156, 0.098000005, 0.2352)
-offset = Vector3(0, 0.0588, -0.0098)
+shape = 3
+size = Vector3(0.1078, 0.1372, 0.1274)
+offset = Vector3(0, 1.4112, 0)
 color = Color(0.76, 0.6, 0.48, 1)
 
 [sub_resource type="Resource" id="Resource_pmhlh"]
 script = ExtResource("1_e6w05")
-role = 1
-size = Vector3(0.049000002, 0.0686, 0.049000002)
-offset = Vector3(0, 0.1078, -0.1372)
-color = Color(0.76, 0.6, 0.48, 1)
+shape = 5
+surface = 3
+size = Vector3(0.1274, 0, 0.2058)
+offset = Vector3(0, 1.3916, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.36
 
 [sub_resource type="Resource" id="Resource_k804h"]
 script = ExtResource("1_e6w05")
+shape = 7
 role = 1
-size = Vector3(0.049000002, 0.0343, 0.0196)
-offset = Vector3(0.0686, 0.18620001, -0.1323)
-color = Color(0.09, 0.09, 0.11, 1)
+size = Vector3(0.3332, 0.3822, 0.3528)
+offset = Vector3(0, 0.19600001, 0)
+color = Color(0.76, 0.6, 0.48, 1)
 
 [sub_resource type="Resource" id="Resource_5sio4"]
 script = ExtResource("1_e6w05")
+shape = 7
 role = 1
-size = Vector3(0.049000002, 0.0343, 0.0196)
-offset = Vector3(-0.0686, 0.18620001, -0.1323)
-color = Color(0.09, 0.09, 0.11, 1)
+size = Vector3(0.2744, 0.1568, 0.29400003)
+offset = Vector3(0, 0.0882, -0.0196)
+color = Color(0.76, 0.6, 0.48, 1)
 
 [sub_resource type="Resource" id="Resource_bmevp"]
 script = ExtResource("1_e6w05")
-role = 3
-surface = 4
-size = Vector3(0.1274, 0.3136, 0.1372)
-offset = Vector3(0, -0.1568, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.22
+shape = 7
+role = 1
+size = Vector3(0.2352, 0.1078, 0.0588)
+offset = Vector3(0, 0.2156, -0.1666)
+color = Color(0.05, 0.05, 0.07, 1)
 
 [sub_resource type="Resource" id="Resource_gvwpx"]
 script = ExtResource("1_e6w05")
-role = 2
+shape = 2
+role = 3
 surface = 4
-size = Vector3(0.1274, 0.3136, 0.1372)
-offset = Vector3(0, -0.1568, 0)
+size = Vector3(0.1029, 0, 0)
 color = Color(1, 1, 1, 1)
 tinted = true
-tint_shift = -0.22
+tint_shift = -0.26
 
 [sub_resource type="Resource" id="Resource_qdifh"]
 script = ExtResource("1_e6w05")
-shape = 1
+shape = 3
 role = 3
-surface = 3
-size = Vector3(0.1078, 0.19600001, 0)
-offset = Vector3(0.0294, 0.0196, 0)
-rotation_degrees = Vector3(0, 0, 78)
+surface = 4
+size = Vector3(0.1029, 0.3332, 0.07644)
+offset = Vector3(0, -0.1666, 0)
 color = Color(1, 1, 1, 1)
 tinted = true
-tint_shift = 0.18
+tint_shift = -0.26
 
 [sub_resource type="Resource" id="Resource_wt88f"]
 script = ExtResource("1_e6w05")
-shape = 1
-role = 2
-surface = 3
-size = Vector3(0.1078, 0.19600001, 0)
-offset = Vector3(-0.0294, 0.0196, 0)
-rotation_degrees = Vector3(0, 0, 78)
+shape = 2
+role = 3
+surface = 4
+size = Vector3(0.07644, 0, 0)
+offset = Vector3(0, -0.3332, 0)
 color = Color(1, 1, 1, 1)
 tinted = true
-tint_shift = 0.18
+tint_shift = -0.26
 
 [sub_resource type="Resource" id="Resource_uy4ko"]
 script = ExtResource("1_e6w05")
+shape = 2
 role = 5
 surface = 4
-size = Vector3(0.1078, 0.2744, 0.1176)
-offset = Vector3(0, -0.14700001, 0)
+size = Vector3(0.07644, 0, 0)
 color = Color(1, 1, 1, 1)
 tinted = true
-tint_shift = -0.34
+tint_shift = -0.36
 
 [sub_resource type="Resource" id="Resource_qe62o"]
 script = ExtResource("1_e6w05")
-role = 4
+shape = 3
+role = 5
 surface = 4
-size = Vector3(0.1078, 0.2744, 0.1176)
-offset = Vector3(0, -0.14700001, 0)
+size = Vector3(0.07644, 0.294, 0.06272)
+offset = Vector3(0, -0.147, 0)
 color = Color(1, 1, 1, 1)
 tinted = true
-tint_shift = -0.34
+tint_shift = -0.36
 
 [sub_resource type="Resource" id="Resource_1slf4"]
 script = ExtResource("1_e6w05")
-role = 5
-surface = 4
-size = Vector3(0.1274, 0.0882, 0.1372)
-offset = Vector3(0, -0.0588, 0)
-color = Color(0.28, 0.2, 0.14, 1)
-
-[sub_resource type="Resource" id="Resource_ii6hk"]
-script = ExtResource("1_e6w05")
-role = 4
-surface = 4
-size = Vector3(0.1274, 0.0882, 0.1372)
-offset = Vector3(0, -0.0588, 0)
-color = Color(0.28, 0.2, 0.14, 1)
-
-[sub_resource type="Resource" id="Resource_cy5ao"]
-script = ExtResource("1_e6w05")
-role = 5
-size = Vector3(0.1078, 0.1274, 0.1274)
-offset = Vector3(0, -0.30380002, -0.0098)
-color = Color(0.76, 0.6, 0.48, 1)
-
-[sub_resource type="Resource" id="Resource_ftdli"]
-script = ExtResource("1_e6w05")
-role = 4
-size = Vector3(0.1078, 0.1274, 0.1274)
-offset = Vector3(0, -0.30380002, -0.0098)
-color = Color(0.76, 0.6, 0.48, 1)
-
-[sub_resource type="Resource" id="Resource_a65lp"]
-script = ExtResource("1_e6w05")
-role = 7
-surface = 4
-size = Vector3(0.1568, 0.39200002, 0.1764)
-offset = Vector3(0, -0.18620001, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.28
-
-[sub_resource type="Resource" id="Resource_vb730"]
-script = ExtResource("1_e6w05")
-role = 6
-surface = 4
-size = Vector3(0.1568, 0.39200002, 0.1764)
-offset = Vector3(0, -0.18620001, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.28
-
-[sub_resource type="Resource" id="Resource_nkxg7"]
-script = ExtResource("1_e6w05")
-role = 9
-surface = 3
-size = Vector3(0.14700001, 0.0882, 0.1568)
-offset = Vector3(0, -0.0098, -0.0098)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = 0.1
-
-[sub_resource type="Resource" id="Resource_kwim3"]
-script = ExtResource("1_e6w05")
-role = 8
-surface = 3
-size = Vector3(0.14700001, 0.0882, 0.1568)
-offset = Vector3(0, -0.0098, -0.0098)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = 0.1
-
-[sub_resource type="Resource" id="Resource_rigy3"]
-script = ExtResource("1_e6w05")
-role = 9
-surface = 4
-size = Vector3(0.1274, 0.37240002, 0.1372)
-offset = Vector3(0, -0.2058, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.44
-
-[sub_resource type="Resource" id="Resource_n18n8"]
-script = ExtResource("1_e6w05")
-role = 8
-surface = 4
-size = Vector3(0.1274, 0.37240002, 0.1372)
-offset = Vector3(0, -0.2058, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.44
-
-[sub_resource type="Resource" id="Resource_ecndi"]
-script = ExtResource("1_e6w05")
-role = 9
-surface = 4
-size = Vector3(0.1568, 0.1176, 0.2744)
-offset = Vector3(0, -0.3822, -0.049000002)
-color = Color(0.28, 0.2, 0.14, 1)
-
-[sub_resource type="Resource" id="Resource_0dkka"]
-script = ExtResource("1_e6w05")
-role = 8
-surface = 4
-size = Vector3(0.1568, 0.1176, 0.2744)
-offset = Vector3(0, -0.3822, -0.049000002)
-color = Color(0.28, 0.2, 0.14, 1)
-
-[sub_resource type="Resource" id="Resource_7nsde"]
-script = ExtResource("1_e6w05")
-role = 1
-surface = 4
-size = Vector3(0.33, 0.3, 0.35)
-offset = Vector3(0, 0.2, 0.03)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.26
-
-[sub_resource type="Resource" id="Resource_d3n6w"]
-script = ExtResource("1_e6w05")
-shape = 6
-role = 1
-surface = 4
-size = Vector3(0.3, 0.22, 0.3)
-offset = Vector3(0, 0.38, 0.03)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.26
-
-[sub_resource type="Resource" id="Resource_0jvcg"]
-script = ExtResource("1_e6w05")
-role = 1
-surface = 4
-size = Vector3(0.28, 0.26, 0.1)
-offset = Vector3(0, 0.06, 0.19)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.34
-
-[sub_resource type="Resource" id="Resource_o6jl4"]
-script = ExtResource("1_e6w05")
-role = 1
-size = Vector3(0.22, 0.16, 0.03)
-offset = Vector3(0, 0.16, -0.155)
-color = Color(0.05, 0.05, 0.07, 1)
-
-[sub_resource type="Resource" id="Resource_dvqqs"]
-script = ExtResource("1_e6w05")
-shape = 3
-surface = 4
-size = Vector3(0.25, 0.62, 0.44)
-offset = Vector3(0, 0.6, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.15
-
-[sub_resource type="Resource" id="Resource_bupcg"]
-script = ExtResource("1_e6w05")
-shape = 3
-surface = 4
-size = Vector3(0.45, 0.05, 0.45)
-offset = Vector3(0, 0.3, 0)
-color = Color(1, 1, 1, 1)
-tinted = true
-tint_shift = -0.4
-
-[sub_resource type="Resource" id="Resource_eiqnd"]
-script = ExtResource("1_e6w05")
-surface = 4
-size = Vector3(0.4, 0.09, 0.36)
-offset = Vector3(0, 1.34, 0)
-color = Color(0.9, 0.84, 0.6, 1)
-
-[sub_resource type="Resource" id="Resource_x20io"]
-script = ExtResource("1_e6w05")
-surface = 4
-size = Vector3(0.1, 0.66, 0.03)
-offset = Vector3(0.13, 1.02, -0.19)
-color = Color(0.9, 0.84, 0.6, 1)
-
-[sub_resource type="Resource" id="Resource_uv5eg"]
-script = ExtResource("1_e6w05")
-surface = 4
-size = Vector3(0.1, 0.66, 0.03)
-offset = Vector3(-0.13, 1.02, -0.19)
-color = Color(0.9, 0.84, 0.6, 1)
-
-[sub_resource type="Resource" id="Resource_ruei5"]
-script = ExtResource("1_e6w05")
-surface = 5
-size = Vector3(0.06, 0.24, 0.03)
-offset = Vector3(0, 1.2, -0.19)
-color = Color(1, 0.94, 0.6, 1)
-
-[sub_resource type="Resource" id="Resource_cmati"]
-script = ExtResource("1_e6w05")
-surface = 5
-size = Vector3(0.17, 0.06, 0.03)
-offset = Vector3(0, 1.25, -0.19)
-color = Color(1, 0.94, 0.6, 1)
-
-[sub_resource type="Resource" id="Resource_81tnn"]
-script = ExtResource("1_e6w05")
 shape = 2
 role = 5
-surface = 3
-size = Vector3(0.045, 0, 0)
-offset = Vector3(0, -0.36706, -0.028539998)
-rotation_degrees = Vector3(18, 0, 0)
-color = Color(0.3, 0.29, 0.32, 1)
+surface = 4
+size = Vector3(0.06272, 0, 0)
+offset = Vector3(0, -0.294, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.36
 
-[sub_resource type="Resource" id="Resource_ndtsv"]
-script = ExtResource("1_e6w05")
-role = 5
-surface = 2
-size = Vector3(0.05, 1.2, 0.05)
-offset = Vector3(0, 0.032359987, 0.10124)
-rotation_degrees = Vector3(18, 0, 0)
-color = Color(0.25, 0.17, 0.12, 1)
-
-[sub_resource type="Resource" id="Resource_u0gmw"]
+[sub_resource type="Resource" id="Resource_ii6hk"]
 script = ExtResource("1_e6w05")
 shape = 5
 role = 5
 surface = 3
-size = Vector3(0.11, 0, 0.2)
+size = Vector3(0.07350001, 0, 0.11270001)
+offset = Vector3(0, -0.0784, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.1
+
+[sub_resource type="Resource" id="Resource_cy5ao"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 5
+surface = 4
+size = Vector3(0.1274, 0.14700001, 0.1274)
+offset = Vector3(0, -0.3528, -0.0098)
+color = Color(0.28, 0.2, 0.14, 1)
+
+[sub_resource type="Resource" id="Resource_ftdli"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 2
+surface = 4
+size = Vector3(0.1029, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.26
+
+[sub_resource type="Resource" id="Resource_a65lp"]
+script = ExtResource("1_e6w05")
+shape = 3
+role = 2
+surface = 4
+size = Vector3(0.1029, 0.3332, 0.07644)
+offset = Vector3(0, -0.1666, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.26
+
+[sub_resource type="Resource" id="Resource_vb730"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 2
+surface = 4
+size = Vector3(0.07644, 0, 0)
+offset = Vector3(0, -0.3332, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.26
+
+[sub_resource type="Resource" id="Resource_nkxg7"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 4
+surface = 4
+size = Vector3(0.07644, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.36
+
+[sub_resource type="Resource" id="Resource_kwim3"]
+script = ExtResource("1_e6w05")
+shape = 3
+role = 4
+surface = 4
+size = Vector3(0.07644, 0.294, 0.06272)
+offset = Vector3(0, -0.147, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.36
+
+[sub_resource type="Resource" id="Resource_rigy3"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 4
+surface = 4
+size = Vector3(0.06272, 0, 0)
+offset = Vector3(0, -0.294, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.36
+
+[sub_resource type="Resource" id="Resource_n18n8"]
+script = ExtResource("1_e6w05")
+shape = 5
+role = 4
+surface = 3
+size = Vector3(0.07350001, 0, 0.11270001)
+offset = Vector3(0, -0.0784, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.1
+
+[sub_resource type="Resource" id="Resource_ecndi"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 4
+surface = 4
+size = Vector3(0.1274, 0.14700001, 0.1274)
+offset = Vector3(0, -0.3528, -0.0098)
+color = Color(0.28, 0.2, 0.14, 1)
+
+[sub_resource type="Resource" id="Resource_0dkka"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 7
+surface = 4
+size = Vector3(0.1323, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.34
+
+[sub_resource type="Resource" id="Resource_7nsde"]
+script = ExtResource("1_e6w05")
+shape = 3
+role = 7
+surface = 4
+size = Vector3(0.1323, 0.4116, 0.09604)
+offset = Vector3(0, -0.2058, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.34
+
+[sub_resource type="Resource" id="Resource_d3n6w"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 7
+surface = 4
+size = Vector3(0.09604, 0, 0)
+offset = Vector3(0, -0.4116, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.34
+
+[sub_resource type="Resource" id="Resource_0jvcg"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 9
+surface = 4
+size = Vector3(0.09604, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_o6jl4"]
+script = ExtResource("1_e6w05")
+shape = 3
+role = 9
+surface = 4
+size = Vector3(0.09604, 0.3724, 0.07644)
+offset = Vector3(0, -0.1862, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_dvqqs"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 9
+surface = 4
+size = Vector3(0.07644, 0, 0)
+offset = Vector3(0, -0.3724, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_bupcg"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 9
+surface = 3
+size = Vector3(0.1274, 0.29400003, 0.1274)
+offset = Vector3(0, -0.1764, -0.0294)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.16
+
+[sub_resource type="Resource" id="Resource_eiqnd"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 9
+surface = 4
+size = Vector3(0.1568, 0.1274, 0.30380002)
+offset = Vector3(0, -0.39200002, -0.049000002)
+color = Color(0.28, 0.2, 0.14, 1)
+
+[sub_resource type="Resource" id="Resource_x20io"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 6
+surface = 4
+size = Vector3(0.1323, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.34
+
+[sub_resource type="Resource" id="Resource_uv5eg"]
+script = ExtResource("1_e6w05")
+shape = 3
+role = 6
+surface = 4
+size = Vector3(0.1323, 0.4116, 0.09604)
+offset = Vector3(0, -0.2058, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.34
+
+[sub_resource type="Resource" id="Resource_ruei5"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 6
+surface = 4
+size = Vector3(0.09604, 0, 0)
+offset = Vector3(0, -0.4116, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.34
+
+[sub_resource type="Resource" id="Resource_cmati"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 8
+surface = 4
+size = Vector3(0.09604, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_81tnn"]
+script = ExtResource("1_e6w05")
+shape = 3
+role = 8
+surface = 4
+size = Vector3(0.09604, 0.3724, 0.07644)
+offset = Vector3(0, -0.1862, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_ndtsv"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 8
+surface = 4
+size = Vector3(0.07644, 0, 0)
+offset = Vector3(0, -0.3724, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.46
+
+[sub_resource type="Resource" id="Resource_u0gmw"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 8
+surface = 3
+size = Vector3(0.1274, 0.29400003, 0.1274)
+offset = Vector3(0, -0.1764, -0.0294)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.16
+
+[sub_resource type="Resource" id="Resource_fbtet"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 8
+surface = 4
+size = Vector3(0.1568, 0.1274, 0.30380002)
+offset = Vector3(0, -0.39200002, -0.049000002)
+color = Color(0.28, 0.2, 0.14, 1)
+
+[sub_resource type="Resource" id="Resource_u18tr"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 1
+surface = 4
+size = Vector3(0.5, 0.5, 0.52)
+offset = Vector3(0, 0.27, 0.03)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.26
+
+[sub_resource type="Resource" id="Resource_3rbd2"]
+script = ExtResource("1_e6w05")
+shape = 4
+role = 1
+surface = 4
+size = Vector3(0.146, 0.223, 0)
+offset = Vector3(0, 0.423, 0.129)
+rotation_degrees = Vector3(58, 0, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.26
+
+[sub_resource type="Resource" id="Resource_fru2n"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 1
+surface = 4
+size = Vector3(0.42, 0.42, 0.2)
+offset = Vector3(0, 0.1, 0.22)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.34
+
+[sub_resource type="Resource" id="Resource_jdobb"]
+script = ExtResource("1_e6w05")
+shape = 7
+role = 1
+size = Vector3(0.3, 0.26, 0.1)
+offset = Vector3(0, 0.25, -0.2)
+color = Color(0.05, 0.05, 0.07, 1)
+
+[sub_resource type="Resource" id="Resource_258cw"]
+script = ExtResource("1_e6w05")
+shape = 3
+surface = 4
+size = Vector3(0.29, 0.64, 0.48)
+offset = Vector3(0, 0.58, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.15
+
+[sub_resource type="Resource" id="Resource_n5lq5"]
+script = ExtResource("1_e6w05")
+shape = 5
+surface = 4
+size = Vector3(0.42, 0, 0.5)
+offset = Vector3(0, 0.26, 0)
+color = Color(1, 1, 1, 1)
+tinted = true
+tint_shift = -0.4
+
+[sub_resource type="Resource" id="Resource_joshk"]
+script = ExtResource("1_e6w05")
+shape = 5
+surface = 4
+size = Vector3(0.22, 0, 0.34)
+offset = Vector3(0, 1.3, 0)
+color = Color(0.9, 0.84, 0.6, 1)
+
+[sub_resource type="Resource" id="Resource_77xhw"]
+script = ExtResource("1_e6w05")
+surface = 4
+size = Vector3(0.1, 0.68, 0.04)
+offset = Vector3(0.14, 0.98, -0.2)
+color = Color(0.9, 0.84, 0.6, 1)
+
+[sub_resource type="Resource" id="Resource_3etgx"]
+script = ExtResource("1_e6w05")
+surface = 4
+size = Vector3(0.1, 0.68, 0.04)
+offset = Vector3(-0.14, 0.98, -0.2)
+color = Color(0.9, 0.84, 0.6, 1)
+
+[sub_resource type="Resource" id="Resource_5rh6i"]
+script = ExtResource("1_e6w05")
+surface = 5
+size = Vector3(0.07, 0.26, 0.03)
+offset = Vector3(0, 1.14, -0.21)
+color = Color(1, 0.94, 0.6, 1)
+
+[sub_resource type="Resource" id="Resource_joxvu"]
+script = ExtResource("1_e6w05")
+surface = 5
+size = Vector3(0.19, 0.07, 0.03)
+offset = Vector3(0, 1.2, -0.21)
+color = Color(1, 0.94, 0.6, 1)
+
+[sub_resource type="Resource" id="Resource_5prgb"]
+script = ExtResource("1_e6w05")
+shape = 2
+role = 5
+surface = 3
+size = Vector3(0.05, 0, 0)
+offset = Vector3(0, -0.36706, -0.028539998)
+rotation_degrees = Vector3(18, 0, 0)
+color = Color(0.3, 0.29, 0.32, 1)
+
+[sub_resource type="Resource" id="Resource_um3po"]
+script = ExtResource("1_e6w05")
+shape = 3
+role = 5
+surface = 2
+size = Vector3(0.032, 1.2, 0.042)
+offset = Vector3(0, 0.032359987, 0.10124)
+rotation_degrees = Vector3(18, 0, 0)
+color = Color(0.25, 0.17, 0.12, 1)
+
+[sub_resource type="Resource" id="Resource_m6ji6"]
+script = ExtResource("1_e6w05")
+shape = 5
+role = 5
+surface = 3
+size = Vector3(0.115, 0, 0.21)
 offset = Vector3(0, 0.58393997, 0.28046)
 rotation_degrees = Vector3(18, 0, 0)
 color = Color(0.78, 0.62, 0.28, 1)
 is_weapon = true
 
-[sub_resource type="Resource" id="Resource_fbtet"]
+[sub_resource type="Resource" id="Resource_xynoe"]
 script = ExtResource("1_e6w05")
 shape = 2
 role = 5
 surface = 5
-size = Vector3(0.115, 0, 0)
+size = Vector3(0.125, 0, 0)
 offset = Vector3(0, 0.58393997, 0.28046)
 rotation_degrees = Vector3(18, 0, 0)
 color = Color(0.36, 1, 0.54, 1)
@@ -396,11 +591,11 @@ light_range = 5.0
 [resource]
 script = ExtResource("2_xlsq5")
 id = &"soigneur"
-parts = Array[ExtResource("1_e6w05")]([SubResource("Resource_3bmk3"), SubResource("Resource_ew066"), SubResource("Resource_iyq6o"), SubResource("Resource_cetva"), SubResource("Resource_it8sb"), SubResource("Resource_v0hoe"), SubResource("Resource_75gwh"), SubResource("Resource_yokd5"), SubResource("Resource_pmhlh"), SubResource("Resource_k804h"), SubResource("Resource_5sio4"), SubResource("Resource_bmevp"), SubResource("Resource_gvwpx"), SubResource("Resource_qdifh"), SubResource("Resource_wt88f"), SubResource("Resource_uy4ko"), SubResource("Resource_qe62o"), SubResource("Resource_1slf4"), SubResource("Resource_ii6hk"), SubResource("Resource_cy5ao"), SubResource("Resource_ftdli"), SubResource("Resource_a65lp"), SubResource("Resource_vb730"), SubResource("Resource_nkxg7"), SubResource("Resource_kwim3"), SubResource("Resource_rigy3"), SubResource("Resource_n18n8"), SubResource("Resource_ecndi"), SubResource("Resource_0dkka"), SubResource("Resource_7nsde"), SubResource("Resource_d3n6w"), SubResource("Resource_0jvcg"), SubResource("Resource_o6jl4"), SubResource("Resource_dvqqs"), SubResource("Resource_bupcg"), SubResource("Resource_eiqnd"), SubResource("Resource_x20io"), SubResource("Resource_uv5eg"), SubResource("Resource_ruei5"), SubResource("Resource_cmati"), SubResource("Resource_81tnn"), SubResource("Resource_ndtsv"), SubResource("Resource_u0gmw"), SubResource("Resource_fbtet")])
-shoulder = Vector3(0.3332, 1.2936, 0)
+parts = Array[ExtResource("1_e6w05")]([SubResource("Resource_3bmk3"), SubResource("Resource_ew066"), SubResource("Resource_iyq6o"), SubResource("Resource_cetva"), SubResource("Resource_it8sb"), SubResource("Resource_v0hoe"), SubResource("Resource_75gwh"), SubResource("Resource_yokd5"), SubResource("Resource_pmhlh"), SubResource("Resource_k804h"), SubResource("Resource_5sio4"), SubResource("Resource_bmevp"), SubResource("Resource_gvwpx"), SubResource("Resource_qdifh"), SubResource("Resource_wt88f"), SubResource("Resource_uy4ko"), SubResource("Resource_qe62o"), SubResource("Resource_1slf4"), SubResource("Resource_ii6hk"), SubResource("Resource_cy5ao"), SubResource("Resource_ftdli"), SubResource("Resource_a65lp"), SubResource("Resource_vb730"), SubResource("Resource_nkxg7"), SubResource("Resource_kwim3"), SubResource("Resource_rigy3"), SubResource("Resource_n18n8"), SubResource("Resource_ecndi"), SubResource("Resource_0dkka"), SubResource("Resource_7nsde"), SubResource("Resource_d3n6w"), SubResource("Resource_0jvcg"), SubResource("Resource_o6jl4"), SubResource("Resource_dvqqs"), SubResource("Resource_bupcg"), SubResource("Resource_eiqnd"), SubResource("Resource_x20io"), SubResource("Resource_uv5eg"), SubResource("Resource_ruei5"), SubResource("Resource_cmati"), SubResource("Resource_81tnn"), SubResource("Resource_ndtsv"), SubResource("Resource_u0gmw"), SubResource("Resource_fbtet"), SubResource("Resource_u18tr"), SubResource("Resource_3rbd2"), SubResource("Resource_fru2n"), SubResource("Resource_jdobb"), SubResource("Resource_258cw"), SubResource("Resource_n5lq5"), SubResource("Resource_joshk"), SubResource("Resource_77xhw"), SubResource("Resource_3etgx"), SubResource("Resource_5rh6i"), SubResource("Resource_joxvu"), SubResource("Resource_5prgb"), SubResource("Resource_um3po"), SubResource("Resource_m6ji6"), SubResource("Resource_xynoe")])
+shoulder = Vector3(0.3234, 1.2936, 0)
 elbow_drop = 0.3332
 hip = Vector3(0.1666, 0.8428, 0)
 knee_drop = 0.41159999999999997
-neck = Vector3(0, 1.4308, 0)
+neck = Vector3(0, 1.4112, 0)
 stride_degrees = 31.0
-idle_bob = 0.02156
+idle_bob = 0.01764

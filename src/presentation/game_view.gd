@@ -180,8 +180,9 @@ func _make_view(world: World, actor: Actor) -> ActorView:
 	var view: ActorView = ActorView.new()
 	view.name = "Actor_%d" % actor.id
 	_actors_root.add_child(view)
+	var id: StringName = _skin_id(world, actor)
 	view.setup(actor, _color_for(world, actor), actor.id == world.local_actor_id,
-		SkinLibrary.for_id(_skin_id(world, actor)))
+		SkinLibrary.for_id(id), ModelLibrary.for_id(id))
 	_views[actor.id] = view
 	_view_data_index[actor.id] = actor.data_index
 	return view

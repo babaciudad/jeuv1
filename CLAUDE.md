@@ -193,6 +193,7 @@ src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
   skin_library.gd     Résout un skin par identifiant, avec cache.
   primitive_factory.gd Formes et matériaux, partagés par personnages et décor.
   vfx.gd              Effets brefs : impact, touche, soin, lancer.
+  model_library.gd    Résout un modèle importé par identifiant, avec cache.
   data/               Schémas des skins et du décor : pièces primitives.
   game_view.gd        Miroir visuel du monde, des projectiles et des effets.
   tutorial.gd         Apprend les mécaniques en observant ce que fait le joueur.
@@ -209,6 +210,8 @@ data/               Ressources de réglage (invariant 7).
                       Généré par tools/make_data.gd.
   actors/             Gobelin et boss.
   level/              Géométrie et points d'intérêt de la tranche verticale.
+models/             Modèles de personnages importés. VIDE dans le dépôt ;
+                    voir models/README.md. Un <id>.tres ici remplace le skin.
 scenes/             Scènes Godot.
 tests/              Suites gdUnit4.
 tools/              Scripts PowerShell de vérification, test et banc réseau.
@@ -241,6 +244,22 @@ Une pièce marquée `is_weapon` passe au jaune quand la hitbox est ouverte. Ce
 n'est pas décoratif : **c'est le seul repère de rythme du jeu**, le tutoriel
 l'enseigne explicitement. Un skin sans pièce d'arme rend son porteur illisible
 en combat.
+
+**Un personnage peut venir d'un modèle importé.** Si `res://models/<id>.tres`
+existe (une ressource `ModelData` pointant sur un `.glb`), il remplace le skin
+en primitives. Sinon la vue retombe sur les primitives, et le jeu tourne
+exactement pareil : `models/` est vide dans le dépôt, et le jeu est jouable.
+
+C'est la seule façon d'avoir des personnages qui ressemblent à des humains —
+aucun greffon ne fabrique cela, dans aucun moteur. `models/README.md` donne
+les sources, les licences et la marche à suivre.
+
+Point à ne jamais perdre de vue : **l'animation d'attaque d'un modèle importé
+est décorative.** Elle n'ouvre aucune hitbox — celles-ci viennent
+d'`AttackRunner`, en ticks (invariant 8). L'animation est simplement étirée
+pour durer exactement le temps de l'attaque simulée, afin que le geste tombe
+au bon moment. Un modèle qui apporterait ses propres pistes de hitbox doit
+les perdre, pas les brancher.
 
 **Un personnage est articulé, pas empilé.** Chaque pièce déclare un `role`
 (`SkinPart.Role`) qui l'accroche à un pivot : tête, bras, avant-bras, cuisse,
@@ -276,6 +295,12 @@ chapelle en carton. Si un jour le rendu redevient plat sans qu'on ait touché
 au décor, c'est la première chose à vérifier.
 
 Trois règles tiennent l'aspect :
+
+**Le métal reste peu métallique.** `Surface.METAL` est à 0,38 de métallicité,
+pas 0,9. À 0,9 un métal ne tire sa couleur que de ce qu'il reflète — et cette
+scène n'a ni ciel ni sonde de réflexion, donc il reflète du noir : les heaumes
+devenaient des billes de plastique noir. Si un jour une sonde de réflexion
+apparaît, cette valeur pourra remonter.
 
 **Les matières sont déclarées, pas réglées pièce par pièce.**
 `SkinPart.Surface` — `PLAIN`, `STONE`, `WOOD`, `METAL`, `CLOTH`, `GLOW` —

@@ -108,6 +108,11 @@ Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
   `obstacles` ce qui bloque à l'intérieur (colonnes, autel, braseros)
 - `data/decor/chapelle.tres` — le décor, et RIEN QUE ce qui se traverse : ce
   qui doit arrêter un personnage va dans `obstacles`, jamais ici
+- `models/` — dépose ici un `.glb` et sa fiche `ModelData` pour remplacer un
+  personnage en primitives par un vrai modèle rigué et animé. Vide dans le
+  dépôt ; **`models/README.md` explique où en trouver, sous quelle licence, et
+  comment le brancher.** C'est la seule façon d'avoir des personnages qui
+  ressemblent à des humains
 - `data/decor/chapelle.tres` et `data/skins/*.tres` sont **générés** par
   `godot --headless --path . -s tools/make_data.gd`. Les `.tres` font foi et
   se retouchent dans l'inspecteur, mais le script les réécrit entièrement :

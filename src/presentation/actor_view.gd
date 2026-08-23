@@ -77,6 +77,11 @@ var _gait: float = 0.0
 ## exactement ensemble ont l'air d'un seul objet.
 var _clock: float = 0.0
 var _last_position: Vector2 = Vector2.ZERO
+## Non nul quand la vue est bâtie sur un modèle importé. Dans ce cas le
+## squelette de pivots n'existe pas et l'animation procédurale est court-
+## circuitée : c'est l'AnimationPlayer du modèle qui pose le personnage.
+var _model: ModelData = null
+var _model_player: AnimationPlayer = null
 var _has_last: bool = false
 var _speed: float = 0.0
 ## Angles courants, lissés vers leur cible à chaque image.
@@ -88,11 +93,15 @@ var _weapon_arm: float = 0.0
 var _stride_degrees: float = 34.0
 var _idle_bob: float = 0.022
 
-func setup(actor: Actor, color: Color, is_local: bool, skin: SkinData) -> void:
+func setup(actor: Actor, color: Color, is_local: bool, skin: SkinData,
+		model: ModelData = null) -> void:
 	_stand_height = actor.radius * 2.0
 	_clock = float(actor.id) * 0.37
 
-	if is_local:
+	# Un anneau au sol pour TOUS quand on joue en modèles importés : ceux-ci
+	# portent leurs propres matériaux, la couleur de classe ne les teinte donc
+	# pas, et sans repère on ne sait plus qui est qui à quatre.
+	if is_local or model != null:
 		var ring: TorusMesh = TorusMesh.new()
 		ring.inner_radius = actor.radius * 1.05
 		ring.outer_radius = actor.radius * 1.30
@@ -100,13 +109,20 @@ func setup(actor: Actor, color: Color, is_local: bool, skin: SkinData) -> void:
 		ring.ring_segments = 5
 		var marker: MeshInstance3D = MeshInstance3D.new()
 		marker.mesh = ring
-		marker.material_override = PrimitiveFactory.material_for(COLOR_SELF_RING, false)
+		marker.material_override = PrimitiveFactory.material_for(
+			COLOR_SELF_RING if is_local else color, false,
+			SkinPart.Surface.GLOW, 0.9)
+		marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		marker.position = Vector3(0.0, 0.04, 0.0)
 		add_child(marker)
 
 	_pose = Node3D.new()
 	_pose.name = "Pose"
 	add_child(_pose)
+
+	if model != null:
+		_build_model(actor, model)
+		return
 
 	var dressed: SkinData = skin
 	if dressed == null or dressed.parts.is_empty():
@@ -116,6 +132,98 @@ func setup(actor: Actor, color: Color, is_local: bool, skin: SkinData) -> void:
 	_build_skeleton(dressed)
 	for part: SkinPart in dressed.parts:
 		_add_part(part, color)
+
+# ---------------------------------------------------------------------------
+# Mode modèle importé
+# ---------------------------------------------------------------------------
+
+## Instancie le modèle et retient son AnimationPlayer. Rien d'autre n'est
+## touché : la pose d'ensemble, l'estompage et le suivi de position marchent
+## à l'identique, puisqu'ils s'appliquent au porte-pièces et au nœud racine.
+func _build_model(actor: Actor, model: ModelData) -> void:
+	_model = model
+	var instance: Node = model.scene.instantiate()
+	if instance is Node3D:
+		var body: Node3D = instance as Node3D
+		body.scale = Vector3.ONE * maxf(0.001, model.scale)
+		body.rotation.y = deg_to_rad(model.yaw_degrees)
+		body.position.y = model.lift
+	_pose.add_child(instance)
+	_model_player = _find_player(instance)
+	if _model_player == null:
+		push_warning("Le modèle %s n'a pas d'AnimationPlayer : il sera figé."
+			% model.id)
+		return
+	# Invariant 8 : ce lecteur ne pilote QUE l'apparence. Il est ancré dans le
+	# modèle, il ne peut donc atteindre ni AttackRunner ni World, et une piste
+	# d'appel de méthode qu'un modèle importé apporterait ne trouverait rien à
+	# appeler. Ne PAS réassigner `root_node` pour s'en assurer : cela casse la
+	# résolution des pistes de squelette, et le personnage reste figé en T.
+	_model_player.callback_mode_method = \
+		AnimationMixer.ANIMATION_CALLBACK_MODE_METHOD_DEFERRED
+	_stand_height = actor.radius * 2.0
+
+func _find_player(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node as AnimationPlayer
+	for child: Node in node.get_children():
+		var found: AnimationPlayer = _find_player(child)
+		if found != null:
+			return found
+	return null
+
+## Choisit l'animation qui correspond à l'état simulé, et l'enchaîne.
+##
+## L'attaque est ÉTIRÉE pour durer exactement le temps de l'attaque simulée :
+## c'est ce qui fait tomber le geste sur la fenêtre de hitbox, sans jamais que
+## l'animation ne décide de cette fenêtre.
+func _animate_model(actor: Actor, _delta: float) -> void:
+	if _model_player == null:
+		return
+	var wanted: StringName = _model.idle
+	var speed_scale: float = 1.0
+	var once: bool = false
+	match actor.state:
+		Actor.State.DEAD:
+			wanted = _model.death
+			once = true
+		Actor.State.STAGGERED:
+			wanted = _model.hurt
+			once = true
+		Actor.State.DODGING:
+			wanted = _model.dodge
+			once = true
+		_:
+			if actor.runner != null and not actor.runner.finished \
+					and actor.runner.attack != null:
+				wanted = _model.attack
+				once = true
+				var sim_length: float = actor.runner.attack.timeline.length \
+					if actor.runner.attack.timeline != null else 0.0
+				var clip: Animation = _clip(wanted)
+				if clip != null and sim_length > 0.01:
+					speed_scale = clip.length / sim_length
+			elif _speed >= _model.run_speed:
+				wanted = _model.run
+			elif _speed >= 0.25:
+				wanted = _model.walk
+
+	if not _model_player.has_animation(wanted):
+		wanted = _model.idle
+		speed_scale = 1.0
+	if not _model_player.has_animation(wanted):
+		return
+	if _model_player.current_animation != wanted:
+		_model_player.play(wanted, _model.blend_time, speed_scale)
+	else:
+		_model_player.speed_scale = speed_scale
+	if once:
+		_clip(wanted).loop_mode = Animation.LOOP_NONE
+
+func _clip(name_: StringName) -> Animation:
+	if _model_player == null or not _model_player.has_animation(name_):
+		return null
+	return _model_player.get_animation(name_)
 
 # ---------------------------------------------------------------------------
 # Construction
@@ -226,11 +334,18 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 		look_at(position + forward, Vector3.UP)
 
 	_advance_gait(actor, delta)
-	_animate(actor, delta)
+	if _model != null:
+		_animate_model(actor, delta)
+	else:
+		_animate(actor, delta)
 	_apply_pose(actor)
 	var open: bool = actor.runner != null and actor.runner.hitbox_open
 	_apply_colors(actor, open, _fade_alpha(camera_position, is_local, player_distance))
 	_apply_smear(open)
+
+## Vrai si cette vue est bâtie sur un modèle importé.
+func uses_model() -> bool:
+	return _model != null
 
 ## La foulée avance avec la distance réellement parcourue, mesurée entre deux
 ## images. C'est la seule mesure disponible pour un acteur distant, dont la
@@ -321,6 +436,10 @@ func _apply_smear(open: bool) -> void:
 ## celui-ci porte l'orientation du personnage, et la mort ne doit pas la faire
 ## tourner.
 func _apply_pose(actor: Actor) -> void:
+	# Un modèle importé a ses propres animations de chute et de roulade : les
+	# doubler d'une bascule du porte-pièces le coucherait deux fois.
+	if _model != null:
+		return
 	match actor.state:
 		Actor.State.DEAD:
 			# Couché : la mort doit se lire d'un coup d'œil, de loin.

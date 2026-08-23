@@ -20,6 +20,13 @@ enum Shape {
 	CONE,
 	TORUS,
 	PRISM,
+	## Sphère étirée sur ses trois axes : `size` donne les diamètres.
+	##
+	## C'est la forme de base des personnages, pas la boîte. Une boîte a des
+	## arêtes vives, et six faces qui prennent chacune un aplat de lumière ;
+	## un ovoïde a un dégradé continu. C'est toute la différence entre un
+	## empilement de caisses et un bonhomme.
+	ELLIPSOID,
 }
 
 ## Os auquel la pièce est accrochée. STATIC reste solidaire du buste ; tous les

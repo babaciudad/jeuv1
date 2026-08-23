@@ -101,87 +101,123 @@ func save(resource: Resource, path: String) -> void:
 # Personnages
 # ---------------------------------------------------------------------------
 
+## Membre : un tronc conique, une articulation sphérique à chaque bout.
+##
+## C'est le motif qui remplace la boîte partout sur les personnages. Une boîte
+## laisse un coin vide quand le coude plie, et prend six aplats de lumière ;
+## un cône entre deux sphères plie sans trou et s'éclaire d'un dégradé. Trois
+## primitives au lieu d'une, pour un personnage qui ne ressemble plus à une
+## pile de cageots.
+func limb(out: Array[SkinPart], role: int, top_r: float, bottom_r: float,
+		length: float, color: Color, tinted: bool = false, shift: float = 0.0,
+		surface: int = M_CLOTH, cap_top: bool = true) -> void:
+	if cap_top:
+		out.append(P(role, S, Vector3(top_r, 0.0, 0.0), Vector3.ZERO,
+			color, tinted, shift, false, false, Vector3.ZERO, surface))
+	out.append(P(role, CY, Vector3(top_r, length, bottom_r),
+		Vector3(0.0, -length * 0.5, 0.0), color, tinted, shift, false, false,
+		Vector3.ZERO, surface))
+	out.append(P(role, S, Vector3(bottom_r, 0.0, 0.0),
+		Vector3(0.0, -length, 0.0), color, tinted, shift, false, false,
+		Vector3.ZERO, surface))
+
 ## Humanoïde de base, mis à l'échelle. Toutes les classes en héritent : deux
 ## personnages qui ne partagent pas leur ossature ne se ressemblent jamais
 ## assez pour qu'on croie au même monde.
+##
+## Les proportions visent le registre sombre, pas le registre mignon : tête
+## d'un huitième de la hauteur, épaules larges, jambes longues. Les volumes
+## restent arrondis — un cône entre deux sphères plie sans trou et s'éclaire
+## d'un dégradé, une boîte fait six aplats — mais rien n'est caricatural.
+##
+## Le visage est un creux d'ombre, jamais des yeux dessinés. C'est la
+## convention du genre, et c'est aussi ce qui évite l'écueil du bonhomme
+## rigolo : un heaume vide inquiète, deux gros yeux font sourire.
 func humanoid(k: float, flesh: Color) -> SkinData:
 	var skin: SkinData = SkinData.new()
-	skin.neck = Vector3(0.0, 1.46 * k, 0.0)
-	skin.shoulder = Vector3(0.34 * k, 1.32 * k, 0.0)
+	skin.neck = Vector3(0.0, 1.44 * k, 0.0)
+	skin.shoulder = Vector3(0.33 * k, 1.32 * k, 0.0)
 	skin.elbow_drop = 0.34 * k
 	skin.hip = Vector3(0.17 * k, 0.86 * k, 0.0)
 	skin.knee_drop = 0.42 * k
-	skin.stride_degrees = 34.0
-	skin.idle_bob = 0.022 * k
+	skin.stride_degrees = 32.0
+	skin.idle_bob = 0.018 * k
 
-	skin.parts = [
-		# Buste : bassin, cage, plastron. Trois volumes plutôt qu'un, pour que
-		# la taille se marque et que la silhouette ait un creux.
-		P(R_STATIC, B, Vector3(0.42, 0.24, 0.29) * k, Vector3(0, 0.90, 0) * k,
-			Color.WHITE, true, -0.38, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.36, 0.16, 0.26) * k, Vector3(0, 1.02, 0) * k,
-			Color.WHITE, true, -0.30, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.53, 0.44, 0.32) * k, Vector3(0, 1.22, 0) * k,
-			Color.WHITE, true, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.30, 0.34, 0.05) * k, Vector3(0, 1.24, -0.18) * k,
-			Color.WHITE, true, 0.30, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.20, 0.10, 0.03) * k, Vector3(0, 1.40, -0.18) * k,
-			Color.WHITE, true, -0.42, false, false, Vector3.ZERO, M_CLOTH),
-		# Cou : sans lui la tête est posée sur les épaules comme un colis.
-		P(R_STATIC, CY, Vector3(0.07, 0.10, 0.07) * k, Vector3(0, 1.44, 0) * k,
-			flesh),
-		# Tête : crâne, mâchoire, nez, yeux. Ce sont les yeux qui font qu'on
-		# regarde un visage plutôt qu'un cube.
-		P(R_HEAD, B, Vector3(0.26, 0.22, 0.27) * k, Vector3(0, 0.19, 0) * k,
-			flesh),
-		P(R_HEAD, B, Vector3(0.22, 0.10, 0.24) * k, Vector3(0, 0.06, -0.01) * k,
-			flesh),
-		P(R_HEAD, B, Vector3(0.05, 0.07, 0.05) * k, Vector3(0, 0.11, -0.14) * k,
-			flesh),
-		P(R_HEAD, B, Vector3(0.05, 0.035, 0.02) * k, Vector3(0.07, 0.19, -0.135) * k,
-			Color(0.09, 0.09, 0.11)),
-		P(R_HEAD, B, Vector3(0.05, 0.035, 0.02) * k, Vector3(-0.07, 0.19, -0.135) * k,
-			Color(0.09, 0.09, 0.11)),
-		# Bras : épaule, biceps.
-		P(R_AR, B, Vector3(0.13, 0.32, 0.14) * k, Vector3(0, -0.16, 0) * k,
-			Color.WHITE, true, -0.22, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_AL, B, Vector3(0.13, 0.32, 0.14) * k, Vector3(0, -0.16, 0) * k,
-			Color.WHITE, true, -0.22, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_AR, C, Vector3(0.11, 0.20, 0.0) * k, Vector3(0.03, 0.02, 0) * k,
-			Color.WHITE, true, 0.18, false, false, Vector3(0, 0, 78), M_METAL),
-		P(R_AL, C, Vector3(0.11, 0.20, 0.0) * k, Vector3(-0.03, 0.02, 0) * k,
-			Color.WHITE, true, 0.18, false, false, Vector3(0, 0, 78), M_METAL),
-		# Avant-bras, brassard, main.
-		P(R_FR, B, Vector3(0.11, 0.28, 0.12) * k, Vector3(0, -0.15, 0) * k,
-			Color.WHITE, true, -0.34, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FL, B, Vector3(0.11, 0.28, 0.12) * k, Vector3(0, -0.15, 0) * k,
-			Color.WHITE, true, -0.34, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FR, B, Vector3(0.13, 0.09, 0.14) * k, Vector3(0, -0.06, 0) * k,
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FL, B, Vector3(0.13, 0.09, 0.14) * k, Vector3(0, -0.06, 0) * k,
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FR, B, Vector3(0.11, 0.13, 0.13) * k, Vector3(0, -0.31, -0.01) * k,
-			flesh),
-		P(R_FL, B, Vector3(0.11, 0.13, 0.13) * k, Vector3(0, -0.31, -0.01) * k,
-			flesh),
-		# Jambes : cuisse, genou, tibia, botte.
-		P(R_TR, B, Vector3(0.16, 0.40, 0.18) * k, Vector3(0, -0.19, 0) * k,
-			Color.WHITE, true, -0.28, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_TL, B, Vector3(0.16, 0.40, 0.18) * k, Vector3(0, -0.19, 0) * k,
-			Color.WHITE, true, -0.28, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_SR, B, Vector3(0.15, 0.09, 0.16) * k, Vector3(0, -0.01, -0.01) * k,
-			Color.WHITE, true, 0.10, false, false, Vector3.ZERO, M_METAL),
-		P(R_SL, B, Vector3(0.15, 0.09, 0.16) * k, Vector3(0, -0.01, -0.01) * k,
-			Color.WHITE, true, 0.10, false, false, Vector3.ZERO, M_METAL),
-		P(R_SR, B, Vector3(0.13, 0.38, 0.14) * k, Vector3(0, -0.21, 0) * k,
-			Color.WHITE, true, -0.44, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_SL, B, Vector3(0.13, 0.38, 0.14) * k, Vector3(0, -0.21, 0) * k,
-			Color.WHITE, true, -0.44, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_SR, B, Vector3(0.16, 0.12, 0.28) * k, Vector3(0, -0.39, -0.05) * k,
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_SL, B, Vector3(0.16, 0.12, 0.28) * k, Vector3(0, -0.39, -0.05) * k,
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-	]
+	var parts: Array[SkinPart] = []
+
+	# Bassin et torse : deux ovoïdes qui se recouvrent, pas deux caisses
+	# empilées. Le recouvrement est ce qui donne une taille.
+	parts.append(P(R_STATIC, SkinPart.Shape.ELLIPSOID,
+		Vector3(0.46, 0.38, 0.36) * k, Vector3(0, 0.88, 0) * k,
+		Color.WHITE, true, -0.44, false, false, Vector3.ZERO, M_CLOTH))
+	parts.append(P(R_STATIC, SkinPart.Shape.ELLIPSOID,
+		Vector3(0.60, 0.68, 0.40) * k, Vector3(0, 1.20, 0) * k,
+		Color.WHITE, true, -0.18, false, false, Vector3.ZERO, M_CLOTH))
+	# Plastron : une plaque bombée, plus claire, qui accroche la lumière.
+	parts.append(P(R_STATIC, SkinPart.Shape.ELLIPSOID,
+		Vector3(0.44, 0.46, 0.40) * k, Vector3(0, 1.22, -0.05) * k,
+		Color.WHITE, true, 0.10, false, false, Vector3.ZERO, M_METAL))
+	# Ceinture et tassettes : trois plaques sur les hanches. C'est le détail
+	# qui dit « armure » plutôt que « pyjama ».
+	parts.append(P(R_STATIC, TO, Vector3(0.20, 0.0, 0.28) * k,
+		Vector3(0, 0.94, 0) * k, LEATHER, false, 0.0, false, false,
+		Vector3.ZERO, M_CLOTH))
+	for plate: int in 3:
+		var angle: float = -34.0 + 34.0 * float(plate)
+		parts.append(P(R_STATIC, B, Vector3(0.19, 0.34, 0.06) * k,
+			Vector3(sin(deg_to_rad(angle)) * 0.24, 0.76, -0.22) * k,
+			Color.WHITE, true, -0.30, false, false,
+			Vector3(6.0, angle, 0.0), M_METAL))
+	# Col et gorgerin.
+	parts.append(P(R_STATIC, CY, Vector3(0.11, 0.14, 0.13) * k,
+		Vector3(0, 1.44, 0) * k, flesh, false, 0.0, false, false,
+		Vector3.ZERO, M_PLAIN))
+	parts.append(P(R_STATIC, TO, Vector3(0.13, 0.0, 0.21) * k,
+		Vector3(0, 1.42, 0) * k, Color.WHITE, true, -0.36, false, false,
+		Vector3.ZERO, M_METAL))
+
+	# Tête : un ovoïde d'un huitième de la hauteur, mâchoire, et un creux
+	# d'ombre à la place du visage.
+	parts.append(P(R_HEAD, SkinPart.Shape.ELLIPSOID,
+		Vector3(0.34, 0.39, 0.36) * k, Vector3(0, 0.20, 0) * k,
+		flesh, false, 0.0, false, false, Vector3.ZERO, M_PLAIN))
+	parts.append(P(R_HEAD, SkinPart.Shape.ELLIPSOID,
+		Vector3(0.28, 0.16, 0.30) * k, Vector3(0, 0.09, -0.02) * k,
+		flesh, false, 0.0, false, false, Vector3.ZERO, M_PLAIN))
+	parts.append(P(R_HEAD, SkinPart.Shape.ELLIPSOID,
+		Vector3(0.24, 0.11, 0.06) * k, Vector3(0, 0.22, -0.17) * k,
+		Color(0.05, 0.05, 0.07), false, 0.0, false, false,
+		Vector3.ZERO, M_PLAIN))
+
+	# Bras : épaule, biceps conique, coude, avant-bras, main en moufle.
+	for side: int in 2:
+		var arm: int = R_AR if side == 0 else R_AL
+		var fore: int = R_FR if side == 0 else R_FL
+		limb(parts, arm, 0.105 * k, 0.078 * k, 0.34 * k, Color.WHITE, true, -0.26)
+		limb(parts, fore, 0.078 * k, 0.064 * k, 0.30 * k, Color.WHITE, true, -0.36)
+		# Brassard.
+		parts.append(P(fore, TO, Vector3(0.075, 0.0, 0.115) * k,
+			Vector3(0, -0.08, 0) * k, Color.WHITE, true, -0.10, false, false,
+			Vector3.ZERO, M_METAL))
+		parts.append(P(fore, SkinPart.Shape.ELLIPSOID,
+			Vector3(0.13, 0.15, 0.13) * k, Vector3(0, -0.36, -0.01) * k,
+			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH))
+
+	# Jambes : hanche, cuisse conique, genou, tibia, gros soulier.
+	for side: int in 2:
+		var thigh: int = R_TR if side == 0 else R_TL
+		var shin: int = R_SR if side == 0 else R_SL
+		limb(parts, thigh, 0.135 * k, 0.098 * k, 0.42 * k, Color.WHITE, true, -0.34)
+		limb(parts, shin, 0.098 * k, 0.078 * k, 0.38 * k, Color.WHITE, true, -0.46)
+		# Grève : une plaque sur le devant du tibia.
+		parts.append(P(shin, SkinPart.Shape.ELLIPSOID,
+			Vector3(0.13, 0.30, 0.13) * k, Vector3(0, -0.18, -0.03) * k,
+			Color.WHITE, true, -0.16, false, false, Vector3.ZERO, M_METAL))
+		parts.append(P(shin, SkinPart.Shape.ELLIPSOID,
+			Vector3(0.16, 0.13, 0.31) * k, Vector3(0, -0.40, -0.05) * k,
+			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH))
+
+	skin.parts = parts
 	return skin
 
 # ---------------------------------------------------------------------------
@@ -220,42 +256,55 @@ func build_gardien() -> SkinData:
 	s.id = &"gardien"
 	s.stride_degrees = 29.0
 	s.parts.append_array([
-		# Heaume fermé à crête et fente lumineuse.
-		P(R_HEAD, B, Vector3(0.30, 0.30, 0.31), Vector3(0, 0.18, 0),
-			Color.WHITE, true, -0.20, false, false, Vector3.ZERO, M_METAL),
-		P(R_HEAD, B, Vector3(0.31, 0.12, 0.32), Vector3(0, 0.34, 0),
+		# Heaume arrondi, à cimier et nasale. Un ovoïde posé sur la tête, pas
+		# une caisse : un casque a une calotte.
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.47, 0.44, 0.47),
+			Vector3(0, 0.30, 0), Color.WHITE, true, -0.16, false, false,
+			Vector3.ZERO, M_METAL),
+		P(R_HEAD, CY, Vector3(0.210, 0.086, 0.210), Vector3(0.000, 0.165, 0.000),
 			STEEL, false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_HEAD, PR, Vector3(0.08, 0.20, 0.34), Vector3(0, 0.48, 0),
-			Color.WHITE, true, 0.35, false, false, Vector3.ZERO, M_METAL),
-		P(R_HEAD, B, Vector3(0.20, 0.030, 0.02), Vector3(0, 0.20, -0.16),
-			Color(1.0, 0.72, 0.34), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		P(R_HEAD, B, Vector3(0.07, 0.18, 0.05), Vector3(0, 0.11, -0.15),
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.09, 0.26, 0.50),
+			Vector3(0, 0.50, 0), Color.WHITE, true, 0.38, false, false,
+			Vector3.ZERO, M_METAL),
+		P(R_HEAD, B, Vector3(0.060, 0.206, 0.043), Vector3(0.000, 0.165, -0.180),
 			STEEL, false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		# Épée longue : soie, garde, pommeau, lame, pointe.
-		P(R_FR, B, Vector3(0.08, 0.08, 0.22), Vector3(0, -0.34, -0.09),
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FR, S, Vector3(0.06, 0.0, 0.0), Vector3(0, -0.34, 0.03),
+		P(R_HEAD, B, Vector3(0.258, 0.038, 0.026), Vector3(0.000, 0.243, -0.180),
+			Color(1.0, 0.74, 0.36), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
+		# Spallières : deux calottes posées sur les épaules.
+		P(R_AR, SkinPart.Shape.ELLIPSOID, Vector3(0.25, 0.19, 0.25),
+			Vector3(0.03, 0.03, 0), Color.WHITE, true, 0.20, false, false,
+			Vector3.ZERO, M_METAL),
+		P(R_AL, SkinPart.Shape.ELLIPSOID, Vector3(0.25, 0.19, 0.25),
+			Vector3(-0.03, 0.03, 0), Color.WHITE, true, 0.20, false, false,
+			Vector3.ZERO, M_METAL),
+		# Épée : poignée, pommeau rond, garde, lame, pointe.
+		P(R_FR, CY, Vector3(0.045, 0.24, 0.045), Vector3(0, -0.36, -0.09),
+			LEATHER, false, 0.0, false, false, Vector3(90, 0, 0), M_CLOTH),
+		P(R_FR, S, Vector3(0.065, 0.0, 0.0), Vector3(0, -0.36, 0.04),
 			GOLD, false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_FR, B, Vector3(0.28, 0.06, 0.08), Vector3(0, -0.34, -0.21),
-			GOLD, false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_FR, B, Vector3(0.11, 0.045, 1.02), Vector3(0, -0.34, -0.76),
+		P(R_FR, SkinPart.Shape.ELLIPSOID, Vector3(0.30, 0.09, 0.10),
+			Vector3(0, -0.36, -0.22), GOLD, false, 0.0, false, false,
+			Vector3.ZERO, M_METAL),
+		P(R_FR, B, Vector3(0.115, 0.05, 1.00), Vector3(0, -0.36, -0.76),
 			STEEL, false, 0.0, true, false, Vector3.ZERO, M_METAL),
-		P(R_FR, PR, Vector3(0.11, 0.045, 0.22), Vector3(0, -0.34, -1.38),
+		P(R_FR, PR, Vector3(0.115, 0.05, 0.24), Vector3(0, -0.36, -1.38),
 			STEEL, false, 0.0, true, false, Vector3(-90, 0, 0), M_METAL),
-		# Écu : planche, bordure, boucle, croix peinte.
-		P(R_FL, B, Vector3(0.58, 0.76, 0.07), Vector3(-0.06, -0.24, -0.16),
-			Color.WHITE, true, 0.08, false, false, Vector3.ZERO, M_WOOD),
-		P(R_FL, B, Vector3(0.62, 0.10, 0.09), Vector3(-0.06, 0.10, -0.16),
+		# Écu : un ovoïde aplati, sa bordure, son umbo, sa croix.
+		P(R_FL, SkinPart.Shape.ELLIPSOID, Vector3(0.62, 0.82, 0.14),
+			Vector3(-0.07, -0.26, -0.15), Color.WHITE, true, 0.08, false, false,
+			Vector3.ZERO, M_WOOD),
+		P(R_FL, TO, Vector3(0.26, 0.0, 0.33), Vector3(-0.07, -0.26, -0.21),
+			IRON, false, 0.0, false, false, Vector3(90, 0, 0), M_METAL),
+		P(R_FL, S, Vector3(0.11, 0.0, 0.0), Vector3(-0.07, -0.26, -0.22),
 			IRON, false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_FL, S, Vector3(0.10, 0.0, 0.0), Vector3(-0.06, -0.24, -0.20),
-			IRON, false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_FL, B, Vector3(0.11, 0.60, 0.03), Vector3(-0.06, -0.24, -0.21),
+		P(R_FL, B, Vector3(0.10, 0.64, 0.03), Vector3(-0.07, -0.26, -0.22),
 			Color.WHITE, true, 0.45, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FL, B, Vector3(0.42, 0.11, 0.03), Vector3(-0.06, -0.12, -0.21),
+		P(R_FL, B, Vector3(0.44, 0.10, 0.03), Vector3(-0.07, -0.14, -0.22),
 			Color.WHITE, true, 0.45, false, false, Vector3.ZERO, M_CLOTH),
 		# Cape courte.
-		P(R_STATIC, B, Vector3(0.58, 0.62, 0.06), Vector3(0, 1.10, 0.19),
-			Color.WHITE, true, -0.40, false, false, Vector3.ZERO, M_CLOTH),
+		P(R_STATIC, SkinPart.Shape.ELLIPSOID, Vector3(0.66, 0.80, 0.20),
+			Vector3(0, 1.06, 0.22), Color.WHITE, true, -0.42, false, false,
+			Vector3.ZERO, M_CLOTH),
 	])
 	return s
 
@@ -264,29 +313,39 @@ func build_mage() -> SkinData:
 	s.id = &"mage"
 	s.stride_degrees = 31.0
 	s.parts.append_array([
-		# Chapeau pointu, à bord large et bandeau.
-		P(R_HEAD, CY, Vector3(0.36, 0.04, 0.36), Vector3(0, 0.31, 0),
-			Color.WHITE, true, -0.34, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_HEAD, CO, Vector3(0.20, 0.46, 0.0), Vector3(0, 0.55, 0),
-			Color.WHITE, true, -0.30, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_HEAD, CY, Vector3(0.205, 0.06, 0.205), Vector3(0, 0.35, 0),
+		# Chapeau : bord large, cône mou, bandeau. Le cône est légèrement
+		# penché — un chapeau parfaitement droit a l'air d'un cône, un chapeau
+		# de travers a l'air d'un chapeau.
+		P(R_HEAD, CY, Vector3(0.378, 0.043, 0.378), Vector3(0.000, 0.372, 0.000),
+			Color.WHITE, true, -0.36, false, false, Vector3(0, 0, 5), M_CLOTH),
+		P(R_HEAD, CO, Vector3(0.206, 0.464, 0.000), Vector3(0.026, 0.604, 0.000),
+			Color.WHITE, true, -0.30, false, false, Vector3(0, 0, 8), M_CLOTH),
+		P(R_HEAD, S, Vector3(0.043, 0.000, 0.000), Vector3(0.060, 0.844, 0.000),
 			GOLD, false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		# Robe : jupe conique, statique. Elle cache le haut des cuisses, ce qui
-		# suffit à ne plus voir de cube au bassin.
-		P(R_STATIC, CY, Vector3(0.26, 0.64, 0.46), Vector3(0, 0.60, 0),
+		P(R_HEAD, CY, Vector3(0.210, 0.060, 0.210), Vector3(0.000, 0.397, 0.000),
+			GOLD, false, 0.0, false, false, Vector3(0, 0, 5), M_METAL),
+		# Barbe : deux ovoïdes, parce qu'un mage sans barbe n'est qu'un type
+		# en robe.
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.26, 0.24, 0.22),
+			Vector3(0, 0.10, -0.14), Color(0.86, 0.86, 0.88), false, 0.0,
+			false, false, Vector3.ZERO, M_CLOTH),
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.16, 0.22, 0.16),
+			Vector3(0, -0.03, -0.13), Color(0.86, 0.86, 0.88), false, 0.0,
+			false, false, Vector3.ZERO, M_CLOTH),
+		# Robe : jupe conique et son ourlet.
+		P(R_STATIC, CY, Vector3(0.30, 0.66, 0.50), Vector3(0, 0.58, 0),
 			Color.WHITE, true, -0.18, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, CY, Vector3(0.47, 0.05, 0.47), Vector3(0, 0.30, 0),
+		P(R_STATIC, TO, Vector3(0.44, 0.0, 0.52), Vector3(0, 0.26, 0),
 			Color.WHITE, true, -0.42, false, false, Vector3.ZERO, M_CLOTH),
-		# Étole brodée qui tombe devant.
-		P(R_STATIC, B, Vector3(0.13, 0.72, 0.04), Vector3(0, 0.96, -0.20),
+		P(R_STATIC, B, Vector3(0.13, 0.74, 0.05), Vector3(0, 0.92, -0.21),
 			GOLD, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.40, 0.09, 0.34), Vector3(0, 1.36, 0),
+		P(R_STATIC, TO, Vector3(0.21, 0.0, 0.31), Vector3(0, 1.32, 0),
 			Color.WHITE, true, -0.34, false, false, Vector3.ZERO, M_CLOTH),
 		# Bâton tenu droit : pommeau, hampe, monture, orbe.
-		staff_part(S, Vector3(0.05, 0.0, 0.0), -0.06, IRON, M_METAL),
-		staff_part(B, Vector3(0.055, 1.50, 0.055), 0.44, WOOD, M_WOOD),
-		staff_part(TO, Vector3(0.10, 0.0, 0.185), 1.16, GOLD, M_METAL, true),
-		staff_part(S, Vector3(0.115, 0.0, 0.0), 1.16,
+		staff_part(S, Vector3(0.055, 0.0, 0.0), -0.06, IRON, M_METAL),
+		staff_part(CY, Vector3(0.035, 1.50, 0.045), 0.44, WOOD, M_WOOD),
+		staff_part(TO, Vector3(0.11, 0.0, 0.20), 1.16, GOLD, M_METAL, true),
+		staff_part(S, Vector3(0.125, 0.0, 0.0), 1.16,
 			Color(0.66, 0.40, 1.0), M_GLOW, false, 5.0),
 	])
 	return s
@@ -296,38 +355,40 @@ func build_soigneur() -> SkinData:
 	s.id = &"soigneur"
 	s.stride_degrees = 31.0
 	s.parts.append_array([
-		# Capuche : calotte, pointe, retombée dans le dos.
-		P(R_HEAD, B, Vector3(0.33, 0.30, 0.35), Vector3(0, 0.20, 0.03),
-			Color.WHITE, true, -0.26, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_HEAD, PR, Vector3(0.30, 0.22, 0.30), Vector3(0, 0.38, 0.03),
-			Color.WHITE, true, -0.26, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_HEAD, B, Vector3(0.28, 0.26, 0.10), Vector3(0, 0.06, 0.19),
-			Color.WHITE, true, -0.34, false, false, Vector3.ZERO, M_CLOTH),
+		# Capuche : une calotte qui enveloppe la tête, sa pointe, sa retombée.
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.50, 0.50, 0.52),
+			Vector3(0, 0.27, 0.03), Color.WHITE, true, -0.26, false, false,
+			Vector3.ZERO, M_CLOTH),
+		P(R_HEAD, CO, Vector3(0.146, 0.223, 0.000), Vector3(0.000, 0.423, 0.129),
+			Color.WHITE, true, -0.26, false, false, Vector3(58, 0, 0), M_CLOTH),
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.42, 0.42, 0.20),
+			Vector3(0, 0.10, 0.22), Color.WHITE, true, -0.34, false, false,
+			Vector3.ZERO, M_CLOTH),
 		# Ombre du visage sous la capuche : c'est elle qui rend un moine
 		# inquiétant plutôt que douillet.
-		P(R_HEAD, B, Vector3(0.22, 0.16, 0.03), Vector3(0, 0.16, -0.155),
-			Color(0.05, 0.05, 0.07)),
-		# Robe et étole.
-		P(R_STATIC, CY, Vector3(0.25, 0.62, 0.44), Vector3(0, 0.60, 0),
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.30, 0.26, 0.10),
+			Vector3(0, 0.25, -0.20), Color(0.05, 0.05, 0.07), false, 0.0,
+			false, false, Vector3.ZERO, M_PLAIN),
+		# Robe, étole, croix pectorale.
+		P(R_STATIC, CY, Vector3(0.29, 0.64, 0.48), Vector3(0, 0.58, 0),
 			Color.WHITE, true, -0.15, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, CY, Vector3(0.45, 0.05, 0.45), Vector3(0, 0.30, 0),
+		P(R_STATIC, TO, Vector3(0.42, 0.0, 0.50), Vector3(0, 0.26, 0),
 			Color.WHITE, true, -0.40, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.40, 0.09, 0.36), Vector3(0, 1.34, 0),
+		P(R_STATIC, TO, Vector3(0.22, 0.0, 0.34), Vector3(0, 1.30, 0),
 			Color(0.90, 0.84, 0.60), false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.10, 0.66, 0.03), Vector3(0.13, 1.02, -0.19),
+		P(R_STATIC, B, Vector3(0.10, 0.68, 0.04), Vector3(0.14, 0.98, -0.20),
 			Color(0.90, 0.84, 0.60), false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.10, 0.66, 0.03), Vector3(-0.13, 1.02, -0.19),
+		P(R_STATIC, B, Vector3(0.10, 0.68, 0.04), Vector3(-0.14, 0.98, -0.20),
 			Color(0.90, 0.84, 0.60), false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		# Croix pectorale, émissive : elle doit briller dans le couloir.
-		P(R_STATIC, B, Vector3(0.06, 0.24, 0.03), Vector3(0, 1.20, -0.19),
+		P(R_STATIC, B, Vector3(0.07, 0.26, 0.03), Vector3(0, 1.14, -0.21),
 			Color(1.0, 0.94, 0.60), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		P(R_STATIC, B, Vector3(0.17, 0.06, 0.03), Vector3(0, 1.25, -0.19),
+		P(R_STATIC, B, Vector3(0.19, 0.07, 0.03), Vector3(0, 1.20, -0.21),
 			Color(1.0, 0.94, 0.60), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		# Sceptre : pommeau, hampe, monture, cristal.
-		staff_part(S, Vector3(0.045, 0.0, 0.0), -0.06, IRON, M_METAL),
-		staff_part(B, Vector3(0.05, 1.20, 0.05), 0.36, WOOD, M_WOOD),
-		staff_part(TO, Vector3(0.11, 0.0, 0.20), 0.94, GOLD, M_METAL, true),
-		staff_part(S, Vector3(0.115, 0.0, 0.0), 0.94,
+		# Sceptre.
+		staff_part(S, Vector3(0.05, 0.0, 0.0), -0.06, IRON, M_METAL),
+		staff_part(CY, Vector3(0.032, 1.20, 0.042), 0.36, WOOD, M_WOOD),
+		staff_part(TO, Vector3(0.115, 0.0, 0.21), 0.94, GOLD, M_METAL, true),
+		staff_part(S, Vector3(0.125, 0.0, 0.0), 0.94,
 			Color(0.36, 1.0, 0.54), M_GLOW, false, 5.0),
 	])
 	return s
@@ -337,126 +398,144 @@ func build_archer() -> SkinData:
 	s.id = &"archer"
 	s.stride_degrees = 37.0
 	s.parts.append_array([
-		# Capuche courte à visière, et masque de bouche.
-		P(R_HEAD, B, Vector3(0.31, 0.19, 0.33), Vector3(0, 0.26, 0.02),
-			Color.WHITE, true, -0.30, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_HEAD, B, Vector3(0.29, 0.05, 0.16), Vector3(0, 0.25, -0.16),
-			Color.WHITE, true, -0.40, false, false, Vector3(14, 0, 0), M_CLOTH),
-		P(R_HEAD, B, Vector3(0.20, 0.11, 0.20), Vector3(0, 0.07, -0.03),
-			Color.WHITE, true, -0.46, false, false, Vector3.ZERO, M_CLOTH),
-		# Carquois dans le dos, et ses flèches.
-		P(R_STATIC, CY, Vector3(0.085, 0.46, 0.085), Vector3(0.17, 1.24, 0.19),
+		# Capuche courte à visière, foulard sur le bas du visage.
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.48, 0.40, 0.48),
+			Vector3(0, 0.32, 0.02), Color.WHITE, true, -0.30, false, false,
+			Vector3.ZERO, M_CLOTH),
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.42, 0.08, 0.30),
+			Vector3(0, 0.31, -0.20), Color.WHITE, true, -0.42, false, false,
+			Vector3(16, 0, 0), M_CLOTH),
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.36, 0.20, 0.34),
+			Vector3(0, 0.08, -0.03), Color.WHITE, true, -0.46, false, false,
+			Vector3.ZERO, M_CLOTH),
+		# Carquois et flèches.
+		P(R_STATIC, CY, Vector3(0.09, 0.48, 0.11), Vector3(0.18, 1.16, 0.20),
 			LEATHER, false, 0.0, false, false, Vector3(-22, 0, 12), M_CLOTH),
-		P(R_STATIC, B, Vector3(0.02, 0.34, 0.02), Vector3(0.20, 1.54, 0.24),
+		P(R_STATIC, CY, Vector3(0.012, 0.36, 0.012), Vector3(0.21, 1.48, 0.25),
 			Color(0.82, 0.78, 0.66), false, 0.0, false, false, Vector3(-22, 0, 12), M_WOOD),
-		P(R_STATIC, B, Vector3(0.02, 0.34, 0.02), Vector3(0.14, 1.54, 0.22),
+		P(R_STATIC, CY, Vector3(0.012, 0.36, 0.012), Vector3(0.15, 1.48, 0.23),
 			Color(0.82, 0.78, 0.66), false, 0.0, false, false, Vector3(-22, 0, 12), M_WOOD),
-		P(R_STATIC, B, Vector3(0.02, 0.34, 0.02), Vector3(0.23, 1.53, 0.18),
+		P(R_STATIC, CY, Vector3(0.012, 0.36, 0.012), Vector3(0.24, 1.47, 0.19),
 			Color(0.82, 0.78, 0.66), false, 0.0, false, false, Vector3(-22, 0, 12), M_WOOD),
-		# Baudrier, ceinture, bourses.
-		P(R_STATIC, B, Vector3(0.46, 0.08, 0.32), Vector3(0, 0.96, 0),
+		# Baudrier, ceinture, bourse.
+		P(R_STATIC, TO, Vector3(0.24, 0.0, 0.34), Vector3(0, 0.92, 0),
 			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.09, 0.52, 0.04), Vector3(0.06, 1.22, -0.17),
+		P(R_STATIC, B, Vector3(0.09, 0.54, 0.05), Vector3(0.07, 1.16, -0.19),
 			LEATHER, false, 0.0, false, false, Vector3(0, 0, 22), M_CLOTH),
-		P(R_STATIC, B, Vector3(0.14, 0.16, 0.10), Vector3(-0.22, 0.92, 0.04),
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		# Arc : deux branches et la corde.
-		P(R_FR, TO, Vector3(0.42, 0.0, 0.48), Vector3(0, -0.33, -0.16),
-			WOOD, false, 0.0, true, false, Vector3(0, 90, 0), M_WOOD),
-		P(R_FR, B, Vector3(0.012, 0.92, 0.012), Vector3(0.03, -0.33, -0.16),
-			Color(0.88, 0.86, 0.78), false, 0.0, true, false, Vector3.ZERO, M_CLOTH),
-		P(R_FR, B, Vector3(0.05, 0.14, 0.05), Vector3(0, -0.33, -0.16),
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
+		P(R_STATIC, SkinPart.Shape.ELLIPSOID, Vector3(0.17, 0.19, 0.13),
+			Vector3(-0.24, 0.86, 0.04), LEATHER, false, 0.0, false, false,
+			Vector3.ZERO, M_CLOTH),
+		# Arc et corde.
+		P(R_FR, TO, Vector3(0.30, 0.0, 0.355), Vector3(0, -0.40, -0.13),
+			WOOD, false, 0.0, true, false, Vector3(0, 0, 90), M_WOOD),
+		P(R_FR, CY, Vector3(0.008, 0.66, 0.008), Vector3(0, -0.40, -0.10),
+			Color(0.88, 0.86, 0.78), false, 0.0, true, false, Vector3(0, 0, 90), M_CLOTH),
+		P(R_FR, CY, Vector3(0.035, 0.16, 0.035), Vector3(0, -0.40, -0.13),
+			LEATHER, false, 0.0, false, false, Vector3(0, 0, 90), M_CLOTH),
 	])
 	return s
 
 func build_gobelin() -> SkinData:
-	var s: SkinData = humanoid(0.68, Color(0.42, 0.58, 0.32))
+	var s: SkinData = humanoid(0.70, Color(0.44, 0.60, 0.34))
 	s.id = &"gobelin"
 	# Court et rapide : la foulée est plus ample que celle d'un homme, sinon un
 	# gobelin qui court a l'air de glisser.
 	s.stride_degrees = 46.0
-	s.idle_bob = 0.030
-	var hide: Color = Color(0.40, 0.54, 0.30)
+	s.idle_bob = 0.032
+	var hide: Color = Color(0.42, 0.56, 0.32)
 	s.parts.append_array([
-		# Grandes oreilles : c'est la silhouette qui doit dire « gobelin » à
-		# vingt mètres, pas la couleur.
-		P(R_HEAD, PR, Vector3(0.05, 0.22, 0.14), Vector3(0.13, 0.15, 0.02),
-			hide, false, 0.0, false, false, Vector3(0, 0, -58)),
-		P(R_HEAD, PR, Vector3(0.05, 0.22, 0.14), Vector3(-0.13, 0.15, 0.02),
-			hide, false, 0.0, false, false, Vector3(0, 0, 58)),
-		# Groin, crocs, yeux jaunes qui luisent dans le noir.
-		P(R_HEAD, B, Vector3(0.10, 0.08, 0.09), Vector3(0, 0.10, -0.15), hide),
-		P(R_HEAD, B, Vector3(0.02, 0.055, 0.02), Vector3(0.04, 0.045, -0.17),
-			Color(0.90, 0.88, 0.76)),
-		P(R_HEAD, B, Vector3(0.02, 0.055, 0.02), Vector3(-0.04, 0.045, -0.17),
-			Color(0.90, 0.88, 0.76)),
-		P(R_HEAD, S, Vector3(0.026, 0.0, 0.0), Vector3(0.06, 0.19, -0.13),
+		# Grandes oreilles en pointe : c'est la silhouette qui doit dire
+		# « gobelin » à vingt mètres, pas la couleur.
+		P(R_HEAD, CO, Vector3(0.060, 0.258, 0.000), Vector3(0.164, 0.251, 0.017),
+			hide, false, 0.0, false, false, Vector3(0, 0, -62), M_PLAIN),
+		P(R_HEAD, CO, Vector3(0.060, 0.258, 0.000), Vector3(-0.164, 0.251, 0.017),
+			hide, false, 0.0, false, false, Vector3(0, 0, 62), M_PLAIN),
+		# Museau, crocs, yeux jaunes qui luisent dans le noir.
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.19, 0.15, 0.17),
+			Vector3(0, 0.14, -0.21), hide, false, 0.0, false, false,
+			Vector3.ZERO, M_PLAIN),
+		P(R_HEAD, CO, Vector3(0.021, 0.068, 0.000), Vector3(0.043, 0.071, -0.189),
+			Color(0.92, 0.90, 0.80), false, 0.0, false, false, Vector3(180, 0, 0), M_PLAIN),
+		P(R_HEAD, CO, Vector3(0.021, 0.068, 0.000), Vector3(-0.043, 0.071, -0.189),
+			Color(0.92, 0.90, 0.80), false, 0.0, false, false, Vector3(180, 0, 0), M_PLAIN),
+		P(R_HEAD, S, Vector3(0.028, 0.000, 0.000), Vector3(0.060, 0.235, -0.137),
 			Color(1.0, 0.86, 0.20), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		P(R_HEAD, S, Vector3(0.026, 0.0, 0.0), Vector3(-0.06, 0.19, -0.13),
+		P(R_HEAD, S, Vector3(0.028, 0.000, 0.000), Vector3(-0.060, 0.235, -0.137),
 			Color(1.0, 0.86, 0.20), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		# Capuche de peau, pagne, bandages.
-		P(R_STATIC, B, Vector3(0.36, 0.24, 0.28), Vector3(0, 0.55, 0),
+		# Pagne de peau, bandage au bras.
+		P(R_STATIC, CY, Vector3(0.30, 0.28, 0.34), Vector3(0, 0.54, 0),
 			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.30, 0.14, 0.24), Vector3(0, 0.88, 0),
-			LEATHER, false, 0.0, false, false, Vector3(0, 0, 8), M_CLOTH),
-		P(R_FL, B, Vector3(0.13, 0.14, 0.14), Vector3(0, -0.14, 0),
-			Color(0.72, 0.70, 0.60), false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
+		P(R_STATIC, SkinPart.Shape.ELLIPSOID, Vector3(0.40, 0.20, 0.32),
+			Vector3(0, 0.86, 0), LEATHER, false, 0.0, false, false,
+			Vector3(0, 0, 9), M_CLOTH),
+		P(R_FL, CY, Vector3(0.10, 0.14, 0.10), Vector3(0, -0.14, 0),
+			Color(0.74, 0.72, 0.62), false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
 		# Couperet ébréché.
-		P(R_FR, B, Vector3(0.05, 0.05, 0.16), Vector3(0, -0.23, -0.06),
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FR, B, Vector3(0.14, 0.035, 0.46), Vector3(0, -0.23, -0.36),
+		P(R_FR, CY, Vector3(0.035, 0.18, 0.04), Vector3(0, -0.26, -0.06),
+			LEATHER, false, 0.0, false, false, Vector3(90, 0, 0), M_CLOTH),
+		P(R_FR, B, Vector3(0.15, 0.035, 0.46), Vector3(0, -0.26, -0.36),
 			Color(0.58, 0.56, 0.52), false, 0.0, true, false, Vector3.ZERO, M_METAL),
-		P(R_FR, PR, Vector3(0.14, 0.035, 0.15), Vector3(0, -0.23, -0.65),
+		P(R_FR, PR, Vector3(0.15, 0.035, 0.16), Vector3(0, -0.26, -0.65),
 			Color(0.58, 0.56, 0.52), false, 0.0, true, false, Vector3(-90, 0, 0), M_METAL),
 	])
 	return s
 
 func build_warden() -> SkinData:
-	var s: SkinData = humanoid(1.28, Color(0.26, 0.22, 0.26))
+	var s: SkinData = humanoid(1.30, Color(0.26, 0.22, 0.26))
 	s.id = &"warden"
 	# Lourd : foulée courte, buste presque immobile à l'arrêt. Un boss qui
 	# gigote n'inspire rien.
 	s.stride_degrees = 25.0
 	s.idle_bob = 0.016
-	var bone: Color = Color(0.76, 0.72, 0.58)
+	var bone: Color = Color(0.78, 0.74, 0.60)
 	s.parts.append_array([
-		# Heaume cornu, fente braise.
-		P(R_HEAD, B, Vector3(0.38, 0.38, 0.40), Vector3(0, 0.20, 0),
-			Color(0.20, 0.19, 0.23), false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_HEAD, B, Vector3(0.40, 0.10, 0.42), Vector3(0, 0.40, 0),
-			Color(0.28, 0.26, 0.30), false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_HEAD, CO, Vector3(0.07, 0.46, 0.0), Vector3(0.20, 0.40, 0.02),
-			bone, false, 0.0, false, false, Vector3(0, 0, 36), M_PLAIN),
-		P(R_HEAD, CO, Vector3(0.07, 0.46, 0.0), Vector3(-0.20, 0.40, 0.02),
-			bone, false, 0.0, false, false, Vector3(0, 0, -36), M_PLAIN),
-		P(R_HEAD, B, Vector3(0.24, 0.035, 0.03), Vector3(0, 0.20, -0.21),
+		# Grand heaume clos, cornes, fente braise.
+		P(R_HEAD, SkinPart.Shape.ELLIPSOID, Vector3(0.58, 0.60, 0.58),
+			Vector3(0, 0.28, 0), Color(0.21, 0.20, 0.24), false, 0.0, false,
+			false, Vector3.ZERO, M_METAL),
+		P(R_HEAD, CY, Vector3(0.266, 0.086, 0.266), Vector3(0.000, 0.132, 0.000),
+			Color(0.29, 0.27, 0.31), false, 0.0, false, false, Vector3.ZERO, M_METAL),
+		P(R_HEAD, CO, Vector3(0.073, 0.464, 0.000), Vector3(0.223, 0.423, 0.026),
+			bone, false, 0.0, false, false, Vector3(0, 0, 40), M_PLAIN),
+		P(R_HEAD, CO, Vector3(0.073, 0.464, 0.000), Vector3(-0.223, 0.423, 0.026),
+			bone, false, 0.0, false, false, Vector3(0, 0, -40), M_PLAIN),
+		P(R_HEAD, B, Vector3(0.258, 0.038, 0.026), Vector3(0.000, 0.235, -0.249),
 			Color(1.0, 0.36, 0.16), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		P(R_HEAD, B, Vector3(0.05, 0.22, 0.06), Vector3(0, 0.12, -0.20),
-			Color(0.28, 0.26, 0.30), false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		# Épaulières à pointes.
-		P(R_AR, CO, Vector3(0.075, 0.22, 0.0), Vector3(0.10, 0.10, 0),
-			bone, false, 0.0, false, false, Vector3(0, 0, 52), M_PLAIN),
-		P(R_AL, CO, Vector3(0.075, 0.22, 0.0), Vector3(-0.10, 0.10, 0),
-			bone, false, 0.0, false, false, Vector3(0, 0, -52), M_PLAIN),
+		P(R_HEAD, B, Vector3(0.051, 0.240, 0.051), Vector3(0.000, 0.165, -0.240),
+			Color(0.29, 0.27, 0.31), false, 0.0, false, false, Vector3.ZERO, M_METAL),
+		# Spallières à pointe.
+		P(R_AR, SkinPart.Shape.ELLIPSOID, Vector3(0.31, 0.23, 0.31),
+			Vector3(0.04, 0.03, 0), Color.WHITE, true, 0.12, false, false,
+			Vector3.ZERO, M_METAL),
+		P(R_AL, SkinPart.Shape.ELLIPSOID, Vector3(0.31, 0.23, 0.31),
+			Vector3(-0.04, 0.03, 0), Color.WHITE, true, 0.12, false, false,
+			Vector3.ZERO, M_METAL),
+		P(R_AR, CO, Vector3(0.08, 0.26, 0.0), Vector3(0.13, 0.09, 0),
+			bone, false, 0.0, false, false, Vector3(0, 0, 56), M_PLAIN),
+		P(R_AL, CO, Vector3(0.08, 0.26, 0.0), Vector3(-0.13, 0.09, 0),
+			bone, false, 0.0, false, false, Vector3(0, 0, -56), M_PLAIN),
 		# Cape lourde et son collet.
-		P(R_STATIC, B, Vector3(0.76, 1.14, 0.07), Vector3(0, 1.10, 0.24),
-			Color.WHITE, true, -0.48, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_STATIC, B, Vector3(0.84, 0.14, 0.42), Vector3(0, 1.66, 0.06),
+		P(R_STATIC, SkinPart.Shape.ELLIPSOID, Vector3(0.88, 1.30, 0.26),
+			Vector3(0, 1.02, 0.26), Color.WHITE, true, -0.48, false, false,
+			Vector3.ZERO, M_CLOTH),
+		P(R_STATIC, TO, Vector3(0.30, 0.0, 0.48), Vector3(0, 1.52, 0.05),
 			Color.WHITE, true, -0.30, false, false, Vector3.ZERO, M_CLOTH),
-		# Braise du cœur, sous le plastron : elle dit qu'il n'est pas humain.
-		P(R_STATIC, S, Vector3(0.09, 0.0, 0.0), Vector3(0, 1.26, -0.20),
+		# Braise du cœur : elle dit qu'il n'est pas humain.
+		P(R_STATIC, S, Vector3(0.10, 0.0, 0.0), Vector3(0, 1.18, -0.22),
 			Color(1.0, 0.34, 0.12), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		# Espadon : poignée, garde, lame, pointe.
-		P(R_FR, B, Vector3(0.09, 0.09, 0.40), Vector3(0, -0.42, -0.16),
-			LEATHER, false, 0.0, false, false, Vector3.ZERO, M_CLOTH),
-		P(R_FR, B, Vector3(0.48, 0.08, 0.10), Vector3(0, -0.42, -0.38),
+		# Espadon.
+		P(R_FR, CY, Vector3(0.05, 0.42, 0.055), Vector3(0, -0.44, -0.16),
+			LEATHER, false, 0.0, false, false, Vector3(90, 0, 0), M_CLOTH),
+		P(R_FR, S, Vector3(0.075, 0.0, 0.0), Vector3(0, -0.44, 0.07),
 			Color(0.44, 0.40, 0.36), false, 0.0, false, false, Vector3.ZERO, M_METAL),
-		P(R_FR, B, Vector3(0.17, 0.055, 1.66), Vector3(0, -0.42, -1.26),
+		P(R_FR, SkinPart.Shape.ELLIPSOID, Vector3(0.52, 0.11, 0.13),
+			Vector3(0, -0.44, -0.39), Color(0.44, 0.40, 0.36), false, 0.0,
+			false, false, Vector3.ZERO, M_METAL),
+		P(R_FR, B, Vector3(0.18, 0.055, 1.66), Vector3(0, -0.44, -1.26),
 			Color(0.68, 0.66, 0.64), false, 0.0, true, false, Vector3.ZERO, M_METAL),
-		P(R_FR, B, Vector3(0.045, 0.06, 1.50), Vector3(0, -0.42, -1.20),
-			Color(1.0, 0.34, 0.12), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
-		P(R_FR, PR, Vector3(0.17, 0.055, 0.30), Vector3(0, -0.42, -2.24),
+		P(R_FR, B, Vector3(0.035, 0.045, 1.10), Vector3(0, -0.44, -1.10),
+			Color(1.0, 0.42, 0.18), false, 0.0, false, false, Vector3.ZERO, M_GLOW),
+		P(R_FR, PR, Vector3(0.18, 0.055, 0.32), Vector3(0, -0.44, -2.25),
 			Color(0.68, 0.66, 0.64), false, 0.0, true, false, Vector3(-90, 0, 0), M_METAL),
 	])
 	return s

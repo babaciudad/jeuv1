@@ -34,22 +34,32 @@ static func mesh_for(part: SkinPart) -> Mesh:
 			var capsule: CapsuleMesh = CapsuleMesh.new()
 			capsule.radius = part.size.x
 			capsule.height = maxf(part.size.y, part.size.x * 2.0 + 0.01)
-			capsule.radial_segments = 12
-			capsule.rings = 5
+			capsule.radial_segments = 14
+			capsule.rings = 6
 			return capsule
 		SkinPart.Shape.SPHERE:
 			var sphere: SphereMesh = SphereMesh.new()
 			sphere.radius = part.size.x
 			sphere.height = part.size.x * 2.0
-			sphere.radial_segments = 12
-			sphere.rings = 6
+			sphere.radial_segments = 16
+			sphere.rings = 8
 			return sphere
+		SkinPart.Shape.ELLIPSOID:
+			# Sphère unitaire ; l'étirement se fait par l'échelle de
+			# l'instance, ce qui permet de partager le même maillage entre
+			# une tête, un torse et un ventre.
+			var blob: SphereMesh = SphereMesh.new()
+			blob.radius = 0.5
+			blob.height = 1.0
+			blob.radial_segments = 16
+			blob.rings = 8
+			return blob
 		SkinPart.Shape.CYLINDER:
 			var cylinder: CylinderMesh = CylinderMesh.new()
 			cylinder.top_radius = part.size.x
 			cylinder.bottom_radius = part.size.z
 			cylinder.height = part.size.y
-			cylinder.radial_segments = 12
+			cylinder.radial_segments = 14
 			cylinder.rings = 1
 			return cylinder
 		SkinPart.Shape.CONE:
@@ -57,7 +67,7 @@ static func mesh_for(part: SkinPart) -> Mesh:
 			cone.top_radius = 0.0
 			cone.bottom_radius = part.size.x
 			cone.height = part.size.y
-			cone.radial_segments = 12
+			cone.radial_segments = 14
 			cone.rings = 1
 			return cone
 		SkinPart.Shape.TORUS:
@@ -92,7 +102,11 @@ const FINISH: Dictionary[int, Vector2] = {
 	SkinPart.Surface.PLAIN: Vector2(0.80, 0.0),
 	SkinPart.Surface.STONE: Vector2(0.94, 0.0),
 	SkinPart.Surface.WOOD: Vector2(0.86, 0.0),
-	SkinPart.Surface.METAL: Vector2(0.34, 0.92),
+	# Métallicité volontairement basse. À 0,9, un métal ne tire sa couleur QUE
+	# de ce qu'il reflète — et cette scène n'a ni ciel ni sonde de réflexion,
+	# donc il reflète du noir. Un heaume devenait une bille de plastique noir.
+	# À 0,38 avec une réflexion spéculaire forte, il brille sans s'éteindre.
+	SkinPart.Surface.METAL: Vector2(0.42, 0.38),
 	SkinPart.Surface.CLOTH: Vector2(0.97, 0.0),
 	SkinPart.Surface.GLOW: Vector2(1.0, 0.0),
 }
@@ -152,7 +166,8 @@ static func material_for(color: Color, unshaded: bool,
 	var finish: Vector2 = FINISH.get(surface, Vector2(0.8, 0.0))
 	material.roughness = finish.x
 	material.metallic = finish.y
-	material.metallic_specular = 0.5
+	# Le métal accroche des reflets nets ; le reste, non.
+	material.metallic_specular = 0.85 if surface == SkinPart.Surface.METAL else 0.42
 
 	if GRAIN.has(surface):
 		var grain: Vector3 = GRAIN[surface]
@@ -198,6 +213,8 @@ static func instance_for(part: SkinPart, color: Color) -> MeshInstance3D:
 		deg_to_rad(part.rotation_degrees.x),
 		deg_to_rad(part.rotation_degrees.y),
 		deg_to_rad(part.rotation_degrees.z))
+	if part.shape == SkinPart.Shape.ELLIPSOID:
+		instance.scale = part.size
 	# Une pièce émissive n'a pas à s'assombrir elle-même, et une pièce de
 	# décor lointaine ne mérite pas le coût d'une ombre portée.
 	if part.surface == SkinPart.Surface.GLOW or part.unshaded:
