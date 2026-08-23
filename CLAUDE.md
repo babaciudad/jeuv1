@@ -205,6 +205,10 @@ avec l'état réseau. Pour un couloir, cinq rectangles suffisent.
 
 ## Commandes de vérification
 
+Prérequis : Godot 4.5, **PowerShell 7 ou plus** (`pwsh`, pas `powershell` :
+les scripts déclarent `#Requires -Version 7.0`), et git, dont `test.ps1` et
+`verify.ps1` se servent pour installer gdUnit4.
+
 Godot est résolu dans cet ordre : paramètre `-GodotBin`, puis `$env:GODOT_BIN`,
 puis le `PATH`.
 

@@ -7,6 +7,25 @@ quatre joueurs.
 Godot 4.5, GDScript en typage statique strict. Direction artistique low-poly
 non texturée, assumée : la lisibilité du combat ne dépend d'aucun asset.
 
+## Prérequis
+
+| Outil | Version | Vérifier |
+|---|---|---|
+| Godot | 4.5.x | `godot --version` |
+| PowerShell | **7 ou plus** | `pwsh --version` |
+| git | quelconque | `git --version` |
+
+**PowerShell 7, pas celui de Windows.** Windows fournit la 5.1 ; les scripts de
+`tools/` déclarent `#Requires -Version 7.0` et emploient des API absentes de la
+5.1. Installation : `winget install Microsoft.PowerShell`, puis utiliser la
+commande `pwsh` et non `powershell`.
+
+**Si Windows refuse d'exécuter les scripts**, c'est la politique d'exécution :
+`Set-ExecutionPolicy -Scope Process Bypass` dans la session en cours.
+
+**git est nécessaire même pour tester** : `test.ps1` et `verify.ps1` installent
+gdUnit4 en clonant un tag épinglé. `addons/` n'est pas versionné.
+
 ## Lancer
 
 Godot doit être joignable, dans cet ordre : paramètre `-GodotBin`, variable
