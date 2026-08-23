@@ -6,8 +6,11 @@
 extends GdUnitTestSuite
 
 const LEVEL: String = "res://data/level/vertical_slice.tres"
-const PLAYER: String = "res://data/actors/player.tres"
-const GRUNT: String = "res://data/actors/grunt.tres"
+const GARDIEN: String = "res://data/classes/gardien.tres"
+const MAGE: String = "res://data/classes/mage.tres"
+const SOIGNEUR: String = "res://data/classes/soigneur.tres"
+const ARCHER: String = "res://data/classes/archer.tres"
+const GOBELIN: String = "res://data/actors/gobelin.tres"
 const WARDEN: String = "res://data/actors/warden.tres"
 
 var _worlds: Array[World] = []
@@ -18,18 +21,22 @@ func after_test() -> void:
 			world.remove_actor(actor_id)
 	_worlds.clear()
 
-func _player_data() -> PlayerData:
-	var data: PlayerData = load(PLAYER)
-	return data
+## Les quatre classes, dans l'ordre du menu et du réseau.
+func _classes() -> Array[PlayerData]:
+	var gardien: PlayerData = load(GARDIEN)
+	var mage: PlayerData = load(MAGE)
+	var soigneur: PlayerData = load(SOIGNEUR)
+	var archer: PlayerData = load(ARCHER)
+	return [gardien, mage, soigneur, archer]
 
 func _make_world(authority: World.Authority) -> World:
 	var world: World = World.new(self)
 	world.authority = authority
 	var level: LevelData = load(LEVEL)
-	var grunt: EnemyData = load(GRUNT)
+	var gobelin: EnemyData = load(GOBELIN)
 	var warden: EnemyData = load(WARDEN)
-	var enemies: Array[EnemyData] = [grunt, warden]
-	world.configure(level, _player_data(), enemies)
+	var enemies: Array[EnemyData] = [gobelin, warden]
+	world.configure(level, _classes(), enemies)
 	_worlds.append(world)
 	return world
 
@@ -150,7 +157,8 @@ func test_les_iframes_de_roulade_empechent_la_declaration_de_degats() -> void:
 	assert_bool(world.is_invulnerable(player)).is_false()
 
 	player.enter_state(Actor.State.DODGING, world.tick)
-	for _i: int in _player_data().dodge_invulnerable_from_tick:
+	var fiche: PlayerData = load(GARDIEN)
+	for _i: int in fiche.dodge_invulnerable_from_tick:
 		_step(world)
 	assert_bool(world.is_invulnerable(player)).is_true()
 
@@ -158,7 +166,7 @@ func test_l_attaque_coute_de_l_endurance_et_est_refusee_a_vide() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var pair: Array[Actor] = _face_off(world)
 	var player: Actor = pair[0]
-	var data: PlayerData = _player_data()
+	var data: PlayerData = load(GARDIEN)
 	var before: int = player.stamina_centi
 
 	_step(world, [_command(world, 1, Command.Type.ATTACK, {"i": 0})])

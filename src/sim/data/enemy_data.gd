@@ -6,7 +6,9 @@ class_name EnemyData
 extends Resource
 
 @export var id: StringName = &""
+@export var display_name: String = ""
 @export var is_boss: bool = false
+@export var color: Color = Color(0.71, 0.34, 0.31)
 
 @export_group("Vitalité")
 @export var max_health: int = 60
@@ -27,6 +29,13 @@ extends Resource
 @export var attack_range: float = 2.4
 ## Ticks entre deux attaques.
 @export var attack_cooldown_ticks: int = 90
+## Ticks pendant lesquels l'ennemi recule après avoir frappé. Sans ce recul,
+## il reste collé au joueur et le combat n'offre plus aucune fenêtre : on ne
+## peut ni riposter ni s'écarter.
+@export var recover_ticks: int = 26
+## Multiplicateur de la portée en deçà duquel l'ennemi tourne autour de sa
+## cible au lieu de foncer dessus.
+@export var circle_band: float = 1.4
 @export var stagger_duration_ticks: int = 36
 @export var poise_recovery_ticks: int = 240
 

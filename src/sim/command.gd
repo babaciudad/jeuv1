@@ -38,6 +38,14 @@ enum Type {
 	## {"s": int, "a": int} source des dégâts et index de son attaque. Émise
 	## par la victime, contrôlée par l'hôte.
 	REPORT_DAMAGE = 6,
+	## {"t": int, "a": int} allié soigné et index de l'attaque. Émise par le
+	## soigneur, confirmée par l'hôte. Contrairement aux dégâts reçus, un soin
+	## n'a pas besoin d'être instantané pour rester juste : cent millisecondes
+	## de retard sur un soin ne tuent personne, alors qu'un coup encaissé
+	## après une esquive réussie, si.
+	DECLARE_HEAL = 7,
+	## {"c": int} classe choisie par le joueur. Envoyée à la connexion.
+	SELECT_CLASS = 8,
 }
 
 const HEADER_SIZE: int = 13

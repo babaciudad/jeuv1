@@ -88,10 +88,18 @@ func apply(world: World, local_id: int, history: CommandHistory) -> void:
 		if present.find(actor_id) < 0:
 			world.remove_actor(actor_id)
 
+	# Les projectiles annoncés qu'on ne connaît pas encore : on les adopte.
+	# On ne retire jamais ceux que l'hôte ne mentionne plus — leur durée de vie
+	# et leurs collisions les font expirer localement, et un instantané perdu
+	# ne doit pas faire disparaître un tir en plein vol.
+	for flight: Projectile in frame.flights:
+		if not world.projectiles.has(flight.id):
+			world.projectiles[flight.id] = flight
+
 func _adopt(world: World, state: ActorState, local_id: int) -> Actor:
 	var actor: Actor = null
 	if state.kind == int(Actor.Kind.PLAYER):
-		actor = world.spawn_player(state.id, 0)
+		actor = world.spawn_player(state.id, 0, state.data_index)
 	else:
 		actor = world.adopt_enemy(state.id, state.data_index, state.position)
 	if actor == null:
@@ -105,6 +113,8 @@ func _apply_remote(world: World, actor: Actor, state: ActorState) -> void:
 	actor.health = state.health
 	actor.poise = state.poise
 	actor.velocity = state.velocity
+	if actor.kind == Actor.Kind.PLAYER and actor.data_index != state.data_index:
+		world.apply_class(actor, state.data_index)
 	var remote_state: Actor.State = state.state as Actor.State
 	if actor.state != remote_state:
 		actor.state = remote_state

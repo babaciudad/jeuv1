@@ -16,9 +16,17 @@ signal session_failed(reason: String)
 signal world_ready(world: World)
 
 const LEVEL_PATH: String = "res://data/level/vertical_slice.tres"
-const PLAYER_PATH: String = "res://data/actors/player.tres"
-const GRUNT_PATH: String = "res://data/actors/grunt.tres"
+const GRUNT_PATH: String = "res://data/actors/gobelin.tres"
 const WARDEN_PATH: String = "res://data/actors/warden.tres"
+
+## Classes jouables. Cet ordre est celui du menu et celui qui voyage sur le
+## réseau : on n'en réordonne jamais, on n'en retire jamais.
+const CLASS_PATHS: Array[String] = [
+	"res://data/classes/gardien.tres",
+	"res://data/classes/mage.tres",
+	"res://data/classes/soigneur.tres",
+	"res://data/classes/archer.tres",
+]
 
 ## Intervalle entre deux sondes d'horloge, en images physiques.
 const PING_INTERVAL_FRAMES: int = 10
@@ -94,17 +102,22 @@ func _build_world() -> void:
 	world = World.new(self)
 	world.authority = World.Authority.HOST if is_host() else World.Authority.CLIENT
 	var level: LevelData = load(LEVEL_PATH)
-	var player_data: PlayerData = load(PLAYER_PATH)
 	var grunt: EnemyData = load(GRUNT_PATH)
 	var warden: EnemyData = load(WARDEN_PATH)
 	var enemies: Array[EnemyData] = [grunt, warden]
-	world.configure(level, player_data, enemies)
+	var classes: Array[PlayerData] = []
+	for path: String in CLASS_PATHS:
+		var fiche: PlayerData = load(path)
+		if fiche != null:
+			classes.append(fiche)
+	world.configure(level, classes, enemies)
 	world.hit_declared.connect(_on_hit_declared)
 	world.damage_reported.connect(_on_damage_reported)
+	world.heal_declared.connect(_on_heal_declared)
 	simulation.world = world
 	if is_host():
 		world.local_actor_id = SimConfig.HOST_PEER_ID
-		world.spawn_player(SimConfig.HOST_PEER_ID, 0)
+		world.spawn_player(SimConfig.HOST_PEER_ID, 0, options.class_index)
 		world.spawn_enemies()
 
 func _physics_process(_delta: float) -> void:
@@ -158,6 +171,9 @@ func _on_hit_declared(target_id: int, attack_index: int) -> void:
 
 func _on_damage_reported(source_id: int, attack_index: int) -> void:
 	submit_command(Command.Type.REPORT_DAMAGE, {"s": source_id, "a": attack_index})
+
+func _on_heal_declared(target_id: int, attack_index: int) -> void:
+	submit_command(Command.Type.DECLARE_HEAL, {"t": target_id, "a": attack_index})
 
 # ---------------------------------------------------------------------------
 # Réseau
@@ -221,6 +237,9 @@ func _adopt_local_identity() -> void:
 	if world.local_actor_id != 0 or not transport.is_session_live():
 		return
 	world.local_actor_id = transport.local_peer_id()
+	# L'hôte a créé le personnage avec la classe par défaut : on lui annonce
+	# celle qui a été choisie au menu.
+	submit_command(Command.Type.SELECT_CLASS, {"c": options.class_index})
 
 func _record_prediction() -> void:
 	var actor: Actor = world.local_actor()

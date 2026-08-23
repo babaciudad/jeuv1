@@ -8,7 +8,9 @@
 [resource]
 script = ExtResource("2_5kf3b")
 id = &"warden"
+display_name = "Le Gardien des Braises"
 is_boss = true
+color = Color(0.52, 0.32, 0.74, 1)
 max_health = 400
 max_poise = 80
 radius = 1.0
@@ -19,6 +21,8 @@ aggro_radius = 18.0
 leash_radius = 40.0
 attack_range = 3.4
 attack_cooldown_ticks = 100
+recover_ticks = 30
+circle_band = 1.25
 stagger_duration_ticks = 40
 poise_recovery_ticks = 300
 attacks = Array[ExtResource("1_cwpy3")]([ExtResource("2_mb47s"), ExtResource("3_tk6y1")])

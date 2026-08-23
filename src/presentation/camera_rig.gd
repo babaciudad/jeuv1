@@ -50,6 +50,11 @@ func add_look(relative: Vector2, sensitivity: float) -> void:
 	_pitch = clampf(_pitch - relative.y * sensitivity,
 		deg_to_rad(pitch_min_degrees), deg_to_rad(pitch_max_degrees))
 
+## Lacet courant, en radians. Lu par le tutoriel pour savoir si le joueur a
+## compris que la souris tourne la caméra.
+func look_yaw() -> float:
+	return _yaw
+
 ## Direction « vers l'avant de la caméra », projetée dans le plan de la
 ## simulation. C'est ce qui rend le déplacement relatif à la vue.
 func planar_forward() -> Vector2:

@@ -24,6 +24,8 @@ enum Authority {
 signal hit_declared(target_id: int, attack_index: int)
 ## Le joueur local a été touché. La victime déclare, l'hôte contrôle.
 signal damage_reported(source_id: int, attack_index: int)
+## Le joueur local a soigné un allié. Le soigneur déclare, l'hôte confirme.
+signal heal_declared(target_id: int, attack_index: int)
 signal actor_died(actor_id: int)
 signal bonfire_rested()
 signal shortcut_opened()
@@ -49,11 +51,18 @@ var authority: Authority = Authority.HOST
 var local_actor_id: int = 0
 
 var level: LevelData = null
-var player_data: PlayerData = null
+## Classes jouables, dans l'ordre du menu. L'index d'un joueur est stocké dans
+## son data_index, comme celui d'un ennemi : un acteur sait toujours de quelle
+## fiche il tient ses réglages.
+var player_classes: Array[PlayerData] = []
 var enemy_data: Array[EnemyData] = []
 
 var actors: Dictionary[int, Actor] = {}
 var shortcut_open: bool = false
+
+## Projectiles en vol, par identifiant. Leur position n'est jamais stockée :
+## elle se recalcule depuis l'origine et le tick de départ.
+var projectiles: Dictionary[int, Projectile] = {}
 
 var _runner_parent: Node
 var _next_enemy_id: int = FIRST_ENEMY_ID
@@ -62,33 +71,52 @@ var _wipe_tick: int = -1
 func _init(runner_parent: Node) -> void:
 	_runner_parent = runner_parent
 
-func configure(p_level: LevelData, p_player_data: PlayerData,
+func configure(p_level: LevelData, p_player_classes: Array[PlayerData],
 		p_enemy_data: Array[EnemyData]) -> void:
 	level = p_level
-	player_data = p_player_data
+	player_classes = p_player_classes
 	enemy_data = p_enemy_data
+
+## Fiche de classe d'un joueur. Retombe sur la première si l'index est absurde :
+## un pair distant peut annoncer n'importe quoi.
+func class_for(actor: Actor) -> PlayerData:
+	if player_classes.is_empty():
+		return null
+	var index: int = actor.data_index
+	if index < 0 or index >= player_classes.size():
+		index = 0
+	return player_classes[index]
 
 # ---------------------------------------------------------------------------
 # Peuplement
 # ---------------------------------------------------------------------------
 
-func spawn_player(actor_id: int, slot: int) -> Actor:
+func spawn_player(actor_id: int, slot: int, class_index: int = 0) -> Actor:
 	var actor: Actor = Actor.new()
 	actor.id = actor_id
 	actor.kind = Actor.Kind.PLAYER
-	actor.radius = player_data.radius
-	actor.max_health = player_data.max_health
-	actor.health = actor.max_health
-	actor.max_stamina_centi = player_data.max_stamina * Actor.CENTI
-	actor.stamina_centi = actor.max_stamina_centi
-	actor.max_poise = player_data.max_poise
-	actor.poise = actor.max_poise
 	actor.position = _player_spawn(slot)
 	actor.home_position = actor.position
 	actor.facing = Vector2(0.0, 1.0)
 	actor.runner = _make_runner("Attack_%d" % actor_id)
 	actors[actor_id] = actor
+	apply_class(actor, class_index)
 	return actor
+
+## Installe une classe sur un joueur et le remet à neuf. Appelée à la
+## connexion, quand le client annonce son choix.
+func apply_class(actor: Actor, class_index: int) -> void:
+	if actor.kind != Actor.Kind.PLAYER or player_classes.is_empty():
+		return
+	actor.data_index = clampi(class_index, 0, player_classes.size() - 1)
+	var fiche: PlayerData = class_for(actor)
+	actor.radius = fiche.radius
+	actor.max_health = fiche.max_health
+	actor.health = actor.max_health
+	actor.max_stamina_centi = fiche.max_stamina * Actor.CENTI
+	actor.stamina_centi = actor.max_stamina_centi
+	actor.max_poise = fiche.max_poise
+	actor.poise = actor.max_poise
 
 func remove_actor(actor_id: int) -> void:
 	if not actors.has(actor_id):
@@ -191,7 +219,8 @@ func data_for(actor: Actor) -> EnemyData:
 
 func attacks_for(actor: Actor) -> Array[AttackData]:
 	if actor.kind == Actor.Kind.PLAYER:
-		return player_data.attacks
+		var fiche: PlayerData = class_for(actor)
+		return fiche.attacks if fiche != null else []
 	var data: EnemyData = data_for(actor)
 	return data.attacks if data != null else []
 
@@ -211,6 +240,7 @@ func step(at_tick: int, commands: Array[Command]) -> void:
 		_check_wipe()
 	_advance_attacks()
 	_resolve_hitboxes()
+	_advance_projectiles()
 	_integrate()
 	_separate()
 	_recover()
@@ -232,6 +262,10 @@ func _apply_command(command: Command) -> void:
 			_command_declare_hit(actor, command)
 		Command.Type.REPORT_DAMAGE:
 			_command_report_damage(actor, command)
+		Command.Type.DECLARE_HEAL:
+			_command_declare_heal(actor, command)
+		Command.Type.SELECT_CLASS:
+			_command_select_class(actor, command)
 		Command.Type.NONE:
 			pass
 
@@ -244,14 +278,15 @@ func _command_move(actor: Actor, command: Command) -> void:
 func _command_dodge(actor: Actor, command: Command) -> void:
 	if actor.kind != Actor.Kind.PLAYER or not actor.can_act():
 		return
-	if not actor.has_stamina(player_data.dodge_stamina_cost):
+	var fiche: PlayerData = class_for(actor)
+	if fiche == null or not actor.has_stamina(fiche.dodge_stamina_cost):
 		return
 	var direction: Vector2 = _payload_vector(command, "d")
 	if direction.length() <= 0.001:
 		direction = actor.facing
 	actor.facing = direction.normalized()
-	actor.velocity = actor.facing * player_data.dodge_speed
-	actor.spend_stamina(player_data.dodge_stamina_cost, tick)
+	actor.velocity = actor.facing * fiche.dodge_speed
+	actor.spend_stamina(fiche.dodge_stamina_cost, tick)
 	actor.enter_state(Actor.State.DODGING, tick)
 
 func _command_attack(actor: Actor, command: Command) -> void:
@@ -345,6 +380,126 @@ func _command_report_damage(victim: Actor, command: Command) -> void:
 		return
 	apply_damage(victim, attack.damage, attack.poise_damage)
 
+## Le soigneur déclare, l'hôte confirme. Amendement assumé de l'invariant 5 :
+## le troisième cas d'autorité, celui d'un joueur qui modifie favorablement
+## l'état d'un autre. Il revient à l'hôte et non à la cible, parce qu'un soin
+## n'a pas besoin d'être instantané pour rester juste.
+func _command_declare_heal(healer: Actor, command: Command) -> void:
+	if authority != Authority.HOST or healer.kind != Actor.Kind.PLAYER:
+		return
+	if not healer.is_alive():
+		return
+	if tick - command.tick > HIT_MAX_AGE_TICKS or command.tick > tick + 5:
+		return
+	var target: Actor = actor_or_null(_payload_int(command, "t", 0))
+	if target == null or target.kind != Actor.Kind.PLAYER or not target.is_alive():
+		return
+	var attacks: Array[AttackData] = attacks_for(healer)
+	var index: int = _payload_int(command, "a", -1)
+	if index < 0 or index >= attacks.size():
+		return
+	var attack: AttackData = attacks[index]
+	if attack.heal <= 0:
+		return
+	var reach: float = attack.range_meters + target.radius + HIT_PLAUSIBILITY_SLACK
+	if healer.position.distance_to(target.position) > reach:
+		return
+	target.health = mini(target.max_health, target.health + attack.heal)
+
+## Un joueur annonce sa classe en arrivant. L'hôte seul décide, et seulement
+## avant que le joueur n'ait commencé à se battre.
+func _command_select_class(actor: Actor, command: Command) -> void:
+	if authority != Authority.HOST or actor.kind != Actor.Kind.PLAYER:
+		return
+	apply_class(actor, _payload_int(command, "c", 0))
+	actor.position = actor.home_position
+	actor.velocity = Vector2.ZERO
+	actor.enter_state(Actor.State.IDLE, tick)
+
+# ---------------------------------------------------------------------------
+# Projectiles
+# ---------------------------------------------------------------------------
+
+## Fait avancer les projectiles et résout ce qu'ils rencontrent.
+##
+## Chaque machine simule le vol : la trajectoire étant entièrement déterminée
+## par l'origine et le tick de départ, elles obtiennent le même résultat. Seule
+## la DÉCLARATION de la touche suit l'autorité (invariant 5).
+func _advance_projectiles() -> void:
+	if projectiles.is_empty():
+		return
+	var expired: Array[int] = []
+	for projectile: Projectile in projectiles.values():
+		var attack: AttackData = projectile_attack(projectile)
+		if attack == null or attack.projectile == null or projectile.spent:
+			expired.append(projectile.id)
+			continue
+		if projectile.age(tick) > attack.projectile.lifetime_ticks:
+			expired.append(projectile.id)
+			continue
+		var at: Vector2 = projectile.position_at(tick, attack.projectile.speed)
+		if not SimMath.point_is_free(at, level.walkable, blockers()):
+			expired.append(projectile.id)
+			continue
+		var victim: Actor = _projectile_victim(projectile, at, attack)
+		if victim != null:
+			projectile.spent = true
+			_declare_projectile_hit(projectile, victim)
+			expired.append(projectile.id)
+	for projectile_id: int in expired:
+		projectiles.erase(projectile_id)
+
+func projectile_attack(projectile: Projectile) -> AttackData:
+	var shooter: Actor = actor_or_null(projectile.owner_id)
+	if shooter == null:
+		return null
+	var attacks: Array[AttackData] = attacks_for(shooter)
+	if projectile.attack_index < 0 or projectile.attack_index >= attacks.size():
+		return null
+	return attacks[projectile.attack_index]
+
+## Position visible d'un projectile. Utilisée par la présentation.
+func projectile_position(projectile: Projectile) -> Vector2:
+	var attack: AttackData = projectile_attack(projectile)
+	if attack == null or attack.projectile == null:
+		return projectile.origin
+	return projectile.position_at(tick, attack.projectile.speed)
+
+func _projectile_victim(projectile: Projectile, at: Vector2, attack: AttackData) -> Actor:
+	var shooter: Actor = actor_or_null(projectile.owner_id)
+	if shooter == null:
+		return null
+	for actor: Actor in actors.values():
+		if actor.id == projectile.owner_id or not actor.is_alive():
+			continue
+		# Pas de tir allié : un projectile ne touche que le camp d'en face.
+		if actor.kind == shooter.kind:
+			continue
+		if at.distance_to(actor.position) <= attack.projectile.radius + actor.radius:
+			return actor
+	return null
+
+func _declare_projectile_hit(projectile: Projectile, victim: Actor) -> void:
+	var shooter: Actor = actor_or_null(projectile.owner_id)
+	if shooter == null:
+		return
+	if shooter.id == local_actor_id and victim.kind == Actor.Kind.ENEMY:
+		hit_declared.emit(victim.id, projectile.attack_index)
+	elif shooter.kind == Actor.Kind.ENEMY and victim.id == local_actor_id \
+			and not is_invulnerable(victim):
+		damage_reported.emit(shooter.id, projectile.attack_index)
+
+func spawn_projectile(shooter: Actor, attack_index: int) -> Projectile:
+	var projectile: Projectile = Projectile.new()
+	projectile.owner_id = shooter.id
+	projectile.spawn_tick = tick
+	projectile.id = Projectile.make_id(shooter.id, tick)
+	projectile.attack_index = attack_index
+	projectile.direction = shooter.facing
+	projectile.origin = shooter.position + shooter.facing * (shooter.radius + 0.35)
+	projectiles[projectile.id] = projectile
+	return projectile
+
 # ---------------------------------------------------------------------------
 # Ennemis (hôte uniquement)
 # ---------------------------------------------------------------------------
@@ -407,6 +562,12 @@ func _resolve_hitboxes() -> void:
 		var attack: AttackData = attacker.runner.attack
 		if attack == null:
 			continue
+		# Un tir part sur TOUTES les machines, avec le même identifiant : sa
+		# trajectoire est déterministe, seule la touche demande une autorité.
+		if attack.projectile != null:
+			if attacker.runner.try_fire_once():
+				spawn_projectile(attacker, attacker.attack_index)
+			continue
 		if attacker.kind == Actor.Kind.PLAYER and attacker.id == local_actor_id:
 			_resolve_player_hitbox(attacker, attack)
 		elif attacker.kind == Actor.Kind.ENEMY and local != null:
@@ -414,6 +575,9 @@ func _resolve_hitboxes() -> void:
 
 ## L'attaquant déclare ce qu'il touche (invariant 5).
 func _resolve_player_hitbox(attacker: Actor, attack: AttackData) -> void:
+	if attack.heal > 0:
+		_resolve_heal(attacker, attack)
+		return
 	for target: Actor in enemies():
 		if not target.is_alive():
 			continue
@@ -423,6 +587,20 @@ func _resolve_player_hitbox(attacker: Actor, attack: AttackData) -> void:
 		if not attacker.runner.try_register_hit(target.id):
 			continue
 		hit_declared.emit(target.id, attacker.attack_index)
+
+## Un soin cherche des alliés, pas des ennemis. Le soigneur est toujours dans
+## son propre cône : il se soigne aussi.
+func _resolve_heal(healer: Actor, attack: AttackData) -> void:
+	for ally: Actor in players():
+		if not ally.is_alive():
+			continue
+		if ally.id != healer.id and not SimMath.cone_contains(healer.position,
+				healer.facing, attack.range_meters, attack.half_angle_degrees,
+				ally.position, ally.radius):
+			continue
+		if not healer.runner.try_register_hit(ally.id):
+			continue
+		heal_declared.emit(ally.id, healer.attack_index)
 
 ## La victime déclare ce qu'elle encaisse (invariant 5). Elle ne l'applique
 ## pas : les dégâts ne se prédisent jamais (invariant 6).
@@ -439,9 +617,12 @@ func _resolve_enemy_hitbox(attacker: Actor, attack: AttackData, victim: Actor) -
 func is_invulnerable(actor: Actor) -> bool:
 	if actor.state != Actor.State.DODGING:
 		return false
+	var fiche: PlayerData = class_for(actor)
+	if fiche == null:
+		return false
 	var elapsed: int = actor.ticks_in_state(tick)
-	return elapsed >= player_data.dodge_invulnerable_from_tick \
-		and elapsed <= player_data.dodge_invulnerable_to_tick
+	return elapsed >= fiche.dodge_invulnerable_from_tick \
+		and elapsed <= fiche.dodge_invulnerable_to_tick
 
 # ---------------------------------------------------------------------------
 # Dégâts et progression (hôte uniquement)
@@ -494,6 +675,7 @@ func rest_at_bonfire() -> void:
 		if enemy.runner != null:
 			enemy.runner.interrupt()
 		enemy.enter_state(Actor.State.IDLE, tick)
+	projectiles.clear()
 	bonfire_rested.emit()
 
 # ---------------------------------------------------------------------------
@@ -517,7 +699,7 @@ func _update_velocity(actor: Actor) -> void:
 	match actor.state:
 		Actor.State.DEAD, Actor.State.STAGGERED:
 			actor.velocity = actor.velocity.move_toward(Vector2.ZERO,
-				player_data.deceleration * SimConfig.TICK_DURATION_SEC)
+				_deceleration(actor) * SimConfig.TICK_DURATION_SEC)
 		Actor.State.DODGING:
 			# Vitesse imposée par la roulade : ni accélération ni contrôle.
 			pass
@@ -526,11 +708,20 @@ func _update_velocity(actor: Actor) -> void:
 		_:
 			_update_walk(actor)
 
+## Freinage propre à l'acteur : une classe lourde ne s'arrête pas comme un
+## archer, et un ennemi encore moins.
+func _deceleration(actor: Actor) -> float:
+	if actor.kind == Actor.Kind.ENEMY:
+		var data: EnemyData = data_for(actor)
+		return data.acceleration if data != null else 25.0
+	var fiche: PlayerData = class_for(actor)
+	return fiche.deceleration if fiche != null else 45.0
+
 func _update_walk(actor: Actor) -> void:
-	var speed: float = player_data.move_speed
-	var acceleration: float = player_data.acceleration
-	var deceleration: float = player_data.deceleration
-	var turn: float = player_data.turn_degrees_per_tick
+	var speed: float = 5.0
+	var acceleration: float = 60.0
+	var deceleration: float = 45.0
+	var turn: float = 12.0
 	if actor.kind == Actor.Kind.ENEMY:
 		var data: EnemyData = data_for(actor)
 		if data != null:
@@ -538,6 +729,13 @@ func _update_walk(actor: Actor) -> void:
 			acceleration = data.acceleration
 			deceleration = data.acceleration
 			turn = data.turn_degrees_per_tick
+	else:
+		var fiche: PlayerData = class_for(actor)
+		if fiche != null:
+			speed = fiche.move_speed
+			acceleration = fiche.acceleration
+			deceleration = fiche.deceleration
+			turn = fiche.turn_degrees_per_tick
 	if actor.move_intent.is_zero_approx():
 		actor.velocity = actor.velocity.move_toward(Vector2.ZERO,
 			deceleration * SimConfig.TICK_DURATION_SEC)
@@ -568,7 +766,7 @@ func _update_attack_movement(actor: Actor) -> void:
 		actor.velocity = actor.facing * attack.forward_speed
 	else:
 		actor.velocity = actor.velocity.move_toward(Vector2.ZERO,
-			player_data.deceleration * SimConfig.TICK_DURATION_SEC)
+			_deceleration(actor) * SimConfig.TICK_DURATION_SEC)
 
 ## Écarte les acteurs qui se chevauchent. Sans cela, trois ennemis convergeant
 ## vers le même joueur occuperaient la même case.
@@ -640,15 +838,21 @@ func _recover() -> void:
 func _recover_state(actor: Actor) -> void:
 	match actor.state:
 		Actor.State.DODGING:
-			if actor.ticks_in_state(tick) >= player_data.dodge_duration_ticks:
+			var fiche: PlayerData = class_for(actor)
+			var dodge_ticks: int = fiche.dodge_duration_ticks if fiche != null else 24
+			if actor.ticks_in_state(tick) >= dodge_ticks:
 				actor.velocity = Vector2.ZERO
 				actor.enter_state(Actor.State.IDLE, tick)
 		Actor.State.STAGGERED:
-			var duration: int = player_data.stagger_duration_ticks
+			var duration: int = 30
 			if actor.kind == Actor.Kind.ENEMY:
 				var data: EnemyData = data_for(actor)
 				if data != null:
 					duration = data.stagger_duration_ticks
+			else:
+				var player_fiche: PlayerData = class_for(actor)
+				if player_fiche != null:
+					duration = player_fiche.stagger_duration_ticks
 			if actor.ticks_in_state(tick) >= duration:
 				actor.enter_state(Actor.State.IDLE, tick)
 		_:
@@ -657,19 +861,24 @@ func _recover_state(actor: Actor) -> void:
 func _recover_stamina(actor: Actor) -> void:
 	if actor.kind != Actor.Kind.PLAYER or not actor.is_alive() or not actor.simulated:
 		return
-	if tick - actor.last_stamina_spend_tick < player_data.stamina_regen_delay_ticks:
+	var fiche: PlayerData = class_for(actor)
+	if fiche == null or tick - actor.last_stamina_spend_tick < fiche.stamina_regen_delay_ticks:
 		return
 	actor.stamina_centi = mini(actor.max_stamina_centi,
-		actor.stamina_centi + player_data.stamina_regen_per_tick_centi)
+		actor.stamina_centi + fiche.stamina_regen_per_tick_centi)
 
 func _recover_poise(actor: Actor) -> void:
 	if not actor.is_alive() or actor.poise >= actor.max_poise:
 		return
-	var recovery_ticks: int = player_data.poise_recovery_ticks
+	var recovery_ticks: int = 180
 	if actor.kind == Actor.Kind.ENEMY:
 		var data: EnemyData = data_for(actor)
 		if data != null:
 			recovery_ticks = data.poise_recovery_ticks
+	else:
+		var fiche: PlayerData = class_for(actor)
+		if fiche != null:
+			recovery_ticks = fiche.poise_recovery_ticks
 	var period: int = maxi(1, floori(float(recovery_ticks) / float(maxi(1, actor.max_poise))))
 	var elapsed: int = tick - actor.last_poise_break_tick
 	if elapsed > 0 and elapsed % period == 0:

@@ -27,6 +27,11 @@
 .PARAMETER Seconds
     Arrête tout après ce délai. 0 laisse tourner jusqu'à -Stop.
 
+.PARAMETER Class
+    Classe imposée à toutes les instances, 0 à 3. Par défaut, chaque instance
+    en prend une différente : c'est ce qui permet de voir les quatre en même
+    temps sans lancer quatre fois le menu.
+
 .PARAMETER Headless
     Lance sans fenêtre. Sert à vérifier le banc lui-même ; l'état d'horloge
     reste lisible dans logs/.
@@ -49,6 +54,7 @@ param(
     [ValidateRange(1024, 65535)] [int] $Port = 45123,
     [int] $Seed = 0,
     [ValidateRange(0, 3600)] [int] $LogTicks = 60,
+    [ValidateRange(-1, 3)] [int] $Class = -1,
     [ValidateRange(0, 86400)] [int] $Seconds = 0,
     [switch] $Headless,
     [switch] $Stop,
@@ -111,6 +117,7 @@ $launched = [System.Collections.Generic.List[object]]::new()
 for ($index = 1; $index -le $Instances; $index++) {
     $isHost = ($index -eq 1)
     $label = if ($isHost) { 'hote' } else { "client-$index" }
+    $classIndex = if ($Class -ge 0) { $Class } else { ($index - 1) % 4 }
 
     $engineArgs = @()
     if ($Headless) {
@@ -128,8 +135,11 @@ for ($index = 1; $index -le $Instances; $index++) {
     }
     $engineArgs += @('--path', $projectRoot, '--')
 
+    # --no-tutorial : le banc sert a eprouver le reseau, pas a apprendre a
+    # jouer, et les invites se superposeraient au diagnostic.
     $userArgs = @('--port', "$Port", '--latency', "$Latency", '--loss', "$Loss",
-                  '--seed', "$Seed", '--label', $label, '--log-ticks', "$LogTicks")
+                  '--seed', "$Seed", '--label', $label, '--log-ticks', "$LogTicks",
+                  '--class', "$classIndex", '--no-tutorial')
     if ($isHost) {
         $userArgs = @('--host') + $userArgs
     }
@@ -147,7 +157,7 @@ for ($index = 1; $index -le $Instances; $index++) {
         -PassThru
 
     $launched.Add([pscustomobject]@{ Label = $label; ProcessId = $process.Id; Log = $outLog })
-    Write-Host ("  {0,-10} pid {1,-8} {2}" -f $label, $process.Id, $outLog)
+    Write-Host ("  {0,-10} classe {1}  pid {2,-8} {3}" -f $label, $classIndex, $process.Id, $outLog)
 
     # L'hote doit avoir ouvert son socket avant qu'un client tente de s'y
     # connecter, sinon le client echoue au lieu d'attendre.

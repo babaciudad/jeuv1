@@ -8,11 +8,10 @@
 class_name ActorView
 extends Node3D
 
-const COLOR_LOCAL: Color = Color(0.56, 0.75, 0.48)
-const COLOR_ALLY: Color = Color(0.45, 0.62, 0.78)
-const COLOR_GRUNT: Color = Color(0.71, 0.34, 0.31)
-const COLOR_BOSS: Color = Color(0.48, 0.31, 0.71)
 const COLOR_WEAPON_IDLE: Color = Color(0.62, 0.62, 0.66)
+## Anneau posé sous le personnage local. Les classes ayant chacune sa couleur,
+## c'est le seul repère qui dise « c'est toi » sans la contredire.
+const COLOR_SELF_RING: Color = Color(0.95, 0.92, 0.70)
 ## Une hitbox ouverte doit se voir sans ambiguïté : c'est la seule information
 ## dont le joueur a besoin pour apprendre le rythme d'un ennemi.
 const COLOR_WEAPON_ACTIVE: Color = Color(1.0, 0.85, 0.35)
@@ -30,10 +29,22 @@ var _body: MeshInstance3D
 var _weapon: MeshInstance3D
 var _body_material: StandardMaterial3D
 var _weapon_material: StandardMaterial3D
-var _base_color: Color = COLOR_LOCAL
+var _base_color: Color = Color(0.56, 0.75, 0.48)
 
-func setup(actor: Actor, is_local: bool, is_boss: bool) -> void:
-	_base_color = _pick_color(actor, is_local, is_boss)
+func setup(actor: Actor, color: Color, is_local: bool) -> void:
+	_base_color = color
+
+	if is_local:
+		var ring: TorusMesh = TorusMesh.new()
+		ring.inner_radius = actor.radius * 1.05
+		ring.outer_radius = actor.radius * 1.30
+		ring.rings = 20
+		ring.ring_segments = 5
+		var marker: MeshInstance3D = MeshInstance3D.new()
+		marker.mesh = ring
+		marker.material_override = _make_material(COLOR_SELF_RING)
+		marker.position = Vector3(0.0, 0.04, 0.0)
+		add_child(marker)
 
 	var capsule: CapsuleMesh = CapsuleMesh.new()
 	capsule.radius = actor.radius
@@ -72,11 +83,6 @@ func _apply_fade(camera_position: Vector3, is_local: bool, player_distance: floa
 	_weapon_material.transparency = mode
 	_body_material.albedo_color.a = alpha
 	_weapon_material.albedo_color.a = alpha
-
-func _pick_color(actor: Actor, is_local: bool, is_boss: bool) -> Color:
-	if actor.kind == Actor.Kind.ENEMY:
-		return COLOR_BOSS if is_boss else COLOR_GRUNT
-	return COLOR_LOCAL if is_local else COLOR_ALLY
 
 func _make_material(color: Color) -> StandardMaterial3D:
 	var material: StandardMaterial3D = StandardMaterial3D.new()

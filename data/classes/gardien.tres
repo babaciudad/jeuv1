@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="PlayerData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/sim/data/attack_data.gd" id="1_pnfhu"]
+[ext_resource type="Resource" path="res://data/attacks/gardien_lourd.tres" id="2_arwfm"]
+[ext_resource type="Resource" path="res://data/attacks/gardien_rapide.tres" id="3_ea4do"]
+[ext_resource type="Script" path="res://src/sim/data/player_data.gd" id="4_2b688"]
+
+[resource]
+script = ExtResource("4_2b688")
+id = &"gardien"
+display_name = "Gardien"
+summary = "Lourd et lent. Encaisse, brise la garde, ne tombe pas."
+color = Color(0.55, 0.62, 0.72, 1)
+max_health = 145
+max_stamina = 95
+max_poise = 75
+radius = 0.5
+move_speed = 4.2
+acceleration = 55.0
+deceleration = 40.0
+turn_degrees_per_tick = 9.0
+dodge_speed = 8.0
+dodge_duration_ticks = 26
+dodge_invulnerable_from_tick = 4
+dodge_invulnerable_to_tick = 14
+dodge_stamina_cost = 30
+stamina_regen_per_tick_centi = 80
+stamina_regen_delay_ticks = 34
+stagger_duration_ticks = 26
+poise_recovery_ticks = 150
+attacks = Array[ExtResource("1_pnfhu")]([ExtResource("2_arwfm"), ExtResource("3_ea4do")])

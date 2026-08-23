@@ -1,8 +1,8 @@
 # souls-like
 
-Souls-like coopératif en ligne. Tranche verticale jouable : un feu de camp, un
-couloir avec raccourci, trois ennemis, un boss, une arme, une roulade, à
-quatre joueurs.
+Souls-like coopératif en ligne. Tranche verticale jouable : un menu de choix
+de classe, un tutoriel, un feu de camp, un couloir avec raccourci, trois
+gobelins, un boss. Quatre classes, jusqu'à quatre joueurs.
 
 Godot 4.5, GDScript en typage statique strict. Direction artistique low-poly
 non texturée, assumée : la lisibilité du combat ne dépend d'aucun asset.
@@ -48,11 +48,15 @@ Godot doit être joignable, dans cet ordre : paramètre `-GodotBin`, variable
 ./tools/netharness.ps1 -Stop
 ```
 
-Pour une partie normale : ouvrir le projet dans Godot et lancer la scène
-principale. Sans argument, l'instance démarre en hôte. Pour rejoindre :
+Pour une partie normale : ouvrir le projet dans Godot et appuyer sur **F5**.
+Le menu propose la classe, le mode hôte ou client, et le tutoriel.
+
+Lancée avec des arguments réseau, l'instance saute le menu — c'est ainsi que
+`netharness.ps1` démarre quatre fenêtres sans quatre clics :
 
 ```
-godot --path . -- --connect <adresse> --port 45123
+godot --path . -- --connect <adresse> --port 45123 --class 2
+godot --path . -- --host --class 0 --no-tutorial
 ```
 
 ## Jouer
@@ -61,22 +65,34 @@ godot --path . -- --connect <adresse> --port 45123
 |---|---|
 | ZQSD / WASD / flèches | déplacement, relatif à la caméra |
 | Souris | caméra, et donc visée des attaques |
-| Clic gauche ou J | attaque |
+| Clic gauche ou J | attaque principale |
+| Clic droit ou K | attaque secondaire, soin pour le Soigneur |
 | Espace | roulade, avec fenêtre d'invulnérabilité |
 | E | se reposer au feu, ouvrir le raccourci |
-| F3 | diagnostic réseau |
+| F3 | diagnostic réseau, coupe le tutoriel |
 | Échap | libérer la souris |
 
 Le feu de camp soigne, ressuscite et remet les ennemis en place. Le raccourci,
 lui, reste ouvert : c'est de la progression. Si toute l'équipe tombe, elle se
 relève au feu au bout de trois secondes.
 
+## Les quatre classes
+
+| Classe | En jeu |
+|---|---|
+| **Gardien** | 145 pv, lourd et lent. Coup lourd qui brise la garde, coup rapide en secondaire. |
+| **Mage** | 78 pv. Trait à distance en principal, bâton de secours en secondaire. |
+| **Soigneur** | 98 pv. Lame en principal, **soin en cône** en secondaire — alliés proches et soi-même. |
+| **Archer** | 84 pv, le plus rapide. Flèche véloce et peu douloureuse, dague en secondaire. |
+
+Un projectile ne touche jamais un allié.
+
 ## Régler le jeu
 
 Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
 
-- `data/actors/player.tres` — vie, endurance, vitesse, roulade
-- `data/actors/grunt.tres`, `data/actors/warden.tres` — ennemis et boss
+- `data/classes/*.tres` — les quatre classes : vie, endurance, vitesse, roulade
+- `data/actors/gobelin.tres`, `data/actors/warden.tres` — ennemis et boss
 - `data/attacks/*.tres` — dégâts, portées, angles, et le **calendrier** de
   chaque attaque sous forme de pistes d'appel de méthode
 - `data/level/vertical_slice.tres` — géométrie du niveau et postes des ennemis

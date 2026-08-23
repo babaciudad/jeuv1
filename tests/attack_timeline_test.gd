@@ -4,10 +4,11 @@
 ## que régler une attaque dans l'éditeur d'animation suffit à changer le jeu.
 extends GdUnitTestSuite
 
-const ATTACK_PATH: String = "res://data/attacks/player_light.tres"
-## 0,1667 s et 0,2833 s à 60 Hz.
-const EXPECTED_OPEN_TICK: int = 10
-const EXPECTED_CLOSE_TICK: int = 17
+const ATTACK_PATH: String = "res://data/attacks/gardien_rapide.tres"
+## Valeurs de data/attacks/gardien_rapide.tres.
+const EXPECTED_OPEN_TICK: int = 9
+const EXPECTED_CLOSE_TICK: int = 15
+const EXPECTED_FINISH_TICK: int = 34
 
 var _runner: AttackRunner
 
@@ -41,7 +42,7 @@ func test_le_calendrier_ouvre_et_ferme_aux_ticks_attendus() -> void:
 
 	assert_int(open_tick).is_equal(EXPECTED_OPEN_TICK)
 	assert_int(close_tick).is_equal(EXPECTED_CLOSE_TICK)
-	assert_int(finish_tick).is_equal(36)
+	assert_int(finish_tick).is_equal(EXPECTED_FINISH_TICK)
 
 func test_une_cible_n_est_touchee_qu_une_fois_par_activation() -> void:
 	var attack: AttackData = load(ATTACK_PATH)

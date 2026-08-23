@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="AttackData" load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://src/sim/data/attack_data.gd" id="1_ljaoi"]
+[ext_resource type="Script" path="res://src/sim/data/attack_data.gd" id="1_nonxh"]
 
-[sub_resource type="Animation" id="Animation_ljaoi"]
-resource_name = "grunt_swing"
+[sub_resource type="Animation" id="Animation_ywi4f"]
+resource_name = "gobelin_coup"
 tracks/0/type = "method"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -26,13 +26,11 @@ tracks/0/keys = {
 }
 
 [resource]
-script = ExtResource("1_ljaoi")
-id = &"grunt_swing"
-timeline = SubResource("Animation_ljaoi")
-damage = 18
-poise_damage = 18
+script = ExtResource("1_nonxh")
+id = &"gobelin_coup"
+timeline = SubResource("Animation_ywi4f")
+damage = 16
+poise_damage = 20
 stamina_cost = 0
-range_meters = 2.4
 half_angle_degrees = 50.0
-forward_speed = 1.5
-tracking_degrees_per_tick = 3.0
+forward_speed = 1.8

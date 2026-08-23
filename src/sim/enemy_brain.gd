@@ -58,15 +58,35 @@ static func decide(enemy: Actor, data: EnemyData, players: Array[Actor], tick: i
 
 	var offset: Vector2 = target.position - enemy.position
 	var distance: float = offset.length()
+	if distance <= 0.05:
+		return decision
+	var towards: Vector2 = offset / distance
 	var cooldown_ready: bool = tick - enemy.last_attack_tick >= EnemyBrain.attack_cooldown(enemy, data)
+
+	# Reculer juste après avoir frappé. Un ennemi qui reste collé ne laisse
+	# aucune fenêtre de riposte et le combat devient illisible.
+	if tick - enemy.last_attack_tick < data.recover_ticks:
+		decision.move_intent = -towards
+		return decision
 
 	if distance <= data.attack_range and cooldown_ready and not data.attacks.is_empty():
 		decision.attack_index = EnemyBrain.pick_attack(data, distance, tick)
 		return decision
 
-	if distance > 0.1:
-		decision.move_intent = offset.normalized()
+	# À portée mais pas encore prêt : tourner autour plutôt que pousser. Trois
+	# ennemis qui foncent tous droit se superposent et n'attaquent jamais.
+	if distance <= data.attack_range * data.circle_band:
+		decision.move_intent = EnemyBrain.circle_direction(enemy, towards)
+		return decision
+
+	decision.move_intent = towards
 	return decision
+
+## Sens de contournement, fixé par la parité de l'identifiant : deux ennemis
+## voisins tournent en sens opposés et s'écartent au lieu de se gêner.
+static func circle_direction(enemy: Actor, towards: Vector2) -> Vector2:
+	var side: float = 1.0 if enemy.id % 2 == 0 else -1.0
+	return (towards.orthogonal() * side + towards * 0.25).normalized()
 
 ## Cadence d'attaque. Un boss passé sous son seuil de vie enchaîne plus vite :
 ## c'est la seule différence de phase, et elle tient dans une division.

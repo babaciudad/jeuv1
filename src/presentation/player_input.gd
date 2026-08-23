@@ -69,12 +69,14 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed("dodge"):
 		var dodge: Vector2 = direction if direction.length() > 0.1 else actor.facing
 		_bootstrap.submit_command(Command.Type.DODGE, {"d": dodge})
+	# On frappe là où l'on va, ou à défaut là où l'on regarde. Sans cette visée,
+	# un personnage à l'arrêt frapperait toujours dans la direction de son
+	# dernier pas.
+	var aim: Vector2 = direction if direction.length() > 0.1 else _rig.planar_forward()
 	if Input.is_action_just_pressed("attack"):
-		# On frappe là où l'on va, ou à défaut là où l'on regarde. Sans cette
-		# visée, un personnage à l'arrêt frapperait toujours dans la direction
-		# de son dernier pas.
-		var aim: Vector2 = direction if direction.length() > 0.1 else _rig.planar_forward()
 		_bootstrap.submit_command(Command.Type.ATTACK, {"i": 0, "d": aim})
+	if Input.is_action_just_pressed("attack_secondary"):
+		_bootstrap.submit_command(Command.Type.ATTACK, {"i": 1, "d": aim})
 	if Input.is_action_just_pressed("interact"):
 		_bootstrap.submit_command(Command.Type.INTERACT, {})
 

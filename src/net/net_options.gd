@@ -11,6 +11,8 @@
 ##   --seed <n>            graine du tirage de perte, 0 = aléatoire
 ##   --label <texte>       étiquette affichée, pour distinguer les fenêtres
 ##   --log-ticks <n>       journalise l'état d'horloge tous les n ticks, 0 = off
+##   --class <n>           index de la classe jouée, 0 à 3
+##   --no-tutorial         démarre sans les invites du tutoriel
 class_name NetOptions
 extends RefCounted
 
@@ -32,6 +34,10 @@ var label: String = ""
 ## Indispensable au banc réseau en mode headless, où il n'y a pas de fenêtre
 ## à regarder.
 var log_ticks_interval: int = 0
+## Index de la classe choisie, dans l'ordre de NetBootstrap.CLASS_PATHS.
+var class_index: int = 0
+## Afficher le tutoriel. Vrai par défaut ; le menu permet de le couper.
+var show_tutorial: bool = true
 
 static func from_command_line() -> NetOptions:
 	return NetOptions.from_arguments(OS.get_cmdline_user_args())
@@ -73,6 +79,12 @@ static func from_arguments(args: PackedStringArray) -> NetOptions:
 				index += 1
 				if index < args.size():
 					options.log_ticks_interval = maxi(0, args[index].to_int())
+			"--class":
+				index += 1
+				if index < args.size():
+					options.class_index = maxi(0, args[index].to_int())
+			"--no-tutorial":
+				options.show_tutorial = false
 		index += 1
 	return options
 

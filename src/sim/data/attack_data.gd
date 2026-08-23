@@ -26,6 +26,16 @@ extends Resource
 @export_group("Portée")
 @export var range_meters: float = 2.2
 @export var half_angle_degrees: float = 60.0
+@export_group("Projectile")
+## Non nul : l'attaque tire au lieu de balayer un arc. La portée et l'angle
+## ci-dessus ne servent alors plus.
+@export var projectile: ProjectileData
+
+@export_group("Soin")
+## Points de vie rendus à un allié touché. Une attaque qui soigne ne blesse
+## personne : elle cherche des alliés, pas des ennemis.
+@export var heal: int = 0
+
 @export_group("Mouvement")
 ## Vitesse d'avancée pendant l'attaque, en mètres par seconde.
 @export var forward_speed: float = 2.0

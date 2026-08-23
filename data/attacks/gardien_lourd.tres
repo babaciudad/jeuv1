@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/sim/data/attack_data.gd" id="1_dk2of"]
+
+[sub_resource type="Animation" id="Animation_pte64"]
+resource_name = "gardien_lourd"
+length = 0.9
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.35833332, 0.525, 0.725, 0.89166665),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"values": [{
+"args": [],
+"method": &"open_hitbox"
+}, {
+"args": [],
+"method": &"close_hitbox"
+}, {
+"args": [],
+"method": &"allow_cancel"
+}, {
+"args": [],
+"method": &"finish"
+}]
+}
+
+[resource]
+script = ExtResource("1_dk2of")
+id = &"gardien_lourd"
+timeline = SubResource("Animation_pte64")
+damage = 30
+poise_damage = 55
+stamina_cost = 32
+range_meters = 2.6
+forward_speed = 2.4
+tracking_degrees_per_tick = 5.0

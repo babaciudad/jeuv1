@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource("1_pxvsp")
-walkable = Array[Rect2]([Rect2(-10, -10, 20, 16), Rect2(-3, 6, 6, 32), Rect2(-14, 38, 28, 24), Rect2(-14, -4, 6, 42)])
-shortcut_gate = Rect2(-14, 36, 6, 4)
+walkable = Array[Rect2]([Rect2(-10, -10, 20, 16), Rect2(-3, 6, 6, 32), Rect2(-18, 38, 32, 24), Rect2(-18, -6, 6, 44), Rect2(-12, -6, 2, 3)])
+shortcut_gate = Rect2(-18, 36, 6, 4)
 bonfire_position = Vector2(0, -4)
-shortcut_switch_position = Vector2(-11, 41)
+shortcut_switch_position = Vector2(-15, 41)
 player_spawns = Array[Vector2]([Vector2(-2, -4), Vector2(2, -4), Vector2(-2, -7), Vector2(2, -7)])
 enemy_spawns = Array[Vector2]([Vector2(0, 14), Vector2(-1.5, 25), Vector2(1.5, 34)])
 boss_spawn = Vector2(0, 54)

@@ -10,14 +10,28 @@ Cette contrainte est une contrainte de production, pas un goût.
 
 ---
 
-## Périmètre de la version 1 — VERROUILLÉ
+## Périmètre de la version 1
 
-Un feu de camp, un couloir avec raccourci, trois ennemis de base, un boss, une
-arme, une roulade. Jouable à plusieurs. **Rien d'autre.**
+Un feu de camp, un couloir avec raccourci, trois gobelins, un boss, une
+roulade. Jouable à plusieurs.
 
 Toute idée hors de ce périmètre va dans `BACKLOG.md` et n'est jamais
 implémentée, même bonne, même rapide. Le verrou ne se lève que par une
 décision explicite du propriétaire du projet, écrite ici.
+
+### AMENDEMENT — 23 août 2026, par le propriétaire du projet
+
+Le verrou est levé sur trois points, sur demande explicite et réitérée :
+
+1. **Quatre classes jouables** — Gardien, Mage, Soigneur, Archer — au lieu
+   d'une arme unique. Ce que cela a coûté est écrit noir sur blanc ci-dessous
+   dans l'invariant 5 : il a fallu ouvrir un TROISIÈME cas d'autorité.
+2. **Un menu de choix de classe** avant la partie.
+3. **Un tutoriel** qui enseigne les mécaniques dans l'ordre où elles servent.
+
+Le reste du périmètre est inchangé et reste verrouillé. Notamment : toujours
+pas de verrouillage de cible, pas de parade, pas de progression de
+personnage, pas de second niveau.
 
 ---
 
@@ -70,7 +84,19 @@ L'hôte est un joueur et porte le peer id 1 (`SimConfig.HOST_PEER_ID`).
   qu'un contrôle de plausibilité — distance, cohérence temporelle.
 - Dégâts **infligés à un ennemi** : déclarés par l'attaquant, confirmés et
   diffusés par l'hôte.
+- **Soins reçus par un joueur** : déclarés par le SOIGNEUR, confirmés par
+  l'hôte. *(Troisième cas, ouvert par l'amendement sur les classes.)*
 - **Comportement des ennemis** : simulé exclusivement par l'hôte.
+
+Pourquoi le soin ne suit pas la règle des dégâts reçus : la victime a autorité
+sur ce qu'elle encaisse parce qu'un coup doit être jugé sur ce qu'elle VOIT —
+mourir d'une attaque qu'on a esquivée à l'écran est intolérable. Un soin n'a
+pas cette urgence : cent millisecondes de retard ne tuent personne. On préfère
+donc l'autorité de l'hôte, qui est plus simple et moins abusable.
+
+Dans tous les cas, une commande ne porte que des **identifiants**, jamais des
+nombres. L'hôte relit ses propres données pour les dégâts comme pour les
+soins : un client ne peut ni gonfler ce qu'il inflige ni ce qu'il rend.
 
 Ce modèle suppose l'absence de PvP. **Il n'y aura pas de PvP.** Toute
 fonctionnalité qui réintroduirait du PvP invalide ce modèle entier.
@@ -131,6 +157,7 @@ src/sim/            Simulation. Ignore le réseau, l'entrée et l'affichage.
   simulation.gd       Boucle à pas fixe et correction d'horloge.
   world.gd            État du monde et règles du jeu.
   actor.gd            État d'un joueur ou d'un ennemi.
+  projectile.gd       Trajectoire déduite du tick de départ, jamais diffusée.
   attack_runner.gd    Calendrier d'attaque piloté par AnimationPlayer.
   enemy_brain.gd      Décisions des ennemis. Appelé par l'hôte seul.
   data/               Schémas des ressources de réglage.
@@ -140,12 +167,14 @@ src/net/            Transport, sérialisation, synchronisation.
   latency_pipe.gd     Latence et perte simulées, dans la couche transport.
   net_message.gd      Genres de messages et leur encodage.
   net_clock.gd        Estimation de l'avance du client sur l'hôte.
-  world_snapshot.gd   Instantané d'état, hôte vers clients.
+  world_snapshot.gd   Instantané d'état et projectiles, hôte vers clients.
   world_sync.gd       Adoption, interpolation, réconciliation.
   command_history.gd  Mémoire des commandes et positions prédites.
   net_bootstrap.gd    Point d'entrée d'une instance.
 src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
-  game_view.gd        Miroir visuel du monde.
+  main_menu.gd        Choix de classe, hôte ou client, tutoriel.
+  game_view.gd        Miroir visuel du monde et des projectiles.
+  tutorial.gd         Apprend les mécaniques en observant ce que fait le joueur.
   level_view.gd       Géométrie déduite de la zone praticable.
   actor_view.gd       Vue d'un acteur, estompage des occultants.
   camera_rig.gd       Caméra troisième personne et son dégagement.
@@ -154,7 +183,8 @@ src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
   debug_overlay.gd    Diagnostic réseau, touche F3.
 data/               Ressources de réglage (invariant 7).
   attacks/            Calendriers et valeurs des attaques.
-  actors/             Joueur, ennemi de base, boss.
+  classes/            Les quatre classes jouables.
+  actors/             Gobelin et boss.
   level/              Géométrie et points d'intérêt de la tranche verticale.
 scenes/             Scènes Godot.
 tests/              Suites gdUnit4.
@@ -197,11 +227,25 @@ avec l'état réseau. Pour un couloir, cinq rectangles suffisent.
 |---|---|
 | ZQSD / WASD / flèches | déplacement, relatif à la caméra |
 | Souris | orientation de la caméra, et donc visée |
-| Clic gauche ou J | attaque |
+| Clic gauche ou J | attaque principale |
+| Clic droit ou K | attaque secondaire, soin pour le Soigneur |
 | Espace | roulade |
 | E | interagir : se reposer au feu, ouvrir le raccourci |
-| F3 | diagnostic réseau |
+| F3 | diagnostic réseau, coupe le tutoriel |
 | Échap | libérer la souris |
+
+### Les quatre classes
+
+L'ordre de `NetBootstrap.CLASS_PATHS` est celui du menu ET celui qui voyage
+sur le réseau. On n'en réordonne jamais, on n'en retire jamais, on n'en ajoute
+qu'à la fin — un index de classe périmé désignerait un autre personnage.
+
+| Classe | Rôle | Particularité technique |
+|---|---|---|
+| Gardien | encaisse et brise la garde | rien de spécial, mêlée pure |
+| Mage | frappe de loin | attaque principale à projectile |
+| Soigneur | rend des points de vie | attaque secondaire à `heal > 0`, cherche des alliés |
+| Archer | rapide et léger | projectile rapide, dégâts faibles |
 
 ## Commandes de vérification
 
@@ -275,15 +319,17 @@ Les points suivants ne se discutent pas et ne se contournent pas.
 
 **Fait.** Boucle à tick fixe et correction d'horloge. Commandes sérialisables.
 Instantanés d'état, interpolation des acteurs distants, prédiction et
-réconciliation du personnage local. Autorité hybride sur les dégâts. Feu de
-camp avec repos, soin, réapparition et remise en place des ennemis. Couloir et
-raccourci à grille. Trois ennemis de base et un boss à deux phases. Une arme,
-une attaque, une roulade avec fenêtre d'invulnérabilité. Endurance et poise.
-Caméra troisième personne, interface, banc réseau, 44 tests.
+réconciliation du personnage local. Autorité hybride sur les dégâts et les
+soins. Quatre classes, dont deux à projectiles et une soigneuse. Menu de choix
+de classe et de session. Tutoriel en neuf étapes qui se valident en agissant.
+Feu de camp avec repos, soin, réapparition et remise en place des ennemis.
+Couloir et raccourci à grille. Trois gobelins et un boss à deux phases.
+Roulade avec fenêtre d'invulnérabilité, endurance, poise. Caméra troisième
+personne qui se dégage des murs, interface, banc réseau, 56 tests.
 
-**Pas fait, et hors périmètre tant que le verrou tient.** Verrouillage de
-cible, blocage ou parade, armes multiples, montée en niveau, sauvegarde,
-sons, modèles et animations importés, menu, écran de connexion.
+**Pas fait, et hors périmètre.** Verrouillage de cible, blocage ou parade,
+montée en niveau, sauvegarde, sons, modèles et animations importés, second
+niveau, PvP.
 
 **Non éprouvé.** L'équilibrage du boss (400 points de vie) n'a jamais été
 mesuré contre un joueur humain, seulement contre un bot de test. C'est une

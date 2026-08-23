@@ -27,6 +27,9 @@ var _elapsed_ticks: int = 0
 ## Cibles déjà touchées par l'activation en cours : une attaque ne touche
 ## jamais deux fois le même adversaire, même si la hitbox reste ouverte.
 var _already_hit: PackedInt32Array = PackedInt32Array()
+## Une attaque à projectile n'en tire qu'un par activation, même si la fenêtre
+## reste ouverte plusieurs ticks.
+var _projectile_fired: bool = false
 
 var attack: AttackData:
 	get:
@@ -80,6 +83,7 @@ func start(attack_data: AttackData) -> bool:
 	_finished = false
 	_elapsed_ticks = 0
 	_already_hit.clear()
+	_projectile_fired = false
 	_player.play(ANIMATION_NAME)
 	return true
 
@@ -100,6 +104,14 @@ func interrupt() -> void:
 	_can_cancel = false
 	_finished = true
 
+## Vrai la première fois seulement : sert à ne tirer qu'un projectile par
+## activation de hitbox.
+func try_fire_once() -> bool:
+	if _projectile_fired:
+		return false
+	_projectile_fired = true
+	return true
+
 ## Vrai si cette cible n'a pas encore été touchée par l'activation en cours.
 ## L'enregistre au passage.
 func try_register_hit(target_id: int) -> bool:
@@ -114,6 +126,7 @@ func try_register_hit(target_id: int) -> bool:
 func open_hitbox() -> void:
 	_hitbox_open = true
 	_already_hit.clear()
+	_projectile_fired = false
 
 func close_hitbox() -> void:
 	_hitbox_open = false

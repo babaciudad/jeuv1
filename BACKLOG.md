@@ -40,8 +40,21 @@ progression.
 révision de l'invariant 5 et l'ajout d'un système de projectiles. Si cette
 direction est voulue, elle se décide **avant** d'écrire du gameplay, pas après.
 
-**Décision.** En attente. Le périmètre reste verrouillé tant qu'il n'est pas
-levé explicitement dans `CLAUDE.md`.
+**Décision — 23 août 2026 : LEVÉE.** Le propriétaire du projet a redemandé les
+quatre classes après avoir lu le coût ci-dessus. Elles sont implémentées.
+
+Ce que cela a effectivement coûté, pour mémoire :
+
+- un système de projectiles, dont la trajectoire est déduite du tick de départ
+  plutôt que diffusée, et dont seule la touche demande une autorité ;
+- un **troisième cas d'autorité** dans l'invariant 5, pour le soin : déclaré
+  par le soigneur, confirmé par l'hôte. La raison du choix est écrite dans
+  `CLAUDE.md` et n'est pas un détail — c'est ce qui empêche un soigneur de
+  mentir sur les points de vie d'autrui ;
+- un index de classe dans l'instantané réseau, avec la contrainte qui va avec :
+  l'ordre des classes ne se réordonne plus jamais.
+
+Le tir allié n'existe pas : un projectile ne touche que le camp d'en face.
 
 ---
 

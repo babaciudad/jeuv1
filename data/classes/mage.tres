@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="PlayerData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/sim/data/attack_data.gd" id="1_gf0sj"]
+[ext_resource type="Resource" path="res://data/attacks/mage_trait.tres" id="2_6seil"]
+[ext_resource type="Resource" path="res://data/attacks/mage_baton.tres" id="3_6ivc7"]
+[ext_resource type="Script" path="res://src/sim/data/player_data.gd" id="4_1aw3n"]
+
+[resource]
+script = ExtResource("4_1aw3n")
+id = &"mage"
+display_name = "Mage"
+summary = "Frappe de loin et fort. Meurt vite si on le rejoint."
+color = Color(0.62, 0.45, 0.95, 1)
+max_health = 78
+max_stamina = 115
+max_poise = 22
+radius = 0.42
+move_speed = 4.8
+acceleration = 62.0
+deceleration = 48.0
+turn_degrees_per_tick = 13.0
+dodge_speed = 9.8
+dodge_duration_ticks = 22
+dodge_invulnerable_to_tick = 14
+dodge_stamina_cost = 22
+stamina_regen_per_tick_centi = 100
+stamina_regen_delay_ticks = 26
+stagger_duration_ticks = 34
+poise_recovery_ticks = 200
+attacks = Array[ExtResource("1_gf0sj")]([ExtResource("2_6seil"), ExtResource("3_6ivc7")])

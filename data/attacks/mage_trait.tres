@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/sim/data/projectile_data.gd" id="1_uv4qa"]
+[ext_resource type="Script" path="res://src/sim/data/attack_data.gd" id="2_ptfe8"]
+
+[sub_resource type="Resource" id="Resource_i8mjg"]
+script = ExtResource("1_uv4qa")
+speed = 17.0
+radius = 0.4
+lifetime_ticks = 100
+color = Color(0.62, 0.45, 0.95, 1)
+
+[sub_resource type="Animation" id="Animation_cvy1c"]
+resource_name = "mage_trait"
+length = 0.76666665
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.325, 0.35833332, 0.59166664, 0.7583333),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"values": [{
+"args": [],
+"method": &"open_hitbox"
+}, {
+"args": [],
+"method": &"close_hitbox"
+}, {
+"args": [],
+"method": &"allow_cancel"
+}, {
+"args": [],
+"method": &"finish"
+}]
+}
+
+[resource]
+script = ExtResource("2_ptfe8")
+id = &"mage_trait"
+timeline = SubResource("Animation_cvy1c")
+damage = 32
+poise_damage = 25
+stamina_cost = 34
+range_meters = 0.0
+half_angle_degrees = 0.0
+projectile = SubResource("Resource_i8mjg")
+forward_speed = 0.0
+tracking_degrees_per_tick = 5.0

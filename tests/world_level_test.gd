@@ -2,8 +2,11 @@
 extends GdUnitTestSuite
 
 const LEVEL: String = "res://data/level/vertical_slice.tres"
-const PLAYER: String = "res://data/actors/player.tres"
-const GRUNT: String = "res://data/actors/grunt.tres"
+const GARDIEN: String = "res://data/classes/gardien.tres"
+const MAGE: String = "res://data/classes/mage.tres"
+const SOIGNEUR: String = "res://data/classes/soigneur.tres"
+const ARCHER: String = "res://data/classes/archer.tres"
+const GOBELIN: String = "res://data/actors/gobelin.tres"
 const WARDEN: String = "res://data/actors/warden.tres"
 
 var _worlds: Array[World] = []
@@ -14,15 +17,22 @@ func after_test() -> void:
 			world.remove_actor(actor_id)
 	_worlds.clear()
 
+## Les quatre classes, dans l'ordre du menu et du réseau.
+func _classes() -> Array[PlayerData]:
+	var gardien: PlayerData = load(GARDIEN)
+	var mage: PlayerData = load(MAGE)
+	var soigneur: PlayerData = load(SOIGNEUR)
+	var archer: PlayerData = load(ARCHER)
+	return [gardien, mage, soigneur, archer]
+
 func _make_world(authority: World.Authority) -> World:
 	var world: World = World.new(self)
 	world.authority = authority
 	var level: LevelData = load(LEVEL)
-	var player_data: PlayerData = load(PLAYER)
-	var grunt: EnemyData = load(GRUNT)
+	var gobelin: EnemyData = load(GOBELIN)
 	var warden: EnemyData = load(WARDEN)
-	var enemies: Array[EnemyData] = [grunt, warden]
-	world.configure(level, player_data, enemies)
+	var enemies: Array[EnemyData] = [gobelin, warden]
+	world.configure(level, _classes(), enemies)
 	_worlds.append(world)
 	return world
 
@@ -45,18 +55,24 @@ func test_le_joueur_ne_traverse_pas_les_murs() -> void:
 func test_la_grille_bloque_le_raccourci_tant_qu_elle_est_fermee() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var player: Actor = world.spawn_player(1, 0)
-	player.position = Vector2(-11.0, 32.0)
+	# Le couloir du raccourci occupe x = -18 à x = -12.
+	player.position = Vector2(-15.0, 30.0)
 
 	_push(world, 1, Vector2(0.0, 1.0), 240)
 
 	assert_bool(world.shortcut_open).is_false()
+	# Il doit avoir avancé — sinon le test passerait aussi bien avec un joueur
+	# coincé dans un mur, ce qui ne prouverait rien sur la grille.
+	assert_float(player.position.y) \
+		.override_failure_message("Le joueur n'a pas avance du tout : le test ne prouve rien.") \
+		.is_greater(32.0)
 	# La grille occupe z = 36 à z = 40.
 	assert_float(player.position.y).is_less(36.0)
 
 func test_le_raccourci_ouvert_laisse_passer() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var player: Actor = world.spawn_player(1, 0)
-	player.position = Vector2(-11.0, 32.0)
+	player.position = Vector2(-15.0, 30.0)
 	world.shortcut_open = true
 
 	_push(world, 1, Vector2(0.0, 1.0), 240)

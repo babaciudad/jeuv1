@@ -1,6 +1,17 @@
-## Réglages du personnage joueur. Invariant 7.
+## Réglages d'une classe jouable. Invariant 7.
+##
+## L'ordre des classes dans NetBootstrap.CLASS_PATHS est celui du menu ET celui
+## qui voyage sur le réseau : on n'en réordonne jamais, on n'en retire jamais,
+## on n'en ajoute qu'à la fin.
 class_name PlayerData
 extends Resource
+
+@export_group("Identité")
+@export var id: StringName = &""
+@export var display_name: String = ""
+## Résumé d'une ligne, affiché dans le menu de choix.
+@export_multiline var summary: String = ""
+@export var color: Color = Color(0.56, 0.75, 0.48)
 
 @export_group("Vitalité")
 @export var max_health: int = 100
