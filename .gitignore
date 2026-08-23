@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+# Godot 4.x
+# ---------------------------------------------------------------------------
+
+# Cache du moteur : reconstruit intégralement à la prochaine ouverture.
+.godot/
+
+# Cache d'import Godot 3.x, présent si un asset transite par un vieil outil.
+.import/
+
+# Modèle Android exporté par le moteur, régénérable depuis l'éditeur.
+/android/
+
+# Traductions compilées depuis les CSV.
+*.translation
+
+# ---------------------------------------------------------------------------
+# Export
+# ---------------------------------------------------------------------------
+
+# export_presets.cfg contient les chemins locaux et, en production, les
+# identifiants de signature et la clé Steam. Il ne doit jamais partir dans
+# l'historique. Sa recréation sera documentée dans CLAUDE.md.
+export_presets.cfg
+export.cfg
+
+# Binaires produits par les exports.
+/build/
+/export/
+
+# ---------------------------------------------------------------------------
+# Outils du projet
+# ---------------------------------------------------------------------------
+
+# Rapports de la suite gdUnit4 (tools/test.ps1).
+/reports/
+
+# Journaux des instances lancées par tools/netharness.ps1.
+/logs/
+
+# Surcharges locales de configuration Claude Code : propres à la machine.
+.claude/settings.local.json
+
+# ---------------------------------------------------------------------------
+# Système et éditeurs
+# ---------------------------------------------------------------------------
+
+Thumbs.db
+desktop.ini
+.DS_Store
+.vs/
+.vscode/
+.idea/
+*.tmp
+*.swp
