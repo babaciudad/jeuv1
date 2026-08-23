@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/net/net_bootstrap.gd" id="1_net"]
+[ext_resource type="Script" path="res://src/presentation/debug_overlay.gd" id="2_hud"]
+
+[node name="Main" type="Node"]
+
+[node name="Net" type="Node" parent="."]
+script = ExtResource("1_net")
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="DebugOverlay" type="Label" parent="Hud"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 620.0
+offset_bottom = 220.0
+script = ExtResource("2_hud")
+bootstrap_path = NodePath("../../Net")
