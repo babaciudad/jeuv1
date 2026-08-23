@@ -29,6 +29,14 @@ export.cfg
 /export/
 
 # ---------------------------------------------------------------------------
+# Dépendances tierces
+# ---------------------------------------------------------------------------
+
+# gdUnit4 est installé par tools/test.ps1 à une version épinglée. Le dépôt ne
+# porte pas 4 Mo de code tiers ; la version reste reproductible.
+/addons/
+
+# ---------------------------------------------------------------------------
 # Outils du projet
 # ---------------------------------------------------------------------------
 
