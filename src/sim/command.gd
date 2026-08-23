@@ -26,7 +26,9 @@ enum Type {
 	MOVE = 1,
 	## {"d": Vector2} direction de la roulade.
 	DODGE = 2,
-	## {"i": int} index de l'attaque dans les données de l'acteur.
+	## {"i": int, "d": Vector2} index de l'attaque et direction visée. La
+	## visée vient de la présentation parce qu'elle dépend de la caméra, que
+	## la simulation n'a pas le droit de connaître (invariant 2).
 	ATTACK = 3,
 	## {} interaction avec ce qui est à portée : feu de camp ou raccourci.
 	INTERACT = 4,

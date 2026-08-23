@@ -1,19 +1,47 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/net/net_bootstrap.gd" id="1_net"]
-[ext_resource type="Script" path="res://src/presentation/debug_overlay.gd" id="2_hud"]
+[ext_resource type="Script" path="res://src/presentation/game_view.gd" id="2_view"]
+[ext_resource type="Script" path="res://src/presentation/camera_rig.gd" id="3_camera"]
+[ext_resource type="Script" path="res://src/presentation/player_input.gd" id="4_input"]
+[ext_resource type="Script" path="res://src/presentation/hud.gd" id="5_hud"]
+[ext_resource type="Script" path="res://src/presentation/debug_overlay.gd" id="6_debug"]
 
-[node name="Main" type="Node"]
+[node name="Main" type="Node3D"]
 
 [node name="Net" type="Node" parent="."]
 script = ExtResource("1_net")
 
+[node name="GameView" type="Node3D" parent="."]
+script = ExtResource("2_view")
+bootstrap_path = NodePath("../Net")
+
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("3_camera")
+game_view_path = NodePath("../GameView")
+
+[node name="PlayerInput" type="Node" parent="."]
+script = ExtResource("4_input")
+bootstrap_path = NodePath("../Net")
+camera_rig_path = NodePath("../CameraRig")
+
 [node name="Hud" type="CanvasLayer" parent="."]
 
+[node name="Vitals" type="Control" parent="Hud"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_hud")
+bootstrap_path = NodePath("../../Net")
+
 [node name="DebugOverlay" type="Label" parent="Hud"]
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 620.0
-offset_bottom = 220.0
-script = ExtResource("2_hud")
+offset_left = 20.0
+offset_top = 120.0
+offset_right = 700.0
+offset_bottom = 420.0
+mouse_filter = 2
+script = ExtResource("6_debug")
 bootstrap_path = NodePath("../../Net")

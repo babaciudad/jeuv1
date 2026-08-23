@@ -1,0 +1,73 @@
+# souls-like
+
+Souls-like coopératif en ligne. Tranche verticale jouable : un feu de camp, un
+couloir avec raccourci, trois ennemis, un boss, une arme, une roulade, à
+quatre joueurs.
+
+Godot 4.5, GDScript en typage statique strict. Direction artistique low-poly
+non texturée, assumée : la lisibilité du combat ne dépend d'aucun asset.
+
+## Lancer
+
+Godot doit être joignable, dans cet ordre : paramètre `-GodotBin`, variable
+`$env:GODOT_BIN`, puis le `PATH`.
+
+```powershell
+# Vérifier que tout compile et que le typage tient
+./tools/verify.ps1
+
+# Installer gdUnit4 au besoin et lancer la suite
+./tools/test.ps1
+
+# Deux instances locales, 120 ms de latence simulée dans chaque sens
+./tools/netharness.ps1 -Instances 2 -Latency 120
+
+# Quatre joueurs, avec perte de paquets
+./tools/netharness.ps1 -Instances 4 -Latency 80 -Loss 0.02
+
+# Tout arrêter
+./tools/netharness.ps1 -Stop
+```
+
+Pour une partie normale : ouvrir le projet dans Godot et lancer la scène
+principale. Sans argument, l'instance démarre en hôte. Pour rejoindre :
+
+```
+godot --path . -- --connect <adresse> --port 45123
+```
+
+## Jouer
+
+| Touche | Effet |
+|---|---|
+| ZQSD / WASD / flèches | déplacement, relatif à la caméra |
+| Souris | caméra, et donc visée des attaques |
+| Clic gauche ou J | attaque |
+| Espace | roulade, avec fenêtre d'invulnérabilité |
+| E | se reposer au feu, ouvrir le raccourci |
+| F3 | diagnostic réseau |
+| Échap | libérer la souris |
+
+Le feu de camp soigne, ressuscite et remet les ennemis en place. Le raccourci,
+lui, reste ouvert : c'est de la progression. Si toute l'équipe tombe, elle se
+relève au feu au bout de trois secondes.
+
+## Régler le jeu
+
+Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
+
+- `data/actors/player.tres` — vie, endurance, vitesse, roulade
+- `data/actors/grunt.tres`, `data/actors/warden.tres` — ennemis et boss
+- `data/attacks/*.tres` — dégâts, portées, angles, et le **calendrier** de
+  chaque attaque sous forme de pistes d'appel de méthode
+- `data/level/vertical_slice.tres` — géométrie du niveau et postes des ennemis
+
+Le rythme d'une attaque se règle dans l'éditeur d'animation, pas dans le code.
+Une clé destinée au tick N se pose à `(N - 0,5)/60` seconde : voir `CLAUDE.md`.
+
+## Architecture
+
+Les décisions et les interdits sont dans `CLAUDE.md`. En une phrase : simulation
+à pas fixe 60 Hz séparée de la présentation, toute action est une commande
+sérialisable, hôte autoritaire avec synchronisation d'état, et autorité hybride
+sur les dégâts.

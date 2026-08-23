@@ -45,6 +45,37 @@ levé explicitement dans `CLAUDE.md`.
 
 ---
 
+## Verrouillage de cible
+
+**Rencontré** pendant les essais de la tranche verticale.
+
+**Pourquoi hors périmètre.** Le périmètre V1 énumère du contenu, pas des
+systèmes, et n'en mentionne aucun. Le combat est jouable sans : on vise à la
+souris, la caméra donne la direction de l'attaque.
+
+**Ce que ça changerait.** Un verrouillage impose une cible sélectionnée dans
+l'état de l'acteur, donc dans l'instantané réseau, donc une règle sur ce qui se
+passe quand la cible meurt ou sort du champ chez un client mais pas chez
+l'hôte. Ce n'est pas une commodité de confort, c'est de l'état partagé de plus.
+
+**Décision.** Reporté. À rouvrir seulement si les essais montrent que viser à
+la souris rend le boss illisible.
+
+---
+
+## Équilibrage du boss
+
+**Constat.** Le boss a 400 points de vie et frappe pour 28 ou 40. Ces valeurs
+n'ont été mesurées que contre un bot de test, jamais contre un joueur humain.
+Le bot atteint le boss et meurt ; un humain qui sait esquiver devrait s'en
+tirer, mais personne ne l'a vérifié.
+
+**Ce n'est pas une tâche de code.** Tout est dans
+`res://data/actors/warden.tres` et `res://data/attacks/boss_*.tres`. Se règle
+dans l'inspecteur, sans recompiler.
+
+---
+
 ## Transport Steam (GodotSteam)
 
 **Pourquoi hors périmètre maintenant.** Reporté d'un commun accord pendant la

@@ -51,6 +51,9 @@ var last_poise_break_tick: int = -10000
 var move_intent: Vector2 = Vector2.ZERO
 ## Index de l'attaque en cours dans les données de l'acteur, -1 si aucune.
 var attack_index: int = -1
+## Direction visée par l'attaque en cours. Fixée au déclenchement, elle sert
+## de cible au tracking tant que la hitbox n'est pas ouverte.
+var aim: Vector2 = Vector2(0.0, 1.0)
 var runner: AttackRunner = null
 
 ## Réservé aux ennemis : cible poursuivie, et tick de la dernière attaque.

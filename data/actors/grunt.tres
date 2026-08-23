@@ -7,4 +7,5 @@
 [resource]
 script = ExtResource("2_128d4")
 id = &"grunt"
+aggro_radius = 8.0
 attacks = Array[ExtResource("1_mnrgr")]([ExtResource("2_kgrno")])

@@ -124,14 +124,84 @@ Annotations sur toutes les variables, tous les paramètres, tous les retours.
 
 ```
 src/sim/            Simulation. Ignore le réseau, l'entrée et l'affichage.
-src/net/            Transport, sérialisation, synchronisation d'horloge.
-src/presentation/   Tout ce qui est visible ou audible. Lit, n'écrit pas.
-data/               Ressources de réglage (invariant 7). Vide pour l'instant.
+  sim_config.gd       Contrat temporel : tick, avance client, nombre de joueurs.
+  sim_math.gd         Géométrie XZ : collision, cônes de hitbox, rotation bornée.
+  command.gd          Commande sérialisable et son format binaire.
+  command_buffer.gd   Commandes en attente, abandon de celles arrivées trop tard.
+  simulation.gd       Boucle à pas fixe et correction d'horloge.
+  world.gd            État du monde et règles du jeu.
+  actor.gd            État d'un joueur ou d'un ennemi.
+  attack_runner.gd    Calendrier d'attaque piloté par AnimationPlayer.
+  enemy_brain.gd      Décisions des ennemis. Appelé par l'hôte seul.
+  data/               Schémas des ressources de réglage.
+src/net/            Transport, sérialisation, synchronisation.
+  transport.gd        Interface. Tout passe par là (invariant 9).
+  enet_transport.gd   ENet brut, sans MultiplayerAPI ni RPC.
+  latency_pipe.gd     Latence et perte simulées, dans la couche transport.
+  net_message.gd      Genres de messages et leur encodage.
+  net_clock.gd        Estimation de l'avance du client sur l'hôte.
+  world_snapshot.gd   Instantané d'état, hôte vers clients.
+  world_sync.gd       Adoption, interpolation, réconciliation.
+  command_history.gd  Mémoire des commandes et positions prédites.
+  net_bootstrap.gd    Point d'entrée d'une instance.
+src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
+  game_view.gd        Miroir visuel du monde.
+  level_view.gd       Géométrie déduite de la zone praticable.
+  actor_view.gd       Vue d'un acteur, estompage des occultants.
+  camera_rig.gd       Caméra troisième personne et son dégagement.
+  player_input.gd     SEUL endroit autorisé à lire le clavier et la souris.
+  hud.gd              Vie, endurance, boss, invites.
+  debug_overlay.gd    Diagnostic réseau, touche F3.
+data/               Ressources de réglage (invariant 7).
+  attacks/            Calendriers et valeurs des attaques.
+  actors/             Joueur, ennemi de base, boss.
+  level/              Géométrie et points d'intérêt de la tranche verticale.
 scenes/             Scènes Godot.
 tests/              Suites gdUnit4.
 tools/              Scripts PowerShell de vérification, test et banc réseau.
 addons/             Dépendances tierces, NON versionnées, installées par test.ps1.
 ```
+
+## Conventions du gameplay
+
+Trois règles non évidentes, chacune apprise en se cognant dedans.
+
+**Une clé d'animation destinée au tick N s'écrit à `(N - 0,5)/60` seconde.**
+La simulation avance l'animation par pas de 1/60 s et le cumul en flottant ne
+tombe jamais exactement sur une borne : une clé posée pile sur le tick
+déclenche une fois sur deux au tick suivant.
+
+**La visée voyage dans la commande d'attaque.** Le personnage ne tourne que
+lorsqu'il se déplace ; à l'arrêt, sans direction visée, il frapperait toujours
+vers son dernier pas. La présentation joint donc la direction de la caméra à
+la commande `ATTACK`, parce qu'elle seule connaît la caméra (invariant 2).
+
+**La géométrie visible est déduite de la zone praticable.** Les murs ne sont
+pas décrits à la main : `LevelView` place un bloc sur chaque case pleine qui
+touche une case praticable. Décrire séparément ce qu'on voit et ce contre quoi
+on se cogne, c'est signer pour le jour où ils ne correspondront plus.
+
+## Modèle de collision
+
+Pas de physique Godot. Le monde est plat, les acteurs sont des disques, le
+niveau est une union de rectangles praticables dans le plan XZ. Un déplacement
+essaie le mouvement complet puis chaque axe séparément.
+
+C'est un choix, pas un raccourci : la simulation reste testable en headless
+sans arbre de scène, déterministe, et sans corps physique à tenir synchronisé
+avec l'état réseau. Pour un couloir, cinq rectangles suffisent.
+
+## Commandes du jeu
+
+| Touche | Effet |
+|---|---|
+| ZQSD / WASD / flèches | déplacement, relatif à la caméra |
+| Souris | orientation de la caméra, et donc visée |
+| Clic gauche ou J | attaque |
+| Espace | roulade |
+| E | interagir : se reposer au feu, ouvrir le raccourci |
+| F3 | diagnostic réseau |
+| Échap | libérer la souris |
 
 ## Commandes de vérification
 
@@ -197,13 +267,20 @@ Les points suivants ne se discutent pas et ne se contournent pas.
 
 ---
 
-## État du socle
+## État du jeu
 
-Ce qui existe : boucle à tick fixe avec correction d'horloge, commande
-sérialisable, tampon de commandes, interface de transport, transport ENet,
-tuyau de latence et de perte, synchronisation d'horloge client, banc réseau,
-suite de tests.
+**Fait.** Boucle à tick fixe et correction d'horloge. Commandes sérialisables.
+Instantanés d'état, interpolation des acteurs distants, prédiction et
+réconciliation du personnage local. Autorité hybride sur les dégâts. Feu de
+camp avec repos, soin, réapparition et remise en place des ennemis. Couloir et
+raccourci à grille. Trois ennemis de base et un boss à deux phases. Une arme,
+une attaque, une roulade avec fenêtre d'invulnérabilité. Endurance et poise.
+Caméra troisième personne, interface, banc réseau, 44 tests.
 
-Ce qui n'existe pas et ne doit pas être inventé en passant : personnages,
-combat, ennemis, IA, animation, caméra, interface, sauvegarde, feu de camp,
-niveau, prédiction, réconciliation, interpolation des entités distantes.
+**Pas fait, et hors périmètre tant que le verrou tient.** Verrouillage de
+cible, blocage ou parade, armes multiples, montée en niveau, sauvegarde,
+sons, modèles et animations importés, menu, écran de connexion.
+
+**Non éprouvé.** L'équilibrage du boss (400 points de vie) n'a jamais été
+mesuré contre un joueur humain, seulement contre un bot de test. C'est une
+valeur de `res://data/actors/warden.tres`, elle se règle dans l'inspecteur.

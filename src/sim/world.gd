@@ -38,6 +38,10 @@ const FIRST_ENEMY_ID: int = 1_000_000
 const HIT_PLAUSIBILITY_SLACK: float = 1.75
 ## Ancienneté maximale d'une déclaration, en ticks.
 const HIT_MAX_AGE_TICKS: int = 30
+## Délai avant réapparition automatique quand toute l'équipe est morte. Sans
+## lui, une équipe entièrement tombée resterait bloquée : plus personne n'est
+## vivant pour aller se reposer au feu.
+const WIPE_RESPAWN_DELAY_TICKS: int = 180
 
 var tick: int = 0
 var authority: Authority = Authority.HOST
@@ -53,6 +57,7 @@ var shortcut_open: bool = false
 
 var _runner_parent: Node
 var _next_enemy_id: int = FIRST_ENEMY_ID
+var _wipe_tick: int = -1
 
 func _init(runner_parent: Node) -> void:
 	_runner_parent = runner_parent
@@ -203,6 +208,7 @@ func step(at_tick: int, commands: Array[Command]) -> void:
 		_apply_command(command)
 	if authority == Authority.HOST:
 		_decide_enemies()
+		_check_wipe()
 	_advance_attacks()
 	_resolve_hitboxes()
 	_integrate()
@@ -265,6 +271,15 @@ func _command_attack(actor: Actor, command: Command) -> void:
 		return
 	if not actor.runner.start(attack):
 		return
+	# Pivot immédiat vers la visée, puis tracking limité par la donnée. C'est
+	# le compromis du genre : on choisit où l'on frappe au moment de frapper,
+	# et plus après.
+	var aim: Vector2 = _payload_vector(command, "d")
+	if aim.length() > 0.001:
+		actor.aim = aim.normalized()
+		actor.facing = actor.aim
+	else:
+		actor.aim = actor.facing
 	if actor.kind == Actor.Kind.PLAYER:
 		actor.spend_stamina(attack.stamina_cost, tick)
 	else:
@@ -333,6 +348,22 @@ func _command_report_damage(victim: Actor, command: Command) -> void:
 # ---------------------------------------------------------------------------
 # Ennemis (hôte uniquement)
 # ---------------------------------------------------------------------------
+
+## Relève l'équipe si elle est entièrement tombée.
+func _check_wipe() -> void:
+	var roster: Array[Actor] = players()
+	if roster.is_empty():
+		_wipe_tick = -1
+		return
+	for player: Actor in roster:
+		if player.is_alive():
+			_wipe_tick = -1
+			return
+	if _wipe_tick < 0:
+		_wipe_tick = tick
+	elif tick - _wipe_tick >= WIPE_RESPAWN_DELAY_TICKS:
+		_wipe_tick = -1
+		rest_at_bonfire()
 
 func _decide_enemies() -> void:
 	var living_players: Array[Actor] = []
@@ -444,6 +475,7 @@ func rest_at_bonfire() -> void:
 		player.health = player.max_health
 		player.stamina_centi = player.max_stamina_centi
 		player.poise = player.max_poise
+		player.position = player.home_position
 		player.velocity = Vector2.ZERO
 		player.move_intent = Vector2.ZERO
 		player.attack_index = -1
@@ -526,7 +558,7 @@ func _update_attack_movement(actor: Actor) -> void:
 	# Le tracking ne vaut que tant que la hitbox est fermée : une fois le coup
 	# parti, il ne suit plus sa cible.
 	if not actor.runner.hitbox_open:
-		var desired: Vector2 = actor.move_intent
+		var desired: Vector2 = actor.aim
 		if actor.kind == Actor.Kind.ENEMY:
 			var target: Actor = actor_or_null(actor.target_id)
 			if target != null:
