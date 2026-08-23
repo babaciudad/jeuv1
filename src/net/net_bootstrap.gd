@@ -35,6 +35,10 @@ var world: World
 var sync: WorldSync
 var history: CommandHistory = CommandHistory.new()
 
+## Raison de l'échec de session, vide tant que tout va bien. Lue par
+## l'interface : un joueur ne doit jamais rester devant un écran muet.
+var failure_reason: String = ""
+
 var _ping_seq: int = 0
 var _frames_since_ping: int = PING_INTERVAL_FRAMES
 var _started: bool = false
@@ -65,7 +69,16 @@ func _ready() -> void:
 	else:
 		err = enet.join(options.address, options.port)
 	if err != OK:
-		session_failed.emit("transport ENet indisponible (erreur %d)" % err)
+		# Message actionnable, pas un code d'erreur : la cause la plus
+		# fréquente est une instance déjà lancée sur le même port, et
+		# l'écran doit le dire au lieu d'attendre indéfiniment.
+		if is_host():
+			failure_reason = "impossible d'ouvrir le port %d\nune autre instance l'utilise deja ?" \
+				% options.port
+		else:
+			failure_reason = "connexion a %s:%d impossible" % [options.address, options.port]
+		push_error(failure_reason)
+		session_failed.emit(failure_reason)
 		return
 
 	# Toujours décoré, même sans latence ni perte : un seul chemin de code.

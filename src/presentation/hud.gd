@@ -101,6 +101,10 @@ func _process(_delta: float) -> void:
 	_status.position = Vector2(0.0, viewport.y * 0.42)
 	_boss_root.position = Vector2((viewport.x - BAR_WIDTH * 1.8) * 0.5, viewport.y - 64.0)
 
+	if _bootstrap != null and not _bootstrap.failure_reason.is_empty():
+		_status.text = _bootstrap.failure_reason
+		_prompt.text = ""
+		return
 	if _bootstrap == null or _bootstrap.world == null:
 		_status.text = "connexion..."
 		return
