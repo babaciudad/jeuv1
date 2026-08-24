@@ -276,12 +276,65 @@ func _build_decor(level: LevelData) -> void:
 	var root: Node3D = Node3D.new()
 	root.name = "Decor"
 	add_child(root)
+
+	# Les pièces identiques sont REGROUPÉES en MultiMesh. La chapelle en compte
+	# sept cents, et une par nœud faisait sept cents appels de rendu pour un
+	# décor qui n'en vaut pas trente : seize torches partagent le même fût, huit
+	# bancs la même planche, chaque arc treize claveaux identiques.
+	#
+	# La clé est la forme complète — maillage ET matière ET couleur : deux
+	# pièces qui ne partagent pas les trois ne peuvent pas partager un lot.
+	var groups: Dictionary[String, Array] = {}
 	for part: SkinPart in decor.parts:
 		var tone: Color = PrimitiveFactory.color_for(part, COLOR_STONE)
-		var instance: MeshInstance3D = PrimitiveFactory.instance_for(part, tone)
-		if instance != null:
-			root.add_child(instance)
 		_add_light(root, part, tone)
+		var key: String = "%d|%s|%d|%s|%d" % [part.shape, part.size, part.surface,
+			tone.to_html(), 1 if part.unshaded else 0]
+		if not groups.has(key):
+			groups[key] = []
+		groups[key].append(part)
+
+	var lots: int = 0
+	for key: String in groups.keys():
+		var family: Array = groups[key]
+		var first: SkinPart = family[0]
+		var tone: Color = PrimitiveFactory.color_for(first, COLOR_STONE)
+		if family.size() == 1:
+			var single: MeshInstance3D = PrimitiveFactory.instance_for(first, tone)
+			if single != null:
+				root.add_child(single)
+			continue
+		var mesh: Mesh = PrimitiveFactory.mesh_for(first)
+		if mesh == null:
+			continue
+		var multimesh: MultiMesh = MultiMesh.new()
+		multimesh.transform_format = MultiMesh.TRANSFORM_3D
+		multimesh.mesh = mesh
+		multimesh.instance_count = family.size()
+		for index: int in family.size():
+			var part: SkinPart = family[index]
+			var basis: Basis = Basis.from_euler(Vector3(
+				deg_to_rad(part.rotation_degrees.x),
+				deg_to_rad(part.rotation_degrees.y),
+				deg_to_rad(part.rotation_degrees.z)))
+			# L'ELLIPSOÏDE porte ses proportions dans son échelle, pas dans son
+			# maillage : sans cela une tête et un torse partageraient le même
+			# lot et sortiraient tous deux sphériques.
+			if part.shape == SkinPart.Shape.ELLIPSOID:
+				basis = basis.scaled(part.size)
+			multimesh.set_instance_transform(index,
+				Transform3D(basis, part.offset))
+		var batch: MultiMeshInstance3D = MultiMeshInstance3D.new()
+		batch.multimesh = multimesh
+		batch.material_override = PrimitiveFactory.material_for(
+			tone, first.unshaded, first.surface,
+			0.0 if first.light_range <= 0.0 else 1.15 + first.light_range * 0.13)
+		if first.surface == SkinPart.Surface.GLOW or first.unshaded:
+			batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(batch)
+		lots += 1
+	print("[decor] %d pieces en %d noeuds (%d lots)"
+		% [decor.parts.size(), root.get_child_count(), lots])
 
 ## Une pièce qui brille éclaire. Il n'y a pas de liste de lampes dans ce
 ## projet : une lumière naît toujours d'une pièce visible, et sa portée est
