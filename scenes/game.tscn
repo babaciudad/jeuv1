@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/presentation/hud.gd" id="5_hud"]
 [ext_resource type="Script" path="res://src/presentation/debug_overlay.gd" id="6_debug"]
 [ext_resource type="Script" path="res://src/presentation/tutorial.gd" id="7_tuto"]
+[ext_resource type="Script" path="res://src/presentation/ink_pass.gd" id="8_ink"]
 
 [node name="Main" type="Node3D"]
 
@@ -25,6 +26,9 @@ game_view_path = NodePath("../GameView")
 script = ExtResource("4_input")
 bootstrap_path = NodePath("../Net")
 camera_rig_path = NodePath("../CameraRig")
+
+[node name="Ink" type="MeshInstance3D" parent="."]
+script = ExtResource("8_ink")
 
 [node name="Hud" type="CanvasLayer" parent="."]
 

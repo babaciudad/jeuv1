@@ -193,6 +193,7 @@ src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
   skin_library.gd     Résout un skin par identifiant, avec cache.
   primitive_factory.gd Formes et matériaux, partagés par personnages et décor.
   vfx.gd              Effets brefs : impact, touche, soin, lancer.
+  ink_pass.gd         Quad plein écran de la passe d'encre. Voir « Rendu ».
   model_library.gd    Résout un modèle importé par identifiant, avec cache.
   data/               Schémas des skins et du décor : pièces primitives.
   game_view.gd        Miroir visuel du monde, des projectiles et des effets.
@@ -213,6 +214,7 @@ data/               Ressources de réglage (invariant 7).
   level/              Géométrie et points d'intérêt de la tranche verticale.
 models/             Modèles de personnages importés. VIDE dans le dépôt ;
                     voir models/README.md. Un <id>.tres ici remplace le skin.
+shaders/            ink.gdshader et son matériau réglé, ink.tres.
 scenes/             Scènes Godot.
 tests/              Suites gdUnit4.
 tools/              Scripts PowerShell de vérification, test et banc réseau.
@@ -281,6 +283,53 @@ l'état à celui de l'image précédente : des points de vie qui ont baissé, un
 projectile qui a disparu. La simulation n'émet aucun signal pour cela, et c'est
 volontaire — un client qui rejoue ses commandes repasserait deux fois sur le
 même signal.
+
+## Rendu — la direction artistique
+
+**La DA du jeu est une passe d'encre plein écran**, pas un choix de
+géométrie : `shaders/ink.gdshader`, posée par `src/presentation/ink_pass.gd`.
+
+Le raisonnement tient en une phrase, et il a coûté trois refontes de
+personnages avant d'être compris : *une géométrie simple éclairée en PBR lisse
+se lit comme de la 3D ratée ; la MÊME géométrie passée à l'encre se lit comme
+un parti pris.* On ne cherche donc plus à cacher que ce sont des volumes
+simples — on les assume, en les dessinant.
+
+La passe fait quatre choses, dans cet ordre :
+
+1. **Le trait.** Croix de Roberts sur la profondeur ET sur la normale. La
+   profondeur détoure les silhouettes, la normale dessine les plis internes ;
+   l'une sans l'autre donne soit un pochoir, soit un gribouillis. Le seuil
+   grandit avec la distance, sinon un sol vu en fuite se hachure entièrement.
+2. **Les aplats.** Luminance étalonnée entre un point noir et un point blanc,
+   puis posterisée en cinq valeurs.
+3. **La gamme.** Trois couleurs — encre, sépia, papier — auxquelles tout ce
+   qui n'émet pas de lumière propre est ramené. **Ce qui est déjà coloré garde
+   sa couleur** : flamme, vitrail, éclat de sort. C'est la gravure rehaussée à
+   la main, et accessoirement c'est ce qui garde le repère d'arme jaune
+   lisible quelle que soit la passe de rendu.
+4. **La hachure et le papier.** Largeur de trait fixe, densité rendue par
+   l'opacité, contre-taille dans le plus sombre uniquement.
+
+**Deux pièges, tous deux payés en rendus perdus :**
+
+- **Le tampon d'écran est en linéaire HDR, pas en valeurs d'affichage.** Une
+  zone qui apparaît à 0,20 à l'écran vaut 0,035 dans `SCREEN_TEXTURE`.
+  Étalonner sans décoder revient à traiter toute la scène comme du noir. La
+  passe décode donc en `pow(1/2.2)`, peint, et ré-encode en sortie.
+- **Une hachure dont on élargit le trait avec l'ombre se referme en aplat.**
+  Les traits finissent par se toucher et la moitié sombre de l'image devient
+  du noir plein. La largeur reste fixe ; c'est l'opacité qui porte la densité.
+
+**Les réglages sont dans `shaders/ink.tres`**, une ressource, pas du code :
+sélectionner le nœud `Ink` dans l'éditeur donne accès à toute la DA — trait,
+valeurs, encre, sépia, papier, hachure, grain — en direct pendant que le jeu
+tourne. Une DA qui ne se règle qu'en recompilant n'est pas dirigeable.
+
+L'environnement est en tonemap ACES et la passe compte dessus : son écrasement
+des hautes lumières empêche le papier de brûler dès qu'une torche entre dans
+le champ. `white_point` est réglé en connaissance de cela — changer l'un sans
+l'autre déséquilibre l'image.
 
 ## Rendu
 
@@ -539,9 +588,12 @@ qui bloquent pour de vrai, vitraux, bancs renversés et poutres tombées ; chœu
 à 3,6 m vers l'arène du boss ; raccourci parallèle fermé par une grille. Le
 décor purement visuel vit dans `data/decor/chapelle.tres`.
 
-**Le rendu est en Forward+**, avec ombres portées, occlusion ambiante, halo,
-brouillard volumétrique et tonemapping ACES ; matières PBR et grain
-procédural, sans aucun fichier image dans le dépôt.
+**La direction artistique est une gravure à l'encre** : contours tracés sur la
+profondeur et la normale, aplats posterisés en cinq valeurs, gamme encre-sépia-
+papier, hachure dans les ombres, grain de papier. Ce qui brille de sa propre
+lumière garde sa couleur — c'est une gravure rehaussée à la main. Rendu en
+Forward+ avec ombres portées, occlusion ambiante et brouillard volumétrique
+dessous ; aucun fichier image dans le dépôt.
 
 **Les personnages sont articulés.** Six skins humanoïdes — quatre classes, le
 gobelin, le warden — bâtis sur un squelette de pivots et animés par procédure :

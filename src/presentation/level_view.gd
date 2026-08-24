@@ -140,8 +140,11 @@ func _add_slabs(slab_name: String, cells: Array[Vector3], lift: float,
 	var multimesh: MultiMesh = MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.mesh = block
-	multimesh.instance_count = cells.size()
+	# `use_colors` AVANT `instance_count` : dans l'autre ordre, Godot 4.7
+	# refuse le changement et toutes les couleurs par instance sont perdues
+	# en silence — le sol redevient un aplat sans que rien ne le signale.
 	multimesh.use_colors = true
+	multimesh.instance_count = cells.size()
 	for index: int in cells.size():
 		var cell: Vector3 = cells[index]
 		multimesh.set_instance_transform(index, Transform3D(Basis.IDENTITY,
@@ -160,8 +163,11 @@ func _add_walls(cells: Array[Vector3]) -> void:
 	var multimesh: MultiMesh = MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.mesh = block
-	multimesh.instance_count = cells.size()
+	# `use_colors` AVANT `instance_count` : dans l'autre ordre, Godot 4.7
+	# refuse le changement et toutes les couleurs par instance sont perdues
+	# en silence — le sol redevient un aplat sans que rien ne le signale.
 	multimesh.use_colors = true
+	multimesh.instance_count = cells.size()
 	for index: int in cells.size():
 		var cell: Vector3 = cells[index]
 		var height: float = cell.y + SLAB_THICKNESS
@@ -198,8 +204,11 @@ func _add_spandrels(cells: Array[Vector3], tops: Array[float]) -> void:
 	var multimesh: MultiMesh = MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.mesh = block
-	multimesh.instance_count = cells.size()
+	# `use_colors` AVANT `instance_count` : dans l'autre ordre, Godot 4.7
+	# refuse le changement et toutes les couleurs par instance sont perdues
+	# en silence — le sol redevient un aplat sans que rien ne le signale.
 	multimesh.use_colors = true
+	multimesh.instance_count = cells.size()
 	for index: int in cells.size():
 		var cell: Vector3 = cells[index]
 		var span: float = tops[index] - cell.y + SLAB_THICKNESS

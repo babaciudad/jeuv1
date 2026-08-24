@@ -10,11 +10,17 @@ quand on s'en approche, dit une chose, et s'éteint quand on l'a faite. Pas de
 liste de consignes, pas de « suivant » — et rien n'attend le joueur, ce qui
 est la seule façon que ça tienne à quatre.
 
-Godot 4.7 en **Forward+**, GDScript en typage statique strict. Aucun asset
-importé : personnages et décor sont assemblés en primitives, les matières sont
-des bruits générés à l'exécution, et tout ce qui éclaire est une pièce qu'on
-voit briller. Ombres portées, occlusion ambiante, halo, brouillard
-volumétrique.
+Godot 4.7 en **Forward+**, GDScript en typage statique strict.
+
+**La direction artistique est une gravure à l'encre** : contours tracés,
+aplats posterisés, gamme encre-sépia-papier, hachure dans les ombres. Ce qui
+brille de sa propre lumière — flamme, vitrail, sort — garde sa couleur, comme
+une gravure rehaussée à la main. Tout se règle dans `shaders/ink.tres`, en
+direct, depuis l'inspecteur.
+
+Aucun asset importé : personnages et décor sont assemblés en primitives, les
+matières sont des bruits générés à l'exécution, et tout ce qui éclaire est une
+pièce qu'on voit briller.
 
 Une carte graphique compatible Vulkan est donc nécessaire pour jouer. Le repli
 `gl_compatibility` reste déclaré pour le mobile, mais il perd tout l'éclairage
