@@ -45,6 +45,9 @@ extends Resource
 @export var player_spawns: Array[Vector2] = []
 ## Positions de départ des ennemis de base.
 @export var enemy_spawns: Array[Vector2] = []
+## Position du mannequin d'entraînement. Zéro : pas de mannequin.
+@export var training_dummy_position: Vector2 = Vector2.ZERO
+
 ## Position de départ du boss.
 @export var boss_spawn: Vector2 = Vector2.ZERO
 

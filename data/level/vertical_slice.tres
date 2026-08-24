@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="LevelData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="LevelData" format=3]
 
 [ext_resource type="Script" path="res://src/sim/data/level_data.gd" id="1_pxvsp"]
 
@@ -14,4 +14,5 @@ bonfire_position = Vector2(-3, 3.4)
 shortcut_switch_position = Vector2(-15, 41)
 player_spawns = Array[Vector2]([Vector2(-1.6, -12), Vector2(1.6, -12), Vector2(-1.6, -14.6), Vector2(1.6, -14.6)])
 enemy_spawns = Array[Vector2]([Vector2(3, 15), Vector2(1.8, 26), Vector2(4.2, 35)])
+training_dummy_position = Vector2(3.4, -8)
 boss_spawn = Vector2(0, 54)

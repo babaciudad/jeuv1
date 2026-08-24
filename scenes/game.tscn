@@ -47,18 +47,21 @@ mouse_filter = 2
 script = ExtResource("6_debug")
 bootstrap_path = NodePath("../../Net")
 
-[node name="Tutorial" type="Label" parent="Hud"]
+[node name="TutorialText" type="Label" parent="Hud"]
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 120.0
-offset_top = -230.0
+offset_top = -238.0
 offset_right = -120.0
-offset_bottom = -158.0
+offset_bottom = -150.0
 grow_horizontal = 2
 grow_vertical = 0
 vertical_alignment = 1
 mouse_filter = 2
+
+[node name="Tutorial" type="Node3D" parent="."]
 script = ExtResource("7_tuto")
-bootstrap_path = NodePath("../../Net")
-camera_rig_path = NodePath("../../CameraRig")
+bootstrap_path = NodePath("../Net")
+camera_rig_path = NodePath("../CameraRig")
+label_path = NodePath("../Hud/TutorialText")

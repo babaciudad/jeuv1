@@ -18,6 +18,10 @@ signal world_ready(world: World)
 const LEVEL_PATH: String = "res://data/level/vertical_slice.tres"
 const GRUNT_PATH: String = "res://data/actors/gobelin.tres"
 const WARDEN_PATH: String = "res://data/actors/warden.tres"
+## Le mannequin d'entraînement. Il ferme la liste : l'ordre des fiches
+## d'ennemis voyage sur le réseau comme un indice, on n'en insère jamais au
+## milieu, on ajoute à la fin.
+const DUMMY_PATH: String = "res://data/actors/mannequin.tres"
 
 ## Classes jouables. Cet ordre est celui du menu et celui qui voyage sur le
 ## réseau : on n'en réordonne jamais, on n'en retire jamais.
@@ -104,7 +108,8 @@ func _build_world() -> void:
 	var level: LevelData = load(LEVEL_PATH)
 	var grunt: EnemyData = load(GRUNT_PATH)
 	var warden: EnemyData = load(WARDEN_PATH)
-	var enemies: Array[EnemyData] = [grunt, warden]
+	var dummy: EnemyData = load(DUMMY_PATH)
+	var enemies: Array[EnemyData] = [grunt, warden, dummy]
 	var classes: Array[PlayerData] = []
 	for path: String in CLASS_PATHS:
 		var fiche: PlayerData = load(path)

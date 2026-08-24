@@ -28,8 +28,10 @@ function Resolve-GodotBinary {
 
     $names = @(
         'godot',
-        'Godot_v4.5-stable_win64_console.exe',
-        'Godot_v4.5-stable_win64.exe'
+        'Godot_v4.7.2-stable_win64_console.exe',
+        'Godot_v4.7.2-stable_win64.exe',
+        'Godot_v4.7-stable_win64_console.exe',
+        'Godot_v4.7-stable_win64.exe'
     )
     foreach ($name in $names) {
         $command = Get-Command -Name $name -ErrorAction SilentlyContinue
@@ -87,7 +89,7 @@ function Assert-GodotVersion {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $GodotBinary,
-        [string] $Expected = '4.5'
+        [string] $Expected = '4.7'
     )
 
     $version = (& $GodotBinary --version 2>&1 | Select-Object -Last 1).ToString().Trim()
@@ -97,8 +99,8 @@ function Assert-GodotVersion {
     return $version
 }
 
-# Version épinglée de gdUnit4. La série v6.2.x est la première compatible
-# Godot 4.5. Partagée par verify.ps1 et test.ps1 : les deux en dépendent, car
+# Version épinglée de gdUnit4. La série v6.2.x est compatible Godot 4.5 à 4.7
+# — vérifiée sur 4.7.2, 64 tests au vert. Partagée par verify.ps1 et test.ps1 : les deux en dépendent, car
 # les suites de tests héritent de GdUnitTestSuite et ne compilent pas sans.
 $GdUnit4PinnedVersion = 'v6.2.1'
 

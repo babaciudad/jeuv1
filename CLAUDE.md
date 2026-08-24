@@ -1,7 +1,7 @@
 # souls-like — règles du dépôt
 
 Souls-like coopératif en ligne, 4 joueurs maximum, troisième personne,
-corps-à-corps. Godot 4.5, GDScript en typage statique strict. Cible Windows,
+corps-à-corps. Godot 4.7, GDScript en typage statique strict. Cible Windows,
 distribution Steam. Direction artistique low-poly PS1/PS2 : 400 à 1500
 triangles par personnage, textures 64 à 128 px, éclairage par sommet ou absent.
 Cette contrainte est une contrainte de production, pas un goût.
@@ -196,7 +196,7 @@ src/presentation/   Tout ce qui est visible. Lit, n'écrit jamais.
   model_library.gd    Résout un modèle importé par identifiant, avec cache.
   data/               Schémas des skins et du décor : pièces primitives.
   game_view.gd        Miroir visuel du monde, des projectiles et des effets.
-  tutorial.gd         Apprend les mécaniques en observant ce que fait le joueur.
+  tutorial.gd         Runes gravées au sol. Voir « Le tutoriel » plus bas.
   level_view.gd       Géométrie déduite de la zone praticable.
   camera_rig.gd       Caméra troisième personne et son dégagement.
   player_input.gd     SEUL endroit autorisé à lire le clavier et la souris.
@@ -208,6 +208,7 @@ data/               Ressources de réglage (invariant 7).
   skins/              Apparences, une par classe et par espèce.
   decor/              Décor d'un niveau, purement visuel : res://data/decor/<id>.tres.
                       Généré par tools/make_data.gd.
+  tutorial/           Runes du tutoriel : res://data/tutorial/<id du niveau>.tres.
   actors/             Gobelin et boss.
   level/              Géométrie et points d'intérêt de la tranche verticale.
 models/             Modèles de personnages importés. VIDE dans le dépôt ;
@@ -402,7 +403,7 @@ qu'à la fin — un index de classe périmé désignerait un autre personnage.
 
 ## Commandes de vérification
 
-Prérequis : Godot 4.5, **PowerShell 7 ou plus** (`pwsh`, pas `powershell` :
+Prérequis : Godot 4.7, **PowerShell 7 ou plus** (`pwsh`, pas `powershell` :
 les scripts déclarent `#Requires -Version 7.0`), et git, dont `test.ps1` et
 `verify.ps1` se servent pour installer gdUnit4.
 
@@ -423,6 +424,39 @@ puis le `PATH`.
 `-Latency 120` signifie 240 ms d'aller-retour.
 
 Les deux doivent passer avant tout commit.
+
+## Le tutoriel
+
+Le tutoriel n'est **pas** une liste de consignes en haut de l'écran. Ce sont
+des **runes gravées dans le sol**, posées à l'endroit exact où chaque geste
+sert. Une rune s'allume quand on s'en approche, affiche UNE phrase, et
+**s'éteint quand on a fait la chose** — il en reste une braise, pour qu'on
+voie qu'on est déjà passé.
+
+Trois conséquences qui ne sont pas des détails :
+
+- **Il n'y a pas d'étape courante.** Aucun compteur, aucun « suivant », rien
+  qui attende le joueur. Deux joueurs en coopération peuvent en être à des
+  runes différentes — ce qui est le cas normal, et qu'une liste séquentielle
+  gérait mal.
+- **Le placement raconte, pas le script.** Ajouter une mécanique, c'est poser
+  une rune dans `res://data/tutorial/<id du niveau>.tres`. Aucun `.gd` à
+  toucher. `tests/tutorial_test.gd` vérifie que chaque rune tombe dans la zone
+  praticable : **une rune posée dans un mur ne se déclencherait jamais**, sans
+  erreur ni trace dans les journaux — le joueur ne saurait simplement jamais
+  qu'on avait quelque chose à lui dire.
+- **Chaque rune se valide en FAISANT la chose**, observée sur une transition
+  d'état, jamais sur une touche. Le tutoriel ignore le clavier, comme toute la
+  simulation.
+
+Il s'appuie sur un **mannequin d'entraînement** (`data/actors/mannequin.tres`,
+`EnemyData.is_training_dummy`) posé dans la nef, avant le premier gobelin :
+rayon d'aggro nul, aucune attaque, et il se relève seul quelques secondes
+après avoir été abattu. C'est le seul endroit du jeu où se tromper ne coûte
+rien, et c'est là qu'on apprend le repère d'arme jaune — pas dans le couloir.
+
+Un mannequin abattu **ne compte jamais comme un ennemi vaincu** : la rune
+« tuer » attend un vrai gobelin.
 
 ## Le générateur de données
 
@@ -491,11 +525,12 @@ Les points suivants ne se discutent pas et ne se contournent pas.
 Instantanés d'état, interpolation des acteurs distants, prédiction et
 réconciliation du personnage local. Autorité hybride sur les dégâts et les
 soins. Quatre classes, dont deux à projectiles et une soigneuse. Menu de choix
-de classe et de session. Tutoriel en neuf étapes qui se valident en agissant.
+de classe et de session. Tutoriel en onze runes gravées au sol, qui s'éteignent quand on a fait le geste.
 Feu de camp avec repos, soin, réapparition et remise en place des ennemis.
-Couloir et raccourci à grille. Trois gobelins et un boss à deux phases.
+Couloir et raccourci à grille. Trois gobelins, un mannequin d'entraînement et
+un boss à deux phases.
 Roulade avec fenêtre d'invulnérabilité, endurance, poise. Caméra troisième
-personne qui se dégage des murs, interface, banc réseau, 64 tests.
+personne qui se dégage des murs, interface, banc réseau, 71 tests.
 
 **Le niveau est une chapelle abandonnée** (`data/level/vertical_slice.tres`,
 identifiant `chapelle`) : nef à 7,6 m sous plafond avec deux rangs de colonnes

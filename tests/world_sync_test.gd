@@ -51,11 +51,22 @@ func _settle(ticks: int = SETTLE_TICKS) -> void:
 func test_le_client_adopte_le_monde_annonce_par_l_hote() -> void:
 	await _settle()
 
-	# Un joueur hôte, un joueur client, trois ennemis de base et un boss.
-	assert_int(_host.world.actors.size()).is_equal(6)
-	assert_int(_client.world.actors.size()).is_equal(6)
-	assert_int(_client.world.enemies().size()).is_equal(4)
+	# Deux joueurs, trois gobelins, un boss, un mannequin d'entrainement. Les
+	# comptes sont deduits du niveau plutot qu'ecrits en dur : ajouter un
+	# poste d'ennemi ne doit pas casser un test de synchronisation, il doit
+	# etre synchronise comme les autres.
+	var level: LevelData = load(NetBootstrap.LEVEL_PATH)
+	var attendus: int = level.enemy_spawns.size() + 1
+	if level.training_dummy_position != Vector2.ZERO:
+		attendus += 1
+
+	assert_int(_client.world.enemies().size()) \
+		.override_failure_message("Le client n'a pas adopte tous les ennemis.") \
+		.is_equal(attendus)
 	assert_int(_client.world.players().size()).is_equal(2)
+	assert_int(_host.world.actors.size()).is_equal(attendus + 2)
+	# C'est l'egalite des deux mondes qui compte, pas le nombre lui-meme.
+	assert_int(_client.world.actors.size()).is_equal(_host.world.actors.size())
 
 func test_le_client_possede_son_personnage_et_pas_les_autres() -> void:
 	await _settle()
@@ -81,7 +92,12 @@ func test_le_client_voit_les_ennemis_ou_l_hote_les_place() -> void:
 			.override_failure_message("Ennemi %d a %.2f m de sa position autoritaire." % [enemy.id, gap]) \
 			.is_less(0.5)
 		checked += 1
-	assert_int(checked).is_equal(4)
+	# Tous les ennemis du client, quel que soit leur nombre : c'est la
+	# couverture qui est verifiee, pas un effectif ecrit en dur.
+	assert_int(checked) \
+		.override_failure_message("Aucun ennemi verifie : le test ne prouve rien.") \
+		.is_greater(0)
+	assert_int(checked).is_equal(_host.world.enemies().size())
 
 func test_le_deplacement_du_client_parvient_a_l_hote() -> void:
 	await _settle()

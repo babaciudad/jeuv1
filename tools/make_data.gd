@@ -480,6 +480,47 @@ func build_gobelin() -> SkinData:
 	])
 	return s
 
+## Mannequin d'entraînement : bois, paille et corde. Pas de tête, pas d'yeux —
+## il ne doit ressembler à personne, sinon on hésite à le frapper.
+func build_mannequin() -> SkinData:
+	var skin: SkinData = SkinData.new()
+	skin.id = &"mannequin"
+	skin.neck = Vector3(0.0, 1.40, 0.0)
+	skin.shoulder = Vector3(0.30, 1.24, 0.0)
+	skin.elbow_drop = 0.30
+	skin.hip = Vector3(0.14, 0.90, 0.0)
+	skin.knee_drop = 0.34
+	# Il ne marche pas : foulée nulle, mais il oscille quand on le frappe.
+	skin.stride_degrees = 6.0
+	skin.idle_bob = 0.004
+	var straw: Color = Color(0.72, 0.58, 0.28)
+	skin.parts = [
+		# Socle et mât.
+		D(CY, Vector3(0.46, 0.16, 0.52), Vector3(0, 0.08, 0), STONE, M_STONE),
+		D(CY, Vector3(0.09, 1.00, 0.11), Vector3(0, 0.58, 0), WOOD, M_WOOD),
+		# Corps de paille sanglé.
+		D(SkinPart.Shape.ELLIPSOID, Vector3(0.54, 0.72, 0.44),
+			Vector3(0, 1.20, 0), straw, M_CLOTH),
+		D(TO, Vector3(0.22, 0.0, 0.30), Vector3(0, 1.34, 0), LEATHER, M_CLOTH),
+		D(TO, Vector3(0.20, 0.0, 0.28), Vector3(0, 1.06, 0), LEATHER, M_CLOTH),
+		# Traverse : les deux bras du pantin, en une seule pièce.
+		D(CY, Vector3(0.055, 1.30, 0.055), Vector3(0, 1.42, 0), WOOD, M_WOOD,
+			Vector3(0, 0, 90)),
+		D(SkinPart.Shape.ELLIPSOID, Vector3(0.22, 0.22, 0.22),
+			Vector3(0.62, 1.42, 0), straw, M_CLOTH),
+		D(SkinPart.Shape.ELLIPSOID, Vector3(0.22, 0.22, 0.22),
+			Vector3(-0.62, 1.42, 0), straw, M_CLOTH),
+		# Chapeau de paille, et la cible peinte au centre du torse.
+		D(CO, Vector3(0.30, 0.30, 0.0), Vector3(0, 1.68, 0), straw, M_CLOTH),
+		D(CY, Vector3(0.17, 0.03, 0.17), Vector3(0, 1.24, -0.21),
+			Color(0.72, 0.22, 0.20), M_CLOTH, Vector3(90, 0, 0)),
+		D(CY, Vector3(0.09, 0.035, 0.09), Vector3(0, 1.24, -0.22),
+			Color(0.94, 0.90, 0.84), M_CLOTH, Vector3(90, 0, 0)),
+		D(CY, Vector3(0.035, 0.04, 0.035), Vector3(0, 1.24, -0.23),
+			Color(0.72, 0.22, 0.20), M_CLOTH, Vector3(90, 0, 0)),
+	]
+	return skin
+
 func build_warden() -> SkinData:
 	var s: SkinData = humanoid(1.30, Color(0.26, 0.22, 0.26))
 	s.id = &"warden"
@@ -600,6 +641,9 @@ func build_level() -> LevelData:
 		Vector2(-1.6, -14.6), Vector2(1.6, -14.6),
 	]
 	level.enemy_spawns = [Vector2(3.0, 15.0), Vector2(1.8, 26.0), Vector2(4.2, 35.0)]
+	# Le mannequin est dans la nef, sur le chemin du feu : on le croise avant
+	# le premier gobelin, jamais après.
+	level.training_dummy_position = Vector2(3.4, -8.0)
 	level.boss_spawn = Vector2(0, 54)
 	return level
 
@@ -938,15 +982,103 @@ func _arene(parts: Array[SkinPart]) -> void:
 	rubble(parts, Vector3(-3.0, 0.0, 61.0), 0.7)
 
 # ---------------------------------------------------------------------------
+# Les runes du tutoriel
+# ---------------------------------------------------------------------------
+
+const RUNE_WARM: Color = Color(1.0, 0.72, 0.30)
+const RUNE_COLD: Color = Color(0.42, 0.74, 1.0)
+const RUNE_BLOOD: Color = Color(1.0, 0.36, 0.30)
+
+func rune(id: StringName, at: Vector2, radius: float, line: String,
+		hint: String, condition: int, tone: Color = RUNE_WARM,
+		read_seconds: float = 3.5) -> TutorialSign:
+	var sign_: TutorialSign = TutorialSign.new()
+	sign_.id = id
+	sign_.position = at
+	sign_.radius = radius
+	sign_.line = line
+	sign_.hint = hint
+	sign_.condition = condition as TutorialSign.Condition
+	sign_.tone = tone
+	sign_.read_seconds = read_seconds
+	return sign_
+
+## Les runes suivent le chemin, dans l'ordre où on le parcourt. Chacune
+## enseigne UNE chose, et s'éteint quand on l'a faite.
+##
+## L'ordre n'est pas un scénario : rien n'oblige à les croiser dans cet ordre,
+## rien n'attend le joueur, et deux joueurs en coopération peuvent en être à
+## des runes différentes. C'est le placement qui raconte, pas un compteur.
+func build_tutorial() -> TutorialData:
+	var data: TutorialData = TutorialData.new()
+	data.id = &"chapelle"
+	data.signs = [
+		rune(&"regarder", Vector2(0.0, -14.0), 4.6,
+			"Bouge la souris.",
+			"La caméra ne sert pas à voir : elle décide où tu frappes.",
+			TutorialSign.Condition.LOOK),
+		rune(&"avancer", Vector2(0.0, -11.5), 4.0,
+			"ZQSD pour marcher.",
+			"Le déplacement suit la caméra, jamais le personnage.",
+			TutorialSign.Condition.MOVE),
+		rune(&"rouler", Vector2(1.2, -9.8), 3.6,
+			"Espace pour rouler.",
+			"Tu es invulnérable PENDANT la roulade. Pas avant, pas après.",
+			TutorialSign.Condition.DODGE),
+		rune(&"frapper", Vector2(1.6, -8.0), 3.6,
+			"Ce mannequin ne rend pas les coups.",
+			"Clic gauche. C'est le seul adversaire du jeu qui te laissera "
+			+ "recommencer.",
+			TutorialSign.Condition.ATTACK),
+		rune(&"jaune", Vector2(3.4, -5.4), 3.4,
+			"Ton arme vire au JAUNE au moment où elle blesse.",
+			"Celle des ennemis aussi. C'est le seul repère de rythme du jeu — "
+			+ "apprends-le ici, où ça ne coûte rien.",
+			TutorialSign.Condition.HIT, RUNE_BLOOD),
+		rune(&"seconde", Vector2(0.4, -3.0), 3.6,
+			"Clic droit : ta seconde arme.",
+			"Chaque classe a la sienne. Elle coûte plus d'endurance.",
+			TutorialSign.Condition.SECOND),
+		rune(&"feu", Vector2(-3.0, -0.6), 3.6,
+			"Entre dans l'anneau et appuie sur E.",
+			"Le feu te rend ta vie — et replace tous les gobelins. "
+			+ "C'est le marché.",
+			TutorialSign.Condition.REST, RUNE_COLD),
+		rune(&"couloir", Vector2(3.0, 8.6), 3.6,
+			"Au-delà, plus rien ne pardonne.",
+			"Trois gobelins dans le boyau. Attire-les un par un ; à deux, "
+			+ "tu meurs.",
+			TutorialSign.Condition.READ, RUNE_BLOOD, 5.0),
+		rune(&"tuer", Vector2(3.0, 12.4), 3.8,
+			"Attends le jaune, roule, PUIS frappe.",
+			"Frapper en premier, c'est mourir en premier.",
+			TutorialSign.Condition.KILL, RUNE_BLOOD),
+		rune(&"endurance", Vector2(3.0, 22.0), 3.6,
+			"La barre verte est ton endurance.",
+			"À zéro, plus de roulade. C'est comme ça qu'on meurt, pas "
+			+ "par manque de vie.",
+			TutorialSign.Condition.READ, RUNE_COLD, 5.0),
+		rune(&"raccourci", Vector2(-15.0, 44.5), 4.5,
+			"E sur le levier bleu.",
+			"Le raccourci relie l'arène au feu, définitivement. "
+			+ "C'est ta seule victoire acquise.",
+			TutorialSign.Condition.SHORTCUT, RUNE_COLD),
+	]
+	return data
+
+# ---------------------------------------------------------------------------
 
 func _init() -> void:
 	var skins: Array[SkinData] = [
 		build_gardien(), build_mage(), build_soigneur(),
-		build_archer(), build_gobelin(), build_warden(),
+		build_archer(), build_gobelin(), build_warden(), build_mannequin(),
 	]
 	for skin: SkinData in skins:
 		save(skin, "res://data/skins/%s.tres" % skin.id)
 	save(build_level(), "res://data/level/vertical_slice.tres")
+	var tutorial: TutorialData = build_tutorial()
+	save(tutorial, "res://data/tutorial/chapelle.tres")
+	print("tutoriel : %d runes" % tutorial.signs.size())
 	var decor: DecorData = build_decor()
 	save(decor, "res://data/decor/chapelle.tres")
 	print("décor : %d pièces" % decor.parts.size())

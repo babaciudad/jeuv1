@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/sim/data/enemy_data.gd" id="1_dummy"]
+
+[resource]
+script = ExtResource("1_dummy")
+id = &"mannequin"
+display_name = "Mannequin"
+is_boss = false
+is_training_dummy = true
+dummy_revive_ticks = 150
+color = Color(0.58, 0.44, 0.28, 1)
+max_health = 200
+max_poise = 999
+radius = 0.5
+move_speed = 0.0
+acceleration = 0.0
+turn_degrees_per_tick = 0.0
+aggro_radius = 0.0
+leash_radius = 0.0
+attack_range = 0.0
+attack_cooldown_ticks = 99999
+recover_ticks = 1
+circle_band = 1.0
+stagger_duration_ticks = 1
+poise_recovery_ticks = 1
+attacks = Array[Object]([])

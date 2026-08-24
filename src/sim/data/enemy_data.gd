@@ -8,6 +8,14 @@ extends Resource
 @export var id: StringName = &""
 @export var display_name: String = ""
 @export var is_boss: bool = false
+## Mannequin d'entraînement : il ne poursuit personne, ne frappe personne, et
+## ne meurt jamais tout à fait — il se relève au bout de quelques secondes.
+##
+## C'est le seul endroit du jeu où l'on peut se tromper sans conséquence, et
+## c'est exactement ce qu'il faut pour apprendre le rythme d'une arme.
+@export var is_training_dummy: bool = false
+## Ticks après lesquels un mannequin abattu se relève à pleine vie.
+@export var dummy_revive_ticks: int = 180
 @export var color: Color = Color(0.71, 0.34, 0.31)
 
 @export_group("Vitalité")

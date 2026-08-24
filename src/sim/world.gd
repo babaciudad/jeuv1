@@ -136,6 +136,11 @@ func spawn_enemies() -> void:
 	var boss: EnemyData = _first_enemy_data(true)
 	if boss != null:
 		_spawn_enemy(boss, level.boss_spawn)
+	# Le mannequin arrive EN DERNIER : `enemies()[0]` doit rester le premier
+	# gobelin, sur quoi reposent les tests et la lecture du couloir.
+	var dummy: EnemyData = _training_dummy_data()
+	if dummy != null and level.training_dummy_position != Vector2.ZERO:
+		_spawn_enemy(dummy, level.training_dummy_position)
 
 ## Crée un ennemi dont l'hôte a annoncé l'existence. Le client ne décide ni de
 ## sa position ni de sa vie : il ouvre seulement la place.
@@ -174,7 +179,17 @@ func _make_runner(runner_name: String) -> AttackRunner:
 
 func _first_enemy_data(boss: bool) -> EnemyData:
 	for data: EnemyData in enemy_data:
+		# Un mannequin n'est ni un ennemi de couloir ni un boss : sans cette
+		# exclusion, le premier de la liste finirait par peupler le couloir.
+		if data.is_training_dummy:
+			continue
 		if data.is_boss == boss:
+			return data
+	return null
+
+func _training_dummy_data() -> EnemyData:
+	for data: EnemyData in enemy_data:
+		if data.is_training_dummy:
 			return data
 	return null
 
@@ -243,6 +258,7 @@ func step(at_tick: int, commands: Array[Command]) -> void:
 		_apply_command(command)
 	if authority == Authority.HOST:
 		_decide_enemies()
+		_revive_dummies()
 		_check_wipe()
 	_advance_attacks()
 	_resolve_hitboxes()
@@ -525,6 +541,25 @@ func _check_wipe() -> void:
 	elif tick - _wipe_tick >= WIPE_RESPAWN_DELAY_TICKS:
 		_wipe_tick = -1
 		rest_at_bonfire()
+
+## Un mannequin abattu se relève. C'est le seul endroit du jeu où la mort ne
+## coûte rien — et il le faut : on apprend le rythme d'une arme en se
+## trompant, pas en lisant une consigne.
+##
+## Hôte uniquement, comme toute décision sur un ennemi (invariant 5).
+func _revive_dummies() -> void:
+	for enemy: Actor in enemies():
+		if enemy.is_alive():
+			continue
+		var data: EnemyData = data_for(enemy)
+		if data == null or not data.is_training_dummy:
+			continue
+		if enemy.ticks_in_state(tick) < data.dummy_revive_ticks:
+			continue
+		enemy.health = enemy.max_health
+		enemy.poise = enemy.max_poise
+		enemy.position = enemy.home_position
+		enemy.enter_state(Actor.State.IDLE, tick)
 
 func _decide_enemies() -> void:
 	var living_players: Array[Actor] = []

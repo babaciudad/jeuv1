@@ -1,11 +1,16 @@
 # souls-like
 
 Souls-like coopératif en ligne. Tranche verticale jouable : un menu de choix
-de classe, un tutoriel, une chapelle abandonnée, un feu de camp, un couloir
-avec raccourci, trois gobelins, un boss. Quatre classes, jusqu'à quatre
-joueurs.
+de classe, une chapelle abandonnée, un mannequin d'entraînement, un feu de
+camp, un couloir avec raccourci, trois gobelins, un boss. Quatre classes,
+jusqu'à quatre joueurs.
 
-Godot 4.5 en **Forward+**, GDScript en typage statique strict. Aucun asset
+Le tutoriel est fait de **runes gravées dans le sol** : une rune s'allume
+quand on s'en approche, dit une chose, et s'éteint quand on l'a faite. Pas de
+liste de consignes, pas de « suivant » — et rien n'attend le joueur, ce qui
+est la seule façon que ça tienne à quatre.
+
+Godot 4.7 en **Forward+**, GDScript en typage statique strict. Aucun asset
 importé : personnages et décor sont assemblés en primitives, les matières sont
 des bruits générés à l'exécution, et tout ce qui éclaire est une pièce qu'on
 voit briller. Ombres portées, occlusion ambiante, halo, brouillard
@@ -19,7 +24,7 @@ Une carte graphique compatible Vulkan est donc nécessaire pour jouer. Le repli
 
 | Outil | Version | Vérifier |
 |---|---|---|
-| Godot | 4.5.x | `godot --version` |
+| Godot | **4.7.x** (testé sur 4.7.2) | `godot --version` |
 | PowerShell | **7 ou plus** | `pwsh --version` |
 | git | quelconque | `git --version` |
 
@@ -113,6 +118,8 @@ Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
   dépôt ; **`models/README.md` explique où en trouver, sous quelle licence, et
   comment le brancher.** C'est la seule façon d'avoir des personnages qui
   ressemblent à des humains
+- `data/tutorial/chapelle.tres` — les runes : position, rayon, texte, et le
+  geste qui les éteint. Ajouter une leçon ne demande de toucher à aucun `.gd`
 - `data/decor/chapelle.tres` et `data/skins/*.tres` sont **générés** par
   `godot --headless --path . -s tools/make_data.gd`. Les `.tres` font foi et
   se retouchent dans l'inspecteur, mais le script les réécrit entièrement :
