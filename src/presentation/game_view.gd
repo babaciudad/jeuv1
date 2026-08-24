@@ -34,6 +34,21 @@ var _last_health: Dictionary[int, int] = {}
 ## Attaques déjà saluées par un anneau de lancer, pour n'en poser qu'un.
 var _cast_seen: Dictionary[int, int] = {}
 var _shortcut_shown: bool = false
+## Position de chaque acteur au tick précédent et au tick courant. La
+## présentation affiche un point ENTRE les deux, choisi par la fraction
+## d'avancement de l'image physique.
+##
+## Sans cela, la simulation à 60 Hz et un écran à 144 Hz donnent deux images
+## identiques sur trois puis un saut — ce qui se lit comme un jeu qui saccade,
+## alors que la carte graphique s'ennuie. C'est le défaut le plus visible que
+## le projet ait eu, et il était documenté dans CameraRig comme un compromis
+## assumé : il ne l'était pas, c'était une erreur.
+var _previous: Dictionary[int, Vector2] = {}
+var _current: Dictionary[int, Vector2] = {}
+## Au-delà de ce déplacement en un tick, on ne peut plus parler de mouvement :
+## c'est une réapparition ou un recalage réseau. Interpoler ferait glisser le
+## personnage à travers la chapelle.
+const TELEPORT_METRES: float = 2.5
 
 func _ready() -> void:
 	_actors_root = Node3D.new()
@@ -52,9 +67,30 @@ func _ready() -> void:
 			_bootstrap.world_ready.connect(_on_world_ready)
 
 func _on_world_ready(world: World) -> void:
+	if _bootstrap.simulation != null \
+			and not _bootstrap.simulation.tick_advanced.is_connected(_on_tick):
+		_bootstrap.simulation.tick_advanced.connect(_on_tick)
 	_level_view.build(world.level)
 	_shortcut_shown = world.shortcut_open
 	_level_view.set_shortcut_open(_shortcut_shown)
+
+## Appelé après chaque tick simulé : ce qui était la position courante devient
+## la position précédente, et l'on note la nouvelle.
+func _on_tick(_tick: int) -> void:
+	if _bootstrap == null or _bootstrap.world == null:
+		return
+	for actor: Actor in _bootstrap.world.actors.values():
+		var was: Vector2 = _current.get(actor.id, actor.position)
+		_previous[actor.id] = was
+		_current[actor.id] = actor.position
+
+## Position à afficher pour un acteur, entre son tick précédent et le courant.
+func _shown_position(actor: Actor) -> Vector2:
+	var from: Vector2 = _previous.get(actor.id, actor.position)
+	var to: Vector2 = _current.get(actor.id, actor.position)
+	if from.distance_to(to) > TELEPORT_METRES:
+		return actor.position
+	return from.lerp(to, clampf(Engine.get_physics_interpolation_fraction(), 0.0, 1.0))
 
 func _process(delta: float) -> void:
 	if _bootstrap == null or _bootstrap.world == null:
@@ -70,7 +106,8 @@ func _process(delta: float) -> void:
 	var local: Actor = world.local_actor()
 	var player_distance: float = 0.0
 	if local != null and camera != null:
-		player_distance = eye.distance_to(Vector3(local.position.x, 0.9, local.position.y))
+		var here: Vector2 = _shown_position(local)
+		player_distance = eye.distance_to(Vector3(here.x, 0.9, here.y))
 	for actor: Actor in world.actors.values():
 		var view: ActorView = _views.get(actor.id, null)
 		if view != null and _view_data_index.get(actor.id, -99) != actor.data_index:
@@ -80,7 +117,7 @@ func _process(delta: float) -> void:
 		if view == null:
 			view = _make_view(world, actor)
 		view.refresh(actor, eye, actor.id == world.local_actor_id, player_distance,
-			delta)
+			delta, _shown_position(actor))
 		_watch_cast(actor)
 
 	for actor_id: int in _views.keys():
@@ -90,6 +127,8 @@ func _process(delta: float) -> void:
 			_view_data_index.erase(actor_id)
 			_last_health.erase(actor_id)
 			_cast_seen.erase(actor_id)
+			_previous.erase(actor_id)
+			_current.erase(actor_id)
 
 	_refresh_projectiles(world)
 
@@ -218,5 +257,6 @@ func local_view_position(out: Array[Vector3]) -> bool:
 	var actor: Actor = _bootstrap.world.local_actor()
 	if actor == null:
 		return false
-	out.append(Vector3(actor.position.x, 0.0, actor.position.y))
+	var shown: Vector2 = _shown_position(actor)
+	out.append(Vector3(shown.x, 0.0, shown.y))
 	return true

@@ -23,6 +23,18 @@ var _rig: CameraRig
 var _last_direction: Vector2 = Vector2.ZERO
 var _ticks_since_move: int = MOVE_RESEND_TICKS
 var _pointer_captured: bool = false
+## Appuis vus depuis le dernier tick simulé.
+##
+## `Input.is_action_just_pressed()` ne peut PAS servir ici. Elle répond « oui »
+## pendant toute l'image de rendu courante : quand le moteur rattrape et
+## execute deux pas physiques dans la même image, un seul clic part DEUX fois ;
+## quand l'écran va plus vite que les 60 Hz de la simulation, un clic donné
+## entre deux pas n'est jamais vu du tout. C'est-à-dire, du point de vue du
+## joueur : des coups qui doublent, et des coups qui ne sortent pas.
+##
+## On note donc l'appui dans `_unhandled_input`, qui voit chaque événement une
+## fois et une seule, et on le consomme au tick suivant.
+var _pending: Dictionary[StringName, bool] = {}
 
 func _ready() -> void:
 	var node: Node = get_node_or_null(bootstrap_path)
@@ -40,14 +52,29 @@ func _capture_pointer(captured: bool) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("release_mouse"):
 		_capture_pointer(false)
+		_pending.clear()
 		return
 	if not _pointer_captured:
 		if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
 			_capture_pointer(true)
+			# Le clic qui reprend la main n'est PAS une attaque.
+			_pending.clear()
 		return
 	if event is InputEventMouseMotion and _rig != null:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
 		_rig.add_look(motion.relative, mouse_sensitivity)
+		return
+	for action: StringName in [&"dodge", &"attack", &"attack_secondary", &"interact"]:
+		if event.is_action_pressed(action, false, true):
+			_pending[action] = true
+
+## Vrai une seule fois par appui, quel que soit le nombre de pas physiques
+## joués dans l'image.
+func _took(action: StringName) -> bool:
+	if not _pending.get(action, false):
+		return false
+	_pending[action] = false
+	return true
 
 func _physics_process(_delta: float) -> void:
 	if _bootstrap == null or _rig == null:
@@ -58,6 +85,7 @@ func _physics_process(_delta: float) -> void:
 	_ticks_since_move += 1
 	if not actor.is_alive():
 		_send_direction(Vector2.ZERO, true)
+		_pending.clear()
 		return
 
 	var raw: Vector2 = Input.get_vector("move_left", "move_right", "move_back", "move_forward")
@@ -66,18 +94,18 @@ func _physics_process(_delta: float) -> void:
 		direction = direction.normalized()
 	_send_direction(direction, false)
 
-	if Input.is_action_just_pressed("dodge"):
+	if _took(&"dodge"):
 		var dodge: Vector2 = direction if direction.length() > 0.1 else actor.facing
 		_bootstrap.submit_command(Command.Type.DODGE, {"d": dodge})
 	# On frappe là où l'on va, ou à défaut là où l'on regarde. Sans cette visée,
 	# un personnage à l'arrêt frapperait toujours dans la direction de son
 	# dernier pas.
 	var aim: Vector2 = direction if direction.length() > 0.1 else _rig.planar_forward()
-	if Input.is_action_just_pressed("attack"):
+	if _took(&"attack"):
 		_bootstrap.submit_command(Command.Type.ATTACK, {"i": 0, "d": aim})
-	if Input.is_action_just_pressed("attack_secondary"):
+	if _took(&"attack_secondary"):
 		_bootstrap.submit_command(Command.Type.ATTACK, {"i": 1, "d": aim})
-	if Input.is_action_just_pressed("interact"):
+	if _took(&"interact"):
 		_bootstrap.submit_command(Command.Type.INTERACT, {})
 
 func _send_direction(direction: Vector2, force: bool) -> void:

@@ -326,14 +326,19 @@ func _stub(role: SkinPart.Role, radius: float, drop: float) -> SkinPart:
 # Rafraîchissement
 # ---------------------------------------------------------------------------
 
+## `shown` est la position INTERPOLÉE entre le tick précédent et le tick
+## courant, pas `actor.position`. La simulation avance à 60 Hz ; un écran à
+## 144 Hz affiche donc deux images sur trois exactement identiques, et la
+## troisième saute. C'est ce qui se voit comme un jeu qui saccade, alors même
+## que la carte graphique s'ennuie.
 func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
-		player_distance: float, delta: float) -> void:
-	position = Vector3(actor.position.x, 0.0, actor.position.y)
+		player_distance: float, delta: float, shown: Vector2) -> void:
+	position = Vector3(shown.x, 0.0, shown.y)
 	if not actor.facing.is_zero_approx():
 		var forward: Vector3 = Vector3(actor.facing.x, 0.0, actor.facing.y)
 		look_at(position + forward, Vector3.UP)
 
-	_advance_gait(actor, delta)
+	_advance_gait(shown, delta)
 	if _model != null:
 		_animate_model(actor, delta)
 	else:
@@ -350,14 +355,14 @@ func uses_model() -> bool:
 ## La foulée avance avec la distance réellement parcourue, mesurée entre deux
 ## images. C'est la seule mesure disponible pour un acteur distant, dont la
 ## position est interpolée et dont la vitesse simulée ne veut rien dire ici.
-func _advance_gait(actor: Actor, delta: float) -> void:
+func _advance_gait(shown: Vector2, delta: float) -> void:
 	_clock += delta
 	if not _has_last:
-		_last_position = actor.position
+		_last_position = shown
 		_has_last = true
 		return
-	var travelled: float = actor.position.distance_to(_last_position)
-	_last_position = actor.position
+	var travelled: float = shown.distance_to(_last_position)
+	_last_position = shown
 	if delta > 0.0:
 		# Lissage : un paquet réseau en retard fait un saut de position, et un
 		# saut de position ferait un sprint d'une image sans ce filtre.

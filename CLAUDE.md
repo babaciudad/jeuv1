@@ -284,6 +284,51 @@ projectile qui a disparu. La simulation n'émet aucun signal pour cela, et c'est
 volontaire — un client qui rejoue ses commandes repasserait deux fois sur le
 même signal.
 
+## Le temps, l'affichage et l'entrée
+
+Trois règles qui touchent tout le jeu. Elles ont été écrites après qu'un
+joueur a rapporté « c'est bugué de partout » : ce n'étaient pas plusieurs
+bugs, c'était trois défauts systémiques dans la plomberie du temps.
+
+**La présentation INTERPOLE entre deux ticks.** La simulation avance à 60 Hz ;
+un écran à 144 Hz afficherait sinon deux images identiques sur trois puis un
+saut. Cela ne se lit pas comme « la simulation est à 60 Hz », cela se lit
+comme *un jeu qui saccade*, et d'autant plus fort que la carte graphique est
+bonne. `GameView` note la position de chaque acteur à chaque tick
+(`Simulation.tick_advanced`) et affiche un point entre la précédente et la
+courante, choisi par `Engine.get_physics_interpolation_fraction()`. La caméra
+suit la position affichée, pas la position simulée.
+
+Un garde-fou : au-delà de `TELEPORT_METRES` en un tick, on n'interpole pas —
+c'est une réapparition ou un recalage réseau, et interpoler ferait glisser le
+personnage à travers la chapelle.
+
+**`Input.is_action_just_pressed()` est INTERDITE dans `_physics_process`.**
+Elle répond « oui » pendant toute l'image de rendu : quand le moteur rattrape
+et joue deux pas physiques dans la même image, un seul clic part deux fois ;
+quand l'écran va plus vite que 60 Hz, un clic donné entre deux pas n'est
+jamais vu. Du point de vue du joueur : des coups qui doublent, et des coups
+qui ne sortent pas. `PlayerInput` note donc les appuis dans
+`_unhandled_input`, qui voit chaque événement une fois et une seule, et les
+consomme au tick suivant.
+
+**`project.godot` n'a PAS de syntaxe de commentaire.** Une ligne commençant
+par `#` n'est pas ignorée : Godot l'agglutine avec la ligne suivante, et le
+réglage qui suit n'est jamais lu. C'est silencieux — pas d'erreur, pas
+d'avertissement, la valeur reste au défaut. `max_physics_steps_per_frame` est
+resté à 8 au lieu de 4 pendant toute une session à cause de cela. **Ne jamais
+commenter dans ce fichier ; l'explication va ici.**
+
+Les deux réglages qui comptent, verrouillés par `tests/simulation_test.gd` :
+
+- `physics/common/physics_ticks_per_second = 60` — le socle de l'invariant 1.
+  S'il dérivait, les ticks resteraient cohérents entre eux, mais ils ne
+  vaudraient plus 1/60 s et tout le jeu changerait de vitesse.
+- `physics/common/max_physics_steps_per_frame = 4` — au défaut de 8, un à-coup
+  fait jouer huit ticks dans une seule image : le personnage franchit un
+  demi-mètre d'un bond, ce qui se lit comme une téléportation ou un passage à
+  travers le décor.
+
 ## Rendu — la direction artistique
 
 **La DA du jeu est une passe d'encre plein écran**, pas un choix de
@@ -375,6 +420,13 @@ Corollaire appris en se cognant dedans : **la lumière prend la teinte de la
 pièce, mais désaturée de moitié.** Une flamme est rouge orangé ; ce qu'elle
 éclaire ne l'est pas. Seize torches à leur couleur pleine transforment un
 couloir en chambre noire de photographe, et plus rien n'a de couleur propre.
+
+**Le décor est regroupé en lots de rendu.** Les pièces dont la forme, la
+matière ET la couleur coïncident partagent un `MultiMesh` : la chapelle passe
+de 729 nœuds à 132. Piège : l'`ELLIPSOID` porte ses proportions dans son
+échelle et non dans son maillage — sans le reporter dans la base de chaque
+instance, une tête et un torse partageraient un lot et ressortiraient tous
+deux sphériques.
 
 **La géométrie visible est déduite de la zone praticable.** Les murs ne sont
 pas décrits à la main : `LevelView` place un bloc sur chaque case pleine qui
@@ -579,7 +631,7 @@ Feu de camp avec repos, soin, réapparition et remise en place des ennemis.
 Couloir et raccourci à grille. Trois gobelins, un mannequin d'entraînement et
 un boss à deux phases.
 Roulade avec fenêtre d'invulnérabilité, endurance, poise. Caméra troisième
-personne qui se dégage des murs, interface, banc réseau, 71 tests.
+personne qui se dégage des murs, interface, banc réseau, 73 tests.
 
 **Le niveau est une chapelle abandonnée** (`data/level/vertical_slice.tres`,
 identifiant `chapelle`) : nef à 7,6 m sous plafond avec deux rangs de colonnes
