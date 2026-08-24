@@ -143,6 +143,41 @@ Aucune valeur de combat n'est dans le code. Tout est dans `res://data/` :
 Le rythme d'une attaque se règle dans l'éditeur d'animation, pas dans le code.
 Une clé destinée au tick N se pose à `(N - 0,5)/60` seconde : voir `CLAUDE.md`.
 
+## Fabriquer un exécutable
+
+`export_presets.cfg` n'est pas versionné : il portera un jour la clé de
+signature et l'AppID Steam. Il se recrée en une fois, depuis l'éditeur —
+**Projet → Exporter → Ajouter → Windows Desktop** — ou en collant ceci à la
+racine du projet :
+
+```ini
+[preset.0]
+name="Windows Desktop"
+platform="Windows Desktop"
+runnable=true
+export_filter="all_resources"
+exclude_filter="addons/*, tests/*, tools/*"
+export_path="../build/souls-like.exe"
+
+[preset.0.options]
+binary_format/embed_pck=true
+binary_format/architecture="x86_64"
+application/product_name="souls-like"
+```
+
+`exclude_filter` compte : sans lui, gdUnit4, les suites de tests et les
+scripts PowerShell partent dans le paquet livré.
+
+Il faut ensuite les **modèles d'exportation** de la même version que
+l'éditeur (Éditeur → Gérer les modèles d'exportation), puis :
+
+```powershell
+godot --headless --path . --export-release "Windows Desktop" ../build/souls-like.exe
+```
+
+`embed_pck` produit **un seul fichier** : pas de `.pck` à côté, rien à
+installer, le joueur double-clique.
+
 ## Architecture
 
 Les décisions et les interdits sont dans `CLAUDE.md`. En une phrase : simulation
