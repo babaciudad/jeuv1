@@ -22,7 +22,7 @@ const PROBE_MARGIN: float = 2.0
 const COLOR_FLOOR: Color = Color(0.43, 0.43, 0.43)
 const COLOR_MORTAR: Color = Color(0.15, 0.14, 0.15)
 const COLOR_WALL: Color = Color(0.50, 0.50, 0.49)
-const COLOR_CEILING: Color = Color(0.31, 0.29, 0.29)
+const COLOR_CEILING: Color = Color(0.22, 0.21, 0.22)
 const COLOR_GATE: Color = Color(0.55, 0.40, 0.18)
 const COLOR_BONFIRE: Color = Color(1.0, 0.50, 0.16)
 const COLOR_SWITCH: Color = Color(0.42, 0.74, 1.0)
@@ -617,5 +617,17 @@ func _environment() -> Environment:
 func _exposure() -> CameraAttributesPractical:
 	var attributes: CameraAttributesPractical = CameraAttributesPractical.new()
 	attributes.exposure_multiplier = 1.05
-	attributes.auto_exposure_enabled = false
+	# Exposition automatique, et c'est indispensable ici : la passe d'encre
+	# étalonne entre un point noir et un point blanc FIXES. Réglés sur la nef,
+	# ils laissaient l'arène du boss — quatre fois plus vaste et éclairée par
+	# six torches — entièrement noire : on voyait la barre de vie du warden
+	# sans voir le warden. On ne peut pas esquiver ce qu'on ne voit pas.
+	#
+	# La plage est étroite et la réponse lente : une exposition qui pompe à
+	# chaque torche qui entre dans le champ serait pire que le mal.
+	attributes.auto_exposure_enabled = true
+	attributes.auto_exposure_scale = 0.38
+	attributes.auto_exposure_min_sensitivity = 40.0
+	attributes.auto_exposure_max_sensitivity = 420.0
+	attributes.auto_exposure_speed = 0.35
 	return attributes

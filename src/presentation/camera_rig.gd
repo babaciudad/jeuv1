@@ -24,6 +24,19 @@ const OCCLUSION_STEPS: int = 14
 const MIN_DISTANCE: float = 1.4
 ## Marge autour d'un acteur en deçà de laquelle la caméra le traverserait.
 const ACTOR_CLEARANCE: float = 0.6
+## Marge sous le plafond et au-dessus du sol.
+##
+## Le test de dégagement ne connaissait que le plan XZ. Dans le couloir, haut
+## de 3,6 m, la caméra reculée et inclinée passait AU-DESSUS du plafond : le
+## point restait dans le praticable vu de dessus, donc jugé libre, et le haut
+## de l'écran se remplissait de la dalle vue par en dessous. C'est le bug qui
+## ressemblait le plus à « la caméra part en vrille ».
+## Généreuse à dessein : il ne s'agit pas seulement d'éviter de traverser la
+## dalle, mais de ne pas la laisser manger le haut de l'écran. Dans le boyau à
+## 3,6 m, la caméra reculée montait à 3,0 m — sous le plafond, donc « libre »,
+## mais avec un mètre de dalle plein cadre. Elle rentre maintenant.
+const CEILING_CLEARANCE: float = 1.05
+const FLOOR_CLEARANCE: float = 0.35
 
 var _camera: Camera3D
 var _game_view: GameView
@@ -100,6 +113,12 @@ func _clear_distance() -> float:
 func _is_clear(world: World, probe: Vector3) -> bool:
 	var flat: Vector2 = Vector2(probe.x, probe.z)
 	if not SimMath.point_is_free(flat, world.level.walkable, world.blockers()):
+		return false
+	# La hauteur compte autant que le plan : une salle basse doit ramener la
+	# caméra vers le personnage, pas la laisser sortir par le toit.
+	if probe.y > world.level.height_at(flat) - CEILING_CLEARANCE:
+		return false
+	if probe.y < FLOOR_CLEARANCE:
 		return false
 	for actor: Actor in world.actors.values():
 		if actor.id == world.local_actor_id or not actor.is_alive():

@@ -594,7 +594,11 @@ const PORTE: Rect2 = Rect2(-12, -6, 3, 3)
 
 const H_NEF: float = 7.6
 const H_CHOEUR: float = 5.8
-const H_COULOIR: float = 3.6
+## Le boyau était à 3,6 m. Avec la caméra à 2,45 m et 70° de champ, la dalle
+## occupait le cinquième supérieur de l'écran en permanence : un bandeau plat
+## et sans détail au-dessus de tout combat. À 4,6 m elle sort du cadre, et
+## l'arc doubleau (centre 1,9, rayon 2,7) vient s'y appuyer pile.
+const H_COULOIR: float = 4.6
 const H_ARENE: float = 6.6
 
 ## Abscisse des deux rangs de colonnes de la nef, et leurs ordonnées.

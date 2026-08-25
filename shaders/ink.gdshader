@@ -61,7 +61,14 @@ uniform float saturation : hint_range(0.0, 2.0) = 1.05;
 // gravure devient une page noire. Ces deux nombres disent quelle luminance
 // compte pour du noir d'encre et laquelle compte pour du papier nu.
 uniform float black_point : hint_range(0.0, 0.5) = 0.02;
-uniform float white_point : hint_range(0.05, 1.0) = 0.38;
+// Assez HAUT pour que seuls les vrais eclats atteignent le papier nu. A 0,38,
+// toute surface bien eclairee -- un plafond de couloir sous une torche --
+// depassait le point blanc et devenait un aplat sature sans detail : un
+// bandeau creme en haut de l'ecran qu'on prenait pour un bug d'affichage.
+// C'est la meme cause que l'arene noire : une plage fixe sur une scene dont
+// les salles vont du simple au decuple. L'exposition automatique fait le gros
+// du travail, ce reglage ne fait plus que la finition.
+uniform float white_point : hint_range(0.05, 1.0) = 0.60;
 
 group_uniforms hachure;
 // La hachure est la signature de la gravure. Sans elle, une image posterisée
