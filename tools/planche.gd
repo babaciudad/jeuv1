@@ -14,6 +14,11 @@ const NOMS: Array[String] = ["GARDIEN", "MAGE", "SOIGNEUR", "ARCHER",
 	"GOBELIN", "LE GARDIEN DES BRAISES"]
 const PAS: float = 2.5
 const DOSSIER: String = "/home/user/shots/perso"
+## Trace trois barres colorées sur l'os de main droite — rouge +X, vert +Y,
+## bleu +Z. C'est le seul moyen fiable de savoir dans quel sens une arme
+## tenue doit être décrite : l'orientation d'un os de main ne se déduit pas,
+## elle se regarde.
+const REPERES: bool = false
 
 var _camera: Camera3D
 var _players: Array[AnimationPlayer] = []
@@ -115,6 +120,8 @@ func _build_cast() -> void:
 		var corps: Node3D = data.scene.instantiate() as Node3D
 		add_child(corps)
 		var sel: SaltBody = SaltBody.dress(corps, data.id, Color.WHITE)
+		if REPERES:
+			_axes_de_main(corps)
 		corps.scale = Vector3.ONE * maxf(0.001, data.scale)
 		corps.position = Vector3(_abscisse(index),
 			data.lift + sel.lift * maxf(0.001, data.scale), 0.0)
@@ -133,6 +140,43 @@ func _build_cast() -> void:
 		etiquette.outline_size = 22
 		etiquette.outline_modulate = Color(0.05, 0.04, 0.04)
 		add_child(etiquette)
+
+func _axes_de_main(corps: Node3D) -> void:
+	var skel: Skeleton3D = _squelette(corps)
+	if skel == null:
+		return
+	var index: int = skel.find_bone("handslot.r")
+	if index < 0:
+		return
+	var attache: BoneAttachment3D = BoneAttachment3D.new()
+	skel.add_child(attache)
+	attache.bone_idx = index
+	var axes: Array[Vector3] = [Vector3.RIGHT, Vector3.UP, Vector3.BACK]
+	var teintes: Array[Color] = [Color(1.0, 0.1, 0.1), Color(0.1, 1.0, 0.1),
+		Color(0.2, 0.4, 1.0)]
+	for axe: int in 3:
+		var barre: MeshInstance3D = MeshInstance3D.new()
+		var tige: CylinderMesh = CylinderMesh.new()
+		tige.top_radius = 0.018
+		tige.bottom_radius = 0.018
+		tige.height = 0.60
+		barre.mesh = tige
+		var matiere: StandardMaterial3D = StandardMaterial3D.new()
+		matiere.albedo_color = teintes[axe]
+		matiere.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		barre.material_override = matiere
+		barre.transform = Transform3D(
+			Basis(Quaternion(Vector3.UP, axes[axe])), axes[axe] * 0.30)
+		attache.add_child(barre)
+
+func _squelette(node: Node) -> Skeleton3D:
+	if node is Skeleton3D:
+		return node as Skeleton3D
+	for enfant: Node in node.get_children():
+		var trouve: Skeleton3D = _squelette(enfant)
+		if trouve != null:
+			return trouve
+	return null
 
 func _abscisse(index: int) -> float:
 	return (float(index) - 2.5) * PAS

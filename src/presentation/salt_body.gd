@@ -412,14 +412,16 @@ func _capuche(rayon: float, teinte: Color) -> void:
 
 ## Repère de PRISE, dans les coordonnées de l'os de main.
 ##
-## Mesuré sur la pose animée, bras le long du corps : le -X de l'os pointe
-## vers le haut du monde et son +Y vers l'avant du personnage. Une arme
-## décrite « manche en bas, fer en haut » se pose donc dans cette base-là.
+## Mesuré à l'écran, pas déduit : `tools/planche.gd` sait tracer les trois axes
+## de l'os de main (REPERES), et c'est le seul moyen fiable de savoir dans quel
+## sens une arme tenue doit être décrite. Résultat : c'est le +Z de l'os qui
+## monte, une hampe se pose donc le long de celui-là.
 ##
-## C'est le genre de constante qu'on ne peut pas deviner : la première
-## version tenait le rabot à l'horizontale, pointé dans le dos.
+## Les deux premières versions tenaient le rabot à l'horizontale, pointé dans
+## le dos, puis planté vers le sol. Une orientation d'os de main ne se devine
+## pas.
 const GRIP: Basis = Basis(
-	Vector3(0.0, 0.0, 1.0), Vector3(1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+	Vector3(0.0, 1.0, 0.0), Vector3(0.0, 0.0, 1.0), Vector3(1.0, 0.0, 0.0))
 
 ## Pose une pièce d'arme dans la main droite. `at` et `tilt` s'entendent dans
 ## le repère de prise : +Y vers le fer, +Z vers l'avant.
@@ -602,16 +604,17 @@ func _lampiste() -> void:
 	# Bandes de toile qui brûlent, en travers du tronc. Courtes et étroites :
 	# trois anneaux pleins autour du corps ne se lisaient pas comme un homme
 	# qui brûle mais comme une enseigne.
-	for index: int in 4:
-		var y: float = -0.04 + float(index) * 0.13
-		_add("chest", SkinPart.Shape.BOX, Vector3(0.30, 0.035, 0.10),
-			Vector3(-0.10 + float(index % 2) * 0.20, y, 0.30),
-			Vector3(0.0, 0.0, -22.0 + float(index) * 14.0), BRAISE,
-			SkinPart.Surface.GLOW, false, 2.4)
-	_eclat("chest", Vector3(0.28, 0.22, 0.26),
-		Vector3(0.31, 0.14, 0.0), Vector3(0.0, 0.0, -28.0))
-	_eclat("chest", Vector3(0.23, 0.19, 0.22),
-		Vector3(-0.31, 0.14, 0.0), Vector3(0.0, 0.0, 28.0), SEL_OMBRE)
+	for index: int in 5:
+		var y: float = -0.06 + float(index) * 0.11
+		var side: float = -1.0 if index % 2 == 0 else 1.0
+		_add("chest", SkinPart.Shape.BOX, Vector3(0.16, 0.026, 0.05),
+			Vector3(side * 0.13, y, 0.26 + float(index % 3) * 0.02),
+			Vector3(0.0, 0.0, side * (18.0 + float(index) * 9.0)), BRAISE,
+			SkinPart.Surface.GLOW, false, 1.8)
+	_eclat("chest", Vector3(0.17, 0.14, 0.16),
+		Vector3(0.29, 0.15, 0.0), Vector3(0.0, 0.0, -30.0))
+	_eclat("chest", Vector3(0.14, 0.12, 0.13),
+		Vector3(-0.29, 0.15, 0.0), Vector3(0.0, 0.0, 30.0), SEL_OMBRE)
 	_ratelier()
 
 ## Un râtelier de lampes tenu comme une arme d'hast. Trois lampes qui pendent :
