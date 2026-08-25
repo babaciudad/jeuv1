@@ -8,7 +8,7 @@ script = ExtResource("1_uv4qa")
 speed = 17.0
 radius = 0.4
 lifetime_ticks = 100
-color = Color(0.62, 0.45, 0.95, 1)
+color = Color(0.42, 0.90, 0.80, 1)
 
 [sub_resource type="Animation" id="Animation_cvy1c"]
 resource_name = "mage_trait"

@@ -9,8 +9,14 @@ extends Node3D
 ## Un coup se lit en rouge, un soin en vert. Deux couleurs, pas plus : un
 ## joueur doit pouvoir dire d'un coup d'œil, au fond du couloir, si son
 ## coéquipier prend cher ou remonte.
-const COLOR_HIT: Color = Color(1.0, 0.30, 0.24)
-const COLOR_HEAL: Color = Color(0.42, 1.0, 0.52)
+## Espacement des escarbilles de traînée, en secondes.
+const TRAIL_INTERVAL: float = 0.045
+## Poussière de sel : presque blanche, à peine froide.
+const COLOR_DUST: Color = Color(0.88, 0.90, 0.86)
+const COLOR_HIT: Color = Color(1.0, 0.26, 0.20)
+## Saumure : ce qui soigne dans ce monde lave le sel, il n'est
+## donc ni vert ni doré, il est de la couleur de l'eau qui reste.
+const COLOR_HEAL: Color = Color(0.46, 0.94, 0.84)
 
 @export var bootstrap_path: NodePath
 
@@ -27,6 +33,14 @@ var _flights: Dictionary[int, MeshInstance3D] = {}
 ## ne dit pas où il s'est éteint : il faut l'avoir noté avant.
 var _flight_positions: Dictionary[int, Vector3] = {}
 var _flight_colors: Dictionary[int, Color] = {}
+## Vrai tant que l'acteur roule : sert à ne soulever la poussière qu'une fois.
+var _dodge_seen: Dictionary[int, bool] = {}
+## Prochaine date de dépôt d'une escarbille, par projectile.
+var _trail_due: Dictionary[int, float] = {}
+## Horloge d'affichage, en secondes. Sert aux effets, jamais au jeu.
+var _clock: float = 0.0
+## Rotation cumulée des sorts en vol, en radians.
+var _flight_spin: float = 0.0
 ## Points de vie à l'image précédente. Les effets naissent d'un ÉCART déjà
 ## constaté, jamais d'un événement que la vue aurait deviné : la simulation ne
 ## prévient personne, et c'est très bien ainsi (invariant 2).
@@ -95,6 +109,8 @@ func _shown_position(actor: Actor) -> Vector2:
 func _process(delta: float) -> void:
 	if _bootstrap == null or _bootstrap.world == null:
 		return
+	_clock += delta
+	_flight_spin = delta * 9.0
 	var world: World = _bootstrap.world
 	if world.shortcut_open != _shortcut_shown:
 		_shortcut_shown = world.shortcut_open
@@ -117,8 +133,9 @@ func _process(delta: float) -> void:
 		if view == null:
 			view = _make_view(world, actor)
 		view.refresh(actor, eye, actor.id == world.local_actor_id, player_distance,
-			delta, _shown_position(actor))
+			delta, _shown_position(actor), world.dodge_progress(actor))
 		_watch_cast(actor)
+		_watch_dodge(actor)
 
 	for actor_id: int in _views.keys():
 		if not world.actors.has(actor_id):
@@ -134,6 +151,15 @@ func _process(delta: float) -> void:
 
 ## Un projectile n'a pas de position stockée : on la demande au monde, qui la
 ## recalcule depuis son tick de départ.
+## Escarbilles laissées derrière un sort. Espacées en TEMPS et non par image :
+## à 30 comme à 144 images par seconde, la traînée a la même densité.
+func _drop_trail(flight_id: int, at: Vector3, tone: Color) -> void:
+	var next: float = _trail_due.get(flight_id, 0.0)
+	if _clock < next:
+		return
+	_trail_due[flight_id] = _clock + TRAIL_INTERVAL
+	Vfx.spawn(_actors_root, Vfx.Kind.MOTE, at, tone)
+
 func _refresh_projectiles(world: World) -> void:
 	for projectile: Projectile in world.projectiles.values():
 		var view: MeshInstance3D = _flights.get(projectile.id, null)
@@ -147,6 +173,11 @@ func _refresh_projectiles(world: World) -> void:
 		var heading: Vector3 = Vector3(projectile.direction.x, 0.0, projectile.direction.y)
 		if not heading.is_zero_approx():
 			view.look_at(view.position + heading, Vector3.UP)
+			# Le prisme est couché sur le côté et tourne sur son axe de vol :
+			# un éclat de verre qui file scintille, une boîte qui glisse non.
+			view.rotate_object_local(Vector3.FORWARD, _flight_spin)
+		var tone: Color = _flight_colors.get(projectile.id, Color.WHITE)
+		_drop_trail(projectile.id, view.position, tone)
 	for flight_id: int in _flights.keys():
 		if not world.projectiles.has(flight_id):
 			# Éteint : mur, cible, ou portée épuisée. La simulation ne dit pas
@@ -154,33 +185,69 @@ func _refresh_projectiles(world: World) -> void:
 			# point connu dit tout ce que le joueur a besoin de lire.
 			var where: Vector3 = _flight_positions.get(flight_id, Vector3.ZERO)
 			var tone: Color = _flight_colors.get(flight_id, Color.WHITE)
-			Vfx.spawn(_actors_root, Vfx.Kind.IMPACT, where, tone)
+			Vfx.spawn(_actors_root, Vfx.Kind.SHATTER, where, tone)
 			_flights[flight_id].queue_free()
 			_flights.erase(flight_id)
 			_flight_positions.erase(flight_id)
 			_flight_colors.erase(flight_id)
+			_trail_due.erase(flight_id)
 
+## Un sort en vol, en trois couches : un éclat de verre plein, un halo additif
+## plus large, et une VRAIE lumière. La lumière est ce qui change tout — un
+## sort qui traverse un couloir sombre doit éclairer les murs au passage,
+## sinon ce n'est qu'un autocollant qui glisse sur l'écran.
 func _make_flight(world: World, projectile: Projectile) -> MeshInstance3D:
 	var attack: AttackData = world.projectile_attack(projectile)
 	if attack == null or attack.projectile == null:
 		return null
-	# Un trait allongé dans le sens du vol, et non une bille : à huit mètres,
-	# une sphère du rayon de la hitbox fait cinq pixels et se perd. Le trait
-	# se voit, et sa longueur dit dans quel sens il part.
-	var bolt: BoxMesh = BoxMesh.new()
-	var thickness: float = attack.projectile.radius * 1.4
-	bolt.size = Vector3(thickness, thickness, attack.projectile.radius * 2.0 + 1.1)
+	var tone: Color = attack.projectile.color
+	var thickness: float = attack.projectile.radius * 1.5
+	var length: float = attack.projectile.radius * 2.0 + 1.0
+
+	# Un prisme allongé dans le sens du vol, et non une bille : à huit mètres,
+	# une sphère du rayon de la hitbox fait cinq pixels et se perd. L'éclat se
+	# voit, et sa longueur dit dans quel sens il part.
+	var shard: PrismMesh = PrismMesh.new()
+	shard.size = Vector3(thickness, thickness, length)
+	var view: MeshInstance3D = MeshInstance3D.new()
+	view.mesh = shard
+	view.material_override = _flight_material(tone, false)
+	view.rotation.z = PI * 0.5
+	_actors_root.add_child(view)
+
+	var halo: MeshInstance3D = MeshInstance3D.new()
+	var glow: PrismMesh = PrismMesh.new()
+	glow.size = Vector3(thickness * 2.6, thickness * 2.6, length * 1.35)
+	halo.mesh = glow
+	halo.material_override = _flight_material(tone, true)
+	view.add_child(halo)
+
+	var lamp: OmniLight3D = OmniLight3D.new()
+	lamp.omni_range = 5.2
+	lamp.light_energy = 2.4
+	lamp.light_color = tone
+	lamp.shadow_enabled = false
+	view.add_child(lamp)
+
+	_flights[projectile.id] = view
+	_flight_colors[projectile.id] = tone
+	return view
+
+func _flight_material(tone: Color, additive: bool) -> StandardMaterial3D:
 	var material: StandardMaterial3D = StandardMaterial3D.new()
-	material.albedo_color = attack.projectile.color
 	# Non éclairé : un projectile doit rester visible dans le noir du couloir.
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	var view: MeshInstance3D = MeshInstance3D.new()
-	view.mesh = bolt
-	view.material_override = material
-	_actors_root.add_child(view)
-	_flights[projectile.id] = view
-	_flight_colors[projectile.id] = attack.projectile.color
-	return view
+	material.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+	if not additive:
+		material.albedo_color = tone.lightened(0.35)
+		return material
+	var faint: Color = tone
+	faint.a = 0.30
+	material.albedo_color = faint
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return material
 
 ## Un écart de points de vie déjà arrivé se traduit en gerbe. La vue ne
 ## décide de rien : elle n'a même pas le moyen de savoir QUI a frappé.
@@ -194,7 +261,7 @@ func _watch_health(world: World) -> void:
 		if actor.health < previous:
 			Vfx.spawn(_actors_root, Vfx.Kind.HIT, at, COLOR_HIT)
 		else:
-			Vfx.spawn(_actors_root, Vfx.Kind.HEAL, at, COLOR_HEAL)
+			Vfx.spawn(_actors_root, Vfx.Kind.RINSE, at, COLOR_HEAL)
 
 ## Anneau au sol au premier tick d'un lancer. Compté en ticks écoulés et non
 ## par un signal : la simulation n'en émet aucun, et un client qui rejoue ses
@@ -214,6 +281,19 @@ func _watch_cast(actor: Actor) -> void:
 		else runner.attack.projectile.color
 	Vfx.spawn(_actors_root, Vfx.Kind.CAST,
 		Vector3(actor.position.x, 0.06, actor.position.y), tone)
+
+## Poussière de sel au départ d'une roulade. Comme pour le lancer, l'effet
+## naît d'un CHANGEMENT D'ÉTAT déjà arrivé, jamais d'un signal : un client qui
+## rejoue ses commandes repasserait deux fois sur le même signal.
+func _watch_dodge(actor: Actor) -> void:
+	var rolling: bool = actor.state == Actor.State.DODGING
+	if rolling == _dodge_seen.get(actor.id, false):
+		return
+	_dodge_seen[actor.id] = rolling
+	if not rolling:
+		return
+	Vfx.spawn(_actors_root, Vfx.Kind.DUST,
+		Vector3(actor.position.x, 0.04, actor.position.y), COLOR_DUST)
 
 func _make_view(world: World, actor: Actor) -> ActorView:
 	var view: ActorView = ActorView.new()

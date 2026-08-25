@@ -5,3 +5,27 @@
 [resource]
 render_priority = 0
 shader = ExtResource("1_ink")
+shader_parameter/ink_width = 1.25
+shader_parameter/depth_edge = 1.7
+shader_parameter/normal_edge = 0.9
+shader_parameter/ink_color = Color(0.055, 0.068, 0.072, 1)
+shader_parameter/ink_fade_start = 24.0
+shader_parameter/ink_fade_end = 48.0
+shader_parameter/bands = 5
+shader_parameter/band_mix = 0.9
+shader_parameter/tone_ink = Color(0.105, 0.128, 0.135, 1)
+shader_parameter/tone_sepia = Color(0.355, 0.435, 0.415, 1)
+shader_parameter/tone_paper = Color(0.925, 0.945, 0.925, 1)
+shader_parameter/duotone = 0.9
+shader_parameter/color_keep = 0.95
+shader_parameter/color_threshold = 0.09
+shader_parameter/saturation = 1.02
+shader_parameter/black_point = 0.02
+shader_parameter/white_point = 0.62
+shader_parameter/hatch_enabled = true
+shader_parameter/hatch_scale = 220.0
+shader_parameter/hatch_strength = 0.3
+shader_parameter/hatch_ceiling = 0.46
+shader_parameter/grain_amount = 0.022
+shader_parameter/grain_scale = 640.0
+shader_parameter/vignette = 0.3

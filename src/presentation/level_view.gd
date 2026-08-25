@@ -19,20 +19,20 @@ const CELL: float = 1.0
 const SLAB_THICKNESS: float = 0.2
 const PROBE_MARGIN: float = 2.0
 
-const COLOR_FLOOR: Color = Color(0.43, 0.43, 0.43)
-const COLOR_MORTAR: Color = Color(0.15, 0.14, 0.15)
-const COLOR_WALL: Color = Color(0.50, 0.50, 0.49)
-const COLOR_CEILING: Color = Color(0.22, 0.21, 0.22)
-const COLOR_GATE: Color = Color(0.55, 0.40, 0.18)
+const COLOR_FLOOR: Color = Color(0.62, 0.63, 0.60)
+const COLOR_MORTAR: Color = Color(0.13, 0.16, 0.16)
+const COLOR_WALL: Color = Color(0.58, 0.60, 0.58)
+const COLOR_CEILING: Color = Color(0.20, 0.23, 0.23)
+const COLOR_GATE: Color = Color(0.40, 0.34, 0.24)
 const COLOR_BONFIRE: Color = Color(1.0, 0.50, 0.16)
-const COLOR_SWITCH: Color = Color(0.42, 0.74, 1.0)
-const COLOR_ASH: Color = Color(0.19, 0.18, 0.19)
-const COLOR_LOG: Color = Color(0.23, 0.15, 0.10)
-const COLOR_BLADE: Color = Color(0.58, 0.57, 0.55)
-const COLOR_IRON: Color = Color(0.26, 0.25, 0.28)
+const COLOR_SWITCH: Color = Color(0.50, 0.86, 0.76)
+const COLOR_ASH: Color = Color(0.20, 0.22, 0.22)
+const COLOR_LOG: Color = Color(0.22, 0.18, 0.14)
+const COLOR_BLADE: Color = Color(0.66, 0.68, 0.66)
+const COLOR_IRON: Color = Color(0.24, 0.27, 0.27)
 const COLOR_EMBER: Color = Color(1.0, 0.72, 0.30)
-const COLOR_STONE: Color = Color(0.44, 0.44, 0.45)
-const COLOR_STONE_DARK: Color = Color(0.32, 0.32, 0.34)
+const COLOR_STONE: Color = Color(0.58, 0.59, 0.57)
+const COLOR_STONE_DARK: Color = Color(0.40, 0.42, 0.41)
 
 var _gate: MeshInstance3D
 
@@ -191,8 +191,8 @@ func _stone_tint(cell: Vector3) -> Color:
 	# Une pointe de chaleur ou de froid selon la case, pas seulement du gris
 	# plus ou moins clair : c'est la variation de teinte qui se voit, pas la
 	# variation de luminosité.
-	var warm: float = 1.0 + sin(cell.x * 0.7 + cell.z * 0.13) * 0.022
-	return Color(shade * warm, shade, shade / warm, 1.0)
+	var brine: float = 1.0 + sin(cell.x * 0.7 + cell.z * 0.13) * 0.026
+	return Color(shade / brine, shade, shade / sqrt(brine), 1.0)
 
 ## Pans verticaux au-dessus d'un décroché de plafond. Une case, un pan, de la
 ## hauteur basse à la hauteur haute.
@@ -533,8 +533,8 @@ func _build_atmosphere() -> void:
 	var moon: DirectionalLight3D = DirectionalLight3D.new()
 	moon.name = "Moon"
 	moon.rotation = Vector3(deg_to_rad(-58.0), deg_to_rad(-34.0), 0.0)
-	moon.light_energy = 0.88
-	moon.light_color = Color(0.54, 0.68, 1.0)
+	moon.light_energy = 1.06
+	moon.light_color = Color(0.74, 0.84, 1.0)
 	moon.shadow_enabled = true
 	moon.directional_shadow_max_distance = 60.0
 	moon.directional_shadow_blend_splits = true
@@ -551,12 +551,12 @@ func _build_atmosphere() -> void:
 func _environment() -> Environment:
 	var environment: Environment = Environment.new()
 	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color(0.020, 0.022, 0.034)
+	environment.background_color = Color(0.026, 0.031, 0.034)
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	# Ambiante très basse, et bleutée. Elle ne sert qu'à empêcher le noir
 	# absolu ; tout le reste vient des feux, des cierges et des vitraux.
-	environment.ambient_light_color = Color(0.30, 0.40, 0.66)
-	environment.ambient_light_energy = 0.44
+	environment.ambient_light_color = Color(0.34, 0.45, 0.52)
+	environment.ambient_light_energy = 0.52
 
 	# Halo : c'est lui qui fait qu'une flamme éblouit au lieu d'être un rond
 	# orange. Seuil au-dessus de 1 pour que seules les pièces émissives
@@ -589,15 +589,15 @@ func _environment() -> Environment:
 	# scène sans texture, et ce qui masque le bout du couloir.
 	environment.volumetric_fog_enabled = true
 	environment.volumetric_fog_density = 0.021
-	environment.volumetric_fog_albedo = Color(0.58, 0.66, 0.90)
-	environment.volumetric_fog_emission = Color(0.020, 0.022, 0.036)
+	environment.volumetric_fog_albedo = Color(0.74, 0.81, 0.85)
+	environment.volumetric_fog_emission = Color(0.024, 0.028, 0.032)
 	environment.volumetric_fog_gi_inject = 0.6
 	environment.volumetric_fog_anisotropy = 0.32
 	environment.volumetric_fog_length = 72.0
 	environment.volumetric_fog_ambient_inject = 0.8
 
 	environment.fog_enabled = true
-	environment.fog_light_color = Color(0.10, 0.11, 0.17)
+	environment.fog_light_color = Color(0.12, 0.15, 0.16)
 	environment.fog_density = 0.006
 	environment.fog_sky_affect = 0.0
 
@@ -605,7 +605,7 @@ func _environment() -> Environment:
 	# palette de gris, quelle que soit la qualité de l'éclairage.
 	environment.adjustment_enabled = true
 	environment.adjustment_contrast = 1.16
-	environment.adjustment_saturation = 1.10
+	environment.adjustment_saturation = 1.04
 	environment.adjustment_brightness = 1.02
 
 	environment.tonemap_mode = Environment.TONE_MAPPER_ACES

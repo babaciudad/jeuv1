@@ -192,3 +192,47 @@ func test_la_roulade_coute_de_l_endurance_et_deplace() -> void:
 
 	assert_int(int(player.state)).is_equal(int(Actor.State.DODGING))
 	assert_float(player.position.x).is_less(start.x - 0.5)
+
+func test_la_roulade_part_vite_et_finit_lentement() -> void:
+	var world: World = _make_world(World.Authority.HOST)
+	var pair: Array[Actor] = _face_off(world)
+	var player: Actor = pair[0]
+	var fiche: PlayerData = world.class_for(player)
+
+	_step(world, [_command(world, 1, Command.Type.DODGE, {"d": Vector2(-1.0, 0.0)})])
+	var depart: float = player.velocity.length()
+	for _i: int in fiche.dodge_duration_ticks - 3:
+		_step(world)
+	var fin: float = player.velocity.length()
+
+	# Une roulade est une impulsion, pas un déplacement à vitesse constante :
+	# c'était le vrai défaut de sensation du jeu.
+	assert_float(depart).is_greater(fiche.dodge_speed)
+	assert_float(fin).is_less(depart * 0.5)
+
+func test_on_sort_de_roulade_en_marchant_et_non_a_l_arret() -> void:
+	var world: World = _make_world(World.Authority.HOST)
+	var pair: Array[Actor] = _face_off(world)
+	var player: Actor = pair[0]
+	var fiche: PlayerData = world.class_for(player)
+
+	_step(world, [_command(world, 1, Command.Type.DODGE, {"d": Vector2(-1.0, 0.0)})])
+	for _i: int in fiche.dodge_duration_ticks + 1:
+		_step(world)
+
+	assert_int(int(player.state)).is_equal(int(Actor.State.IDLE))
+	# Couper à zéro fige le personnage sur place et casse l'enchaînement.
+	assert_float(player.velocity.length()).is_greater(0.5)
+
+func test_l_avancement_de_roulade_va_de_zero_a_un() -> void:
+	var world: World = _make_world(World.Authority.HOST)
+	var pair: Array[Actor] = _face_off(world)
+	var player: Actor = pair[0]
+	var fiche: PlayerData = world.class_for(player)
+
+	assert_float(world.dodge_progress(player)).is_equal_approx(0.0, 0.001)
+	_step(world, [_command(world, 1, Command.Type.DODGE, {"d": Vector2(-1.0, 0.0)})])
+	assert_float(world.dodge_progress(player)).is_less(0.2)
+	for _i: int in fiche.dodge_duration_ticks - 2:
+		_step(world)
+	assert_float(world.dodge_progress(player)).is_greater(0.8)

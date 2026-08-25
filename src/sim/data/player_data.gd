@@ -33,6 +33,16 @@ extends Resource
 @export var dodge_invulnerable_from_tick: int = 3
 @export var dodge_invulnerable_to_tick: int = 15
 @export var dodge_stamina_cost: int = 25
+## Profil de vitesse de la roulade. Une roulade à vitesse CONSTANTE puis
+## arrêt net est ce qui donnait au jeu sa sensation de patinage : un corps
+## qui se jette part fort et finit en freinant. `burst` multiplie la vitesse
+## au premier tick, `tail` à la fin, et l'interpolation entre les deux suit
+## une courbe qui reste rapide longtemps avant de tomber.
+@export var dodge_burst: float = 1.45
+@export var dodge_tail: float = 0.16
+## Vitesse conservée en sortant de la roulade. Non nulle : couper à zéro fige
+## le personnage sur place et casse tout enchaînement.
+@export var dodge_exit_speed: float = 2.4
 
 @export_group("Endurance")
 ## Régénération par tick, en centièmes de point : évite l'arithmétique

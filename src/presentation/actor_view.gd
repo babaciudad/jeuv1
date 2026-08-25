@@ -57,6 +57,13 @@ const ARM_STRIKE_DEGREES: float = 55.0
 const ARM_CAST_DEGREES: float = -95.0
 const ARM_HEAL_DEGREES: float = -150.0
 
+## Hauteur du pivot de roulade, en mètres, pour un personnage de taille
+## standard. C'est le bassin : un corps qui se roule tourne autour de ses
+## hanches.
+const ROLL_PIVOT_HEIGHT: float = 0.58
+## Écrasement vertical au milieu de la roulade. Le corps se ramasse.
+const ROLL_TUCK: float = 0.26
+
 ## Nœud portant tout le corps. La pose d'ensemble — chute, chancellement,
 ## roulade — s'applique à lui seul, jamais aux pièces une par une.
 var _pose: Node3D
@@ -121,7 +128,7 @@ func setup(actor: Actor, color: Color, is_local: bool, skin: SkinData,
 	add_child(_pose)
 
 	if model != null:
-		_build_model(actor, model)
+		_build_model(actor, model, color)
 		return
 
 	var dressed: SkinData = skin
@@ -140,15 +147,31 @@ func setup(actor: Actor, color: Color, is_local: bool, skin: SkinData,
 ## Instancie le modèle et retient son AnimationPlayer. Rien d'autre n'est
 ## touché : la pose d'ensemble, l'estompage et le suivi de position marchent
 ## à l'identique, puisqu'ils s'appliquent au porte-pièces et au nœud racine.
-func _build_model(actor: Actor, model: ModelData) -> void:
+func _build_model(actor: Actor, model: ModelData, tint: Color) -> void:
 	_model = model
 	var instance: Node = model.scene.instantiate()
+	_pose.add_child(instance)
+	# Le rig importé n'est qu'une source de MOUVEMENT : `SaltBody` cache tout
+	# ce qu'il apporte de visible et rebâtit le personnage en primitives, dans
+	# la direction artistique du sel. Rien de ce qui s'affiche ne vient d'un
+	# pack.
+	var salt: SaltBody = SaltBody.dress(instance as Node3D, model.id, tint)
+	for index: int in salt.pieces.size():
+		var piece: MeshInstance3D = salt.pieces[index]
+		var material: StandardMaterial3D = \
+			piece.material_override as StandardMaterial3D
+		if material == null:
+			continue
+		_materials.append(material)
+		_base_colors.append(salt.colors[index])
+		_weapon_flags.append(salt.weapons[index])
+		if salt.weapons[index]:
+			_weapon_pieces.append(piece)
 	if instance is Node3D:
 		var body: Node3D = instance as Node3D
 		body.scale = Vector3.ONE * maxf(0.001, model.scale)
 		body.rotation.y = deg_to_rad(model.yaw_degrees)
-		body.position.y = model.lift
-	_pose.add_child(instance)
+		body.position.y = model.lift + salt.lift * maxf(0.001, model.scale)
 	_model_player = _find_player(instance)
 	if _model_player == null:
 		push_warning("Le modèle %s n'a pas d'AnimationPlayer : il sera figé."
@@ -332,7 +355,8 @@ func _stub(role: SkinPart.Role, radius: float, drop: float) -> SkinPart:
 ## troisième saute. C'est ce qui se voit comme un jeu qui saccade, alors même
 ## que la carte graphique s'ennuie.
 func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
-		player_distance: float, delta: float, shown: Vector2) -> void:
+		player_distance: float, delta: float, shown: Vector2,
+		dodge: float = 0.0) -> void:
 	position = Vector3(shown.x, 0.0, shown.y)
 	if not actor.facing.is_zero_approx():
 		var forward: Vector3 = Vector3(actor.facing.x, 0.0, actor.facing.y)
@@ -343,7 +367,7 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 		_animate_model(actor, delta)
 	else:
 		_animate(actor, delta)
-	_apply_pose(actor)
+	_apply_pose(actor, dodge)
 	var open: bool = actor.runner != null and actor.runner.hitbox_open
 	_apply_colors(actor, open, _fade_alpha(camera_position, is_local, player_distance))
 	_apply_smear(open)
@@ -440,10 +464,17 @@ func _apply_smear(open: bool) -> void:
 ## La pose d'ensemble s'applique au porte-pièces, jamais au nœud racine :
 ## celui-ci porte l'orientation du personnage, et la mort ne doit pas la faire
 ## tourner.
-func _apply_pose(actor: Actor) -> void:
-	# Un modèle importé a ses propres animations de chute et de roulade : les
-	# doubler d'une bascule du porte-pièces le coucherait deux fois.
+func _apply_pose(actor: Actor, dodge: float) -> void:
+	# Un corps monté sur squelette a ses propres animations de chute et
+	# d'esquive : les doubler d'une bascule du porte-pièces le coucherait deux
+	# fois. La ROULADE, elle, n'existe dans aucune bibliothèque d'animation —
+	# les paquets fournissent des pas de côté — donc c'est ici qu'elle se
+	# fait, et c'est la seule pose qu'on impose à un modèle.
 	if _model != null:
+		if actor.state == Actor.State.DODGING:
+			_apply_roll(dodge)
+		else:
+			_pose.transform = Transform3D.IDENTITY
 		return
 	match actor.state:
 		Actor.State.DEAD:
@@ -458,6 +489,31 @@ func _apply_pose(actor: Actor) -> void:
 			_pose.position = Vector3(0.0, -_stand_height * 0.28, 0.0)
 		_:
 			_pose.rotation = Vector3.ZERO
+
+## Roulade : un tour complet vers l'avant, pivoté à hauteur de HANCHE et non
+## aux pieds. Tourner autour des pieds ferait décrire au personnage un arc de
+## cercle d'un mètre de rayon — il partirait en l'air, et c'est exactement
+## l'erreur qu'on fait la première fois.
+##
+## Le corps se ramasse au début et se redresse à la fin ; l'échelle verticale
+## suit, ce qui donne l'impression d'un corps qui se roule en boule plutôt
+## que d'une planche qui pivote.
+func _apply_roll(progress: float) -> void:
+	var eased: float = clampf(progress, 0.0, 1.0)
+	# Le tour n'est pas linéaire : vif au décollage, il finit posé, à l'image
+	# du profil de vitesse que la simulation applique au même moment.
+	var turn: float = 1.0 - pow(1.0 - eased, 2.0)
+	var pivot: Vector3 = Vector3(0.0, ROLL_PIVOT_HEIGHT * _body_scale(), 0.0)
+	var basis: Basis = Basis(Vector3.RIGHT, -TAU * turn)
+	var tuck: float = 1.0 - sin(eased * PI) * ROLL_TUCK
+	basis = basis.scaled(Vector3(1.0, tuck, 1.0))
+	_pose.transform = Transform3D(basis, pivot - basis * pivot)
+
+## Hauteur du personnage rapportée à celle pour laquelle les constantes de
+## roulade sont réglées : un gobelin ne roule pas autour du même axe qu'un
+## boss.
+func _body_scale() -> float:
+	return clampf(_stand_height / 0.90, 0.6, 1.8)
 
 func _fade_alpha(camera_position: Vector3, is_local: bool, player_distance: float) -> float:
 	if is_local or player_distance <= 0.0:

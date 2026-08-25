@@ -17,17 +17,34 @@ enum Kind {
 	IMPACT,
 	## Un acteur a perdu des points de vie : gerbe rouge vers le haut.
 	HIT,
-	## Un acteur en a regagné : anneaux verts qui montent.
+	## Un acteur en a regagné : anneaux qui montent.
 	HEAL,
 	## Un lancer commence : anneau au sol sous le lanceur.
 	CAST,
+	## Un éclat de verre de saumure se brise : la gerbe des sorts. Beaucoup
+	## de fragments, une lumière franche, et c'est fini avant qu'on l'ait lu.
+	SHATTER,
+	## Le rinçage : la saumure emporte le sel. Gouttes qui TOMBENT, anneau qui
+	## descend — l'inverse exact d'un soin qui monte, parce que dans ce monde
+	## on ne rend pas de la vie, on enlève quelque chose.
+	RINSE,
+	## Une escarbille de traînée : un seul fragment qui s'éteint sur place.
+	MOTE,
+	## Poussière de sel soulevée par une roulade : basse, large, sans lumière.
+	## C'est ce qui donne du poids à une esquive — sans elle, un corps qui se
+	## jette au sol ne touche rien.
+	DUST,
 }
 
 const DURATIONS: Dictionary[Kind, float] = {
 	Kind.IMPACT: 0.32,
 	Kind.HIT: 0.45,
 	Kind.HEAL: 0.75,
-	Kind.CAST: 0.30,
+	Kind.CAST: 0.42,
+	Kind.SHATTER: 0.40,
+	Kind.RINSE: 0.80,
+	Kind.MOTE: 0.26,
+	Kind.DUST: 0.55,
 }
 
 var _age: float = 0.0
@@ -38,6 +55,8 @@ var _shards: Array[Node3D] = []
 var _velocities: Array[Vector3] = []
 var _rings: Array[Node3D] = []
 var _base_scales: Array[float] = []
+var _lights: Array[OmniLight3D] = []
+var _light_energies: Array[float] = []
 
 ## Fabrique et pose l'effet. `at` est en coordonnées monde.
 static func spawn(parent: Node3D, kind: Kind, at: Vector3, color: Color) -> Vfx:
@@ -65,6 +84,25 @@ func _build(kind: Kind, color: Color) -> void:
 		Kind.CAST:
 			_add_ring(0.52, 0.78, color, 0.02)
 			_add_ring(0.34, 0.46, color, 0.02)
+			# Éclats qui MONTENT vers la main : un sort se rassemble avant de
+			# partir. C'est le seul télégraphe qu'un adversaire ait, donc il
+			# doit se lire avant le tir, pas pendant.
+			_rise(8, color, 2.1, 0.055)
+			_flash(color, 5.0, 2.2)
+		Kind.SHATTER:
+			_add_ring(0.16, 0.30, color, 0.0)
+			_burst(14, color, 5.2, 0.055)
+			_flash(color, 6.5, 4.0)
+		Kind.RINSE:
+			_add_ring(0.46, 0.66, color, 1.75)
+			_add_ring(0.30, 0.42, color, 1.4)
+			_rain(10, color, 0.05)
+			_flash(color, 3.6, 1.2)
+		Kind.MOTE:
+			_burst(1, color, 0.0, 0.05)
+		Kind.DUST:
+			_add_ring(0.24, 0.40, color, 0.05)
+			_burst(9, color, 1.9, 0.075)
 
 ## Anneau plat, posé à `height`. Additif : il éclaire au lieu de masquer, ce
 ## qui le rend lisible sur un sol sombre comme sur une armure claire.
@@ -100,6 +138,53 @@ func _burst(count: int, color: Color, speed: float, size: float) -> void:
 		_velocities.append(
 			Vector3(cos(angle), lift, sin(angle)) * speed)
 
+## Éclats qui montent en spirale vers la main du lanceur.
+func _rise(count: int, color: Color, height: float, size: float) -> void:
+	for index: int in count:
+		var angle: float = TAU * float(index) / float(count)
+		var radius: float = 0.42 + 0.18 * float(index % 2)
+		var shard: MeshInstance3D = MeshInstance3D.new()
+		var prism: PrismMesh = PrismMesh.new()
+		prism.size = Vector3(size, size * 3.4, size)
+		shard.mesh = prism
+		shard.material_override = _additive(color)
+		shard.position = Vector3(cos(angle) * radius, 0.05, sin(angle) * radius)
+		add_child(shard)
+		_shards.append(shard)
+		_velocities.append(Vector3(-cos(angle) * 0.5, height, -sin(angle) * 0.5))
+
+## Gouttes qui tombent : le rinçage. La gravité normale les fait accélérer,
+## donc on les lâche déjà lancées vers le bas.
+func _rain(count: int, color: Color, size: float) -> void:
+	for index: int in count:
+		var angle: float = TAU * float(index) / float(count)
+		var radius: float = 0.20 + 0.16 * float(index % 3)
+		var drop: MeshInstance3D = MeshInstance3D.new()
+		var capsule: CapsuleMesh = CapsuleMesh.new()
+		capsule.radius = size
+		capsule.height = size * 5.0
+		capsule.radial_segments = 6
+		capsule.rings = 2
+		drop.mesh = capsule
+		drop.material_override = _additive(color)
+		drop.position = Vector3(cos(angle) * radius, 1.9, sin(angle) * radius)
+		add_child(drop)
+		_shards.append(drop)
+		_velocities.append(Vector3(0.0, -1.4 - 0.4 * float(index % 3), 0.0))
+
+## Éclair bref. Une lumière VRAIE, pas un aplat additif : c'est elle qui fait
+## qu'un sort éclaire le mur d'en face, et c'est ce qui manquait le plus.
+func _flash(color: Color, reach: float, energy: float) -> void:
+	var lamp: OmniLight3D = OmniLight3D.new()
+	lamp.omni_range = reach
+	lamp.light_energy = energy
+	lamp.light_color = color
+	lamp.shadow_enabled = false
+	lamp.position = Vector3(0.0, 1.0, 0.0)
+	add_child(lamp)
+	_lights.append(lamp)
+	_light_energies.append(energy)
+
 func _additive(color: Color) -> StandardMaterial3D:
 	var material: StandardMaterial3D = StandardMaterial3D.new()
 	material.albedo_color = color
@@ -110,6 +195,39 @@ func _additive(color: Color) -> StandardMaterial3D:
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	_materials.append(material)
 	return material
+
+## Vitesse d'expansion des anneaux, par genre.
+func _spread() -> float:
+	match _kind:
+		Kind.IMPACT:
+			return 2.6
+		Kind.SHATTER:
+			return 3.4
+		Kind.CAST:
+			return -0.45
+		Kind.RINSE:
+			return 0.6
+		Kind.DUST:
+			return 2.2
+		_:
+			return 1.4
+
+## Gravité appliquée aux fragments. Négative pour un lancer : les éclats
+## remontent vers la main au lieu de retomber.
+func _gravity() -> float:
+	match _kind:
+		Kind.CAST:
+			return -3.0
+		Kind.SHATTER:
+			return 5.0
+		Kind.RINSE:
+			return 5.5
+		Kind.MOTE:
+			return 0.6
+		Kind.DUST:
+			return 1.6
+		_:
+			return 7.0
 
 func _process(delta: float) -> void:
 	_age += delta
@@ -123,19 +241,30 @@ func _process(delta: float) -> void:
 		color.a = alpha
 		material.albedo_color = color
 
-	var grow: float = 1.0 + t * (2.6 if _kind == Kind.IMPACT else 1.4)
+	# La lumière s'éteint plus vite que les éclats : un éclair qui traîne se
+	# lit comme une lampe allumée, pas comme un impact.
+	for index: int in _lights.size():
+		_lights[index].light_energy = _light_energies[index] * pow(1.0 - t, 3.0)
+
+	var grow: float = 1.0 + t * _spread()
 	for index: int in _rings.size():
 		var ring: Node3D = _rings[index]
 		ring.scale = Vector3.ONE * (_base_scales[index] * grow)
 		if _kind == Kind.HEAL:
 			ring.position.y += delta * 1.35
+		elif _kind == Kind.RINSE:
+			ring.position.y -= delta * 2.0
+		elif _kind == Kind.CAST:
+			ring.position.y += delta * 0.5
 
+	var gravity: float = _gravity()
 	for index: int in _shards.size():
 		var shard: Node3D = _shards[index]
 		var velocity: Vector3 = _velocities[index]
 		shard.position += velocity * delta
-		# Gravité : les éclats retombent, ce qui donne du poids au coup.
-		_velocities[index] = velocity + Vector3.DOWN * 7.0 * delta
+		# Gravité : les éclats retombent, ce qui donne du poids au coup. Les
+		# éclats d'un sort en cours de lancer, eux, sont ASPIRÉS vers le haut.
+		_velocities[index] = velocity + Vector3.DOWN * gravity * delta
 		shard.rotate_y(delta * 6.0)
 
 	if _age >= _life:

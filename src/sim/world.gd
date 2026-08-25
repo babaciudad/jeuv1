@@ -655,6 +655,21 @@ func _resolve_enemy_hitbox(attacker: Actor, attack: AttackData, victim: Actor) -
 		return
 	damage_reported.emit(attacker.id, attacker.attack_index)
 
+## Avancement de la roulade, de 0 à 1. Zéro si l'acteur ne roule pas.
+##
+## Lecture seule, offerte à la présentation : la vue a besoin de savoir OÙ en
+## est la roulade pour la dessiner, et il vaut mieux qu'elle le demande à la
+## simulation que de le recompter avec ses propres horloges — deux compteurs
+## séparés finissent toujours par diverger.
+func dodge_progress(actor: Actor) -> float:
+	if actor.state != Actor.State.DODGING:
+		return 0.0
+	var fiche: PlayerData = class_for(actor)
+	if fiche == null:
+		return 0.0
+	var duration: int = maxi(1, fiche.dodge_duration_ticks)
+	return clampf(float(actor.ticks_in_state(tick)) / float(duration), 0.0, 1.0)
+
 func is_invulnerable(actor: Actor) -> bool:
 	if actor.state != Actor.State.DODGING:
 		return false
@@ -742,12 +757,32 @@ func _update_velocity(actor: Actor) -> void:
 			actor.velocity = actor.velocity.move_toward(Vector2.ZERO,
 				_deceleration(actor) * SimConfig.TICK_DURATION_SEC)
 		Actor.State.DODGING:
-			# Vitesse imposée par la roulade : ni accélération ni contrôle.
-			pass
+			# Vitesse imposée par la roulade : ni accélération ni contrôle,
+			# mais un profil, pas un plateau.
+			_update_dodge_velocity(actor)
 		Actor.State.ATTACKING:
 			_update_attack_movement(actor)
 		_:
 			_update_walk(actor)
+
+## Profil de vitesse de la roulade, fonction pure du nombre de ticks écoulés :
+## elle donne donc le même résultat sur l'hôte, sur le client qui prédit et
+## dans un rejeu de réconciliation.
+##
+## La courbe reste haute au début puis tombe — c'est ce qui fait qu'une
+## roulade se sent comme une impulsion et non comme un déplacement à vitesse
+## constante, qui était le vrai défaut de sensation du jeu.
+func _update_dodge_velocity(actor: Actor) -> void:
+	var fiche: PlayerData = class_for(actor)
+	if fiche == null:
+		return
+	var duration: int = maxi(1, fiche.dodge_duration_ticks)
+	var progress: float = clampf(
+		float(actor.ticks_in_state(tick)) / float(duration), 0.0, 1.0)
+	var shape: float = pow(1.0 - progress, 2.4)
+	var factor: float = fiche.dodge_tail \
+		+ (fiche.dodge_burst - fiche.dodge_tail) * shape
+	actor.velocity = actor.facing * (fiche.dodge_speed * factor)
 
 ## Freinage propre à l'acteur : une classe lourde ne s'arrête pas comme un
 ## archer, et un ennemi encore moins.
@@ -882,7 +917,10 @@ func _recover_state(actor: Actor) -> void:
 			var fiche: PlayerData = class_for(actor)
 			var dodge_ticks: int = fiche.dodge_duration_ticks if fiche != null else 24
 			if actor.ticks_in_state(tick) >= dodge_ticks:
-				actor.velocity = Vector2.ZERO
+				# On ne coupe pas à zéro : le personnage sort de sa roulade
+				# en marchant, ce qui rend l'enchaînement lisible.
+				var exit_speed: float = fiche.dodge_exit_speed if fiche != null else 2.4
+				actor.velocity = actor.facing * exit_speed
 				actor.enter_state(Actor.State.IDLE, tick)
 		Actor.State.STAGGERED:
 			var duration: int = 30
