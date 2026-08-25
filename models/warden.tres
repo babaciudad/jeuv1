@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ModelData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/warden.glb" id="1_di7ns"]
+[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="2_dhs5f"]
+
+[resource]
+script = ExtResource("2_dhs5f")
+id = &"warden"
+scene = ExtResource("1_di7ns")
+yaw_degrees = 180.0
+idle = &"Idle"
+walk = &"Walking_A"
+run = &"Running_A"
+attack = &"2H_Melee_Attack_Chop"
+dodge = &"Dodge_Forward"
+hurt = &"Hit_A"
+death = &"Death_A"
+blend_time = 0.16
