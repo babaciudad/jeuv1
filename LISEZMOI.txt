@@ -1,0 +1,112 @@
+souls-like — build Windows (5e version)
+=======================================
+
+Decompresser, puis double-cliquer sur souls-like.exe. Tout est dedans.
+Windows dira « editeur inconnu » : le binaire n'est pas signe.
+« Informations complementaires » puis « Executer quand meme ».
+
+Au lancement : choisir une classe, laisser « Heberger », puis Jouer.
+Pour jouer a plusieurs, l'un heberge et donne son IP, les autres
+choisissent « Rejoindre » et la collent.
+
+
+CE QUI A CHANGE DEPUIS LA v4
+-----------------------------
+
+Quatre BUGS, pas des reglages. Chacun explique une partie de ce que tu
+reprochais a la v4.
+
+
+1. LA BARRE NOIRE N'ETAIT PAS DE L'ECLAIRAGE
+
+Une bande noire traversait chaque plan du jeu, juste sous l'horizon. Je l'ai
+prise pour un defaut d'eclairage pendant des jours. Ce n'en etait pas un :
+c'etait la passe d'encre.
+
+Sous l'horizon, le sol est vu par la tranche. Deux pixels voisins y sont
+distants de plusieurs metres, le decroche de profondeur sature, et le
+detourage remplissait toute la bande en noir plein. Preuve : en passant la
+lumiere ambiante en rouge vif, toute la scene rougit — la bande reste
+parfaitement noire. Aucune lumiere n'etait en cause.
+
+Le seuil de detourage tient maintenant compte de l'angle de fuite de la
+surface.
+
+
+2. LE GARDIEN ET LE BOSS N'AVAIENT AUCUNE ANIMATION DE MARCHE
+
+Depuis leur import. Leur clip de marche etait note « Walk_Large », qui
+n'existe que dans la bibliotheque d'appoint et s'appelle donc
+« plus/Walk_Large ». Rien ne le signalait : demander a Godot de jouer une
+animation qui n'existe pas ne fait rien du tout, sans erreur ni
+avertissement. Deux personnages sur sept glissaient au sol en position
+d'attente.
+
+L'outil de generation recense maintenant les 162 clips reellement
+disponibles et refuse de produire un modele qui en reference un autre.
+
+
+3. LE SOL ETAIT DU PAPIER MILLIMETRE
+
+Le joint de mortier etait creuse dans la geometrie : quatre faces verticales
+par dalle, une dalle par metre, et la passe d'encre detourait chacune.
+Cinquante metres de quadrillage noir. Les dalles se chevauchent desormais et
+ne se distinguent plus que par leur teinte.
+
+
+4. LES PERSONNAGES PORTAIENT LA LIVREE DU MANNEQUIN D'ATELIER
+
+Le corps importe est livre avec une texture orange et blanche de mannequin.
+Je la reprenais et je la multipliais par la palette du sel : les six
+personnages sortaient en terre cuite.
+
+Et la redingote etait montee a l'envers — 28 cm de rayon a la taille pour 20
+a l'ourlet, soit un abat-jour. C'est ce qui donnait aux six la meme
+silhouette de tonneau, large aux hanches et etroite aux epaules, exactement
+l'inverse de la regle qu'on s'etait donnee.
+
+
+CE QUI SUIT DE CES CORRECTIONS
+-------------------------------
+
+- Le corps passe en tres sombre. Chair et vetement rendaient la meme valeur :
+  le personnage se lisait comme un mannequin nu portant un tablier. Le sel
+  doit etre la seule chose claire du monde, le corps compris.
+- Le buste recoit enfin un justaucorps. On posait des manches sur les bras et
+  des jambieres sur les jambes, et le torse restait le maillage nu.
+- Les combattants passent a un tablier a deux pans, fendu sur les cotes : il
+  laisse voir la cuisse, donc le pas, donc la course se lit de loin. Les deux
+  robes gardent une jupe, remise a l'endroit et allongee.
+- Epaulieres sur le haut des bras.
+- Six couleurs de classe assez eloignees en ton pour tenir en niveaux de
+  gris : rouille, suie, ocre, saumure, sel, cuir.
+- La passe d'encre ne posterise plus et ne bichromise plus : elle ne fait
+  plus que le trait. C'est elle qui ecrasait les interieurs en noir et
+  brulait les exterieurs en blanc.
+- Les rateliers suspendus brillaient sans eclairer : portee de 5,4 m pour une
+  suspension a 8,6 m. Ils portent maintenant une lampe qui atteint le sol.
+- L'arene passe de quatre a huit braseros rentres dans la salle, ses murs
+  nus recoivent sechoirs, cuves et tas de sel, et deux verrieres de plus.
+- Exposition fixe au lieu de l'auto-exposition, qui faisait dependre la
+  luminosite de l'orientation de la camera.
+- Brume divisee par deux et demi : la halle ne se voyait plus depuis le
+  parvis.
+
+
+CE QUI N'A PAS ETE VERIFIE
+---------------------------
+
+La fluidite. Je developpe sur une machine sans carte graphique : le rendu y
+plafonne a une a quatre images par seconde, et une image par seconde ne se
+mesure pas. Si ca rame chez toi, dis-le-moi avec ta carte et ta resolution.
+
+Rien de specifique a Windows n'est exerce ici non plus. Le paquet est
+verifie en construisant son jumeau Linux et en le demarrant.
+
+
+CE QUI A ETE VERIFIE
+---------------------
+
+63 scripts types, 76 tests, planche des six personnages en pose de repos,
+planche d'animation du gardien sur cinq clips (attente, marche, course,
+attaque, roulade), rendu des cinq zones du niveau.
