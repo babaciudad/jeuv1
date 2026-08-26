@@ -675,6 +675,33 @@ func futs() -> Array[Rect2]:
 		out.append(Rect2(at.x - 1.1, at.y - 1.1, 2.2, 2.2))
 	return out
 
+## Hauteur de chacune des masses de `encombres`, dans le meme ordre. Elle sert
+## deux fois — a la simulation, pour la hauteur declaree de l'obstacle, et au
+## decor, pour le bloc qui l'habille — et les deux DOIVENT s'accorder : un
+## eboulement dessine plus bas que ce qui arrete est un decor qui ment.
+const ENCOMBRE_H: Array[float] = [1.75, 2.15, 1.65, 1.35]
+
+## Ce qui encombre le raccourci.
+##
+## Cent-neuf metres de ligne droite se parcouraient sans que le pouce quitte
+## l'avant : c'etait le seul endroit du jeu ou l'on ne decidait de rien. Quatre
+## masses en travers, alternees d'un bord a l'autre, et le couloir se traverse
+## desormais en zigzag — a deux joueurs, on n'y passe plus de front partout.
+##
+## Elles bloquent VRAIMENT : elles sont declarees a la simulation, pas
+## seulement dessinees. Un eboulement qu'on traverse ne rythme rien du tout.
+func encombres() -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	# Une pile de l'arcade, tombee du cote est.
+	out.append(Rect2(29.4, 25.0, 3.6, 1.6))
+	# La voute effondree : deux blocs decales, qui obligent a changer de bord
+	# deux fois de suite. C'est le seul vrai passage etroit du raccourci.
+	out.append(Rect2(26.2, 57.0, 3.4, 2.6))
+	out.append(Rect2(30.6, 61.5, 2.4, 2.2))
+	# Un bloc de sel taille, abandonne la ou on le chargeait.
+	out.append(Rect2(27.8, 92.0, 3.4, 1.8))
+	return out
+
 func build_level() -> LevelData:
 	var level: LevelData = LevelData.new()
 	level.id = &"salines"
@@ -702,6 +729,10 @@ func build_level() -> LevelData:
 	for pile: Rect2 in piles():
 		solides.append(pile)
 		hauteurs.append(1.75)
+	var genes: Array[Rect2] = encombres()
+	for index: int in genes.size():
+		solides.append(genes[index])
+		hauteurs.append(ENCOMBRE_H[index])
 	level.obstacles = solides
 	level.obstacle_heights = hauteurs
 
@@ -816,7 +847,7 @@ func tas(out: Array[SkinPart], at: Vector3, rayon: float, hauteur: float) -> voi
 ## silhouette qu'on reconnait, et ca donne des reperes dans une etendue
 ## blanche ou tout se ressemble.
 func sechoir(out: Array[SkinPart], at: Vector3, angle: float) -> void:
-	var tour: Vector3 = Vector3(0.0, angle, 0.0)
+	var tourne: Vector3 = Vector3(0.0, angle, 0.0)
 	var rot: float = deg_to_rad(angle)
 	for cote: int in 4:
 		var dx: float = -1.5 if cote % 2 == 0 else 1.5
@@ -828,12 +859,12 @@ func sechoir(out: Array[SkinPart], at: Vector3, angle: float) -> void:
 		var plateau: SkinPart = D(SkinPart.Shape.BOX, Vector3(3.4, 0.07, 0.30),
 			at + Vector3(0.0, 1.05 + float(latte) * 0.42, 0.0), WOOD,
 			SkinPart.Surface.WOOD)
-		plateau.rotation_degrees = tour
+		plateau.rotation_degrees = tourne
 		out.append(plateau)
 		var couche: SkinPart = D(SkinPart.Shape.BOX, Vector3(3.1, 0.11, 0.24),
 			at + Vector3(0.0, 1.13 + float(latte) * 0.42, 0.0), SALT,
 			SkinPart.Surface.STONE)
-		couche.rotation_degrees = tour
+		couche.rotation_degrees = tourne
 		out.append(couche)
 
 ## Bitte d'amarrage. Il n'y a plus de bateau a amarrer, et c'est exactement ce
@@ -1083,17 +1114,17 @@ func volets(out: Array[SkinPart], at: Vector3, largeur: float, hauteur: float,
 	for cote: float in [-1.0, 1.0]:
 		var pos: Vector3 = at
 		var vantail: Vector3
-		var tour: Vector3
+		var tourne: Vector3
 		if axe == 0:
 			pos += Vector3(dedans * 0.42, 0.0, cote * (largeur * 0.5 + 0.28))
 			vantail = Vector3(0.7, hauteur, largeur * 0.55)
-			tour = Vector3(0.0, cote * 26.0, 0.0)
+			tourne = Vector3(0.0, cote * 26.0, 0.0)
 		else:
 			pos += Vector3(cote * (largeur * 0.5 + 0.28), 0.0, dedans * 0.42)
 			vantail = Vector3(largeur * 0.55, hauteur, 0.7)
-			tour = Vector3(0.0, -cote * 26.0, 0.0)
+			tourne = Vector3(0.0, -cote * 26.0, 0.0)
 		var v: SkinPart = D(B, vantail, pos, WOOD, M_WOOD)
-		v.rotation_degrees = tour
+		v.rotation_degrees = tourne
 		out.append(v)
 
 ## Banniere : une toile pendue a une hampe. C'est la seule chose du niveau qui
@@ -1173,6 +1204,560 @@ func echafaud(out: Array[SkinPart], at: Vector3, largeur: float,
 	out.append(D(CY, Vector3(0.06, hauteur * 0.95, 0.06),
 		at + Vector3(-demi - 0.52, hauteur * 0.48, 0.0), WOOD, M_WOOD))
 
+# ---------------------------------------------------------------------------
+# Motifs de relief : ce qui donne au niveau une deuxieme hauteur
+# ---------------------------------------------------------------------------
+#
+# La collision de ce jeu est PLATE — des disques contre une union de Rect2 sur
+# le plan XZ — et elle le restera. Il n'y a donc pas de hauteur JOUABLE, pas
+# d'escalier qu'on monte, pas de saut.
+#
+# Ce n'est pas une raison pour que le niveau soit plat. Ce qui tient un
+# souls-like debout, ce n'est pas qu'on grimpe : c'est qu'on VOIT au-dessus de
+# soi. Une passerelle sous laquelle on passe, un pont qui enjambe le goulot,
+# une galerie qui court sur les murs de la nef, une tour qui depasse tout le
+# reste : neuf rectangles poses bout a bout au meme niveau zero ne racontent
+# rien, les memes neuf rectangles sous une charpente de bois racontent une
+# ville.
+#
+# REGLE, et elle n'a pas d'exception : rien de tout cela ne descend a hauteur
+# d'homme dans le praticable. Une piece haute ne ment pas — on ne peut pas y
+# monter, mais rien ne laisse croire qu'on le pourrait. Une piece basse posee
+# dans un couloir, elle, mentirait a chaque pas.
+
+## Terre-plein : une plaque de sol posee HORS du praticable.
+##
+## Le niveau ne dessine de sol que sous ce qui se marche, et un muret de
+## poitrine autour de chaque zone a ciel ouvert. Par-dessus ce muret, on voyait
+## donc LE VIDE : cinquante-deux metres de parvis a ciel ouvert, et pour
+## horizon la couleur de fond. Ces plaques rendent au monde son sol, un cran
+## sous celui qu'on foule — assez pour qu'on lise une berge, pas assez pour
+## qu'on croie pouvoir y descendre.
+func terreplein(out: Array[SkinPart], plan: Rect2, hauteur: float,
+		teinte: Color, surface: int = M_STONE) -> void:
+	out.append(D(B, Vector3(plan.size.x, 0.6, plan.size.y),
+		Vector3(plan.position.x + plan.size.x * 0.5, hauteur - 0.3,
+			plan.position.y + plan.size.y * 0.5), teinte, surface))
+
+## Garde-corps : des poteaux et deux lisses.
+##
+## La piece a HAUTEUR D'HOMME qui manquait partout. On la longe, elle donne
+## l'echelle d'un coup d'oeil — on compte les poteaux, donc on sait la
+## longueur — et elle dit ou passe le chemin sans rien bloquer.
+func barriere(out: Array[SkinPart], depart: Vector3, longueur: float,
+		axe: int, hauteur: float = 1.10, teinte: Color = WOOD,
+		travee: float = 3.0) -> void:
+	var travees: int = maxi(1, int(roundf(longueur / travee)))
+	var pas: float = longueur / float(travees)
+	for index: int in travees + 1:
+		var t: float = float(index) * pas
+		var at: Vector3 = depart + (Vector3(0.0, 0.0, t) if axe == 0
+			else Vector3(t, 0.0, 0.0))
+		out.append(D(B, Vector3(0.17, hauteur, 0.17),
+			at + Vector3(0.0, hauteur * 0.5, 0.0), teinte, M_WOOD))
+	for niveau: float in [hauteur * 0.50, hauteur - 0.08]:
+		var centre: Vector3 = depart + Vector3(0.0, niveau, 0.0)
+		if axe == 0:
+			out.append(D(B, Vector3(0.11, 0.15, longueur),
+				centre + Vector3(0.0, 0.0, longueur * 0.5), teinte, M_WOOD))
+		else:
+			out.append(D(B, Vector3(longueur, 0.15, 0.11),
+				centre + Vector3(longueur * 0.5, 0.0, 0.0), teinte, M_WOOD))
+
+## Volee de marches. Elle ne se monte pas ; elle se REGARDE. Une volee qui
+## part vers une terrasse dit qu'il y a un dessus, et c'est tout ce qu'on
+## demande a un escalier de decor.
+##
+## `sens` vaut +1 ou -1 : le sens dans lequel la volee monte, sur l'axe donne.
+func escalier(out: Array[SkinPart], bas: Vector3, largeur: float,
+		marches: int, giron: float, contremarche: float, axe: int,
+		sens: float, teinte: Color = STONE_PALE) -> void:
+	var tapis: Vector3 = Vector3(largeur, 0.30, giron) if axe == 0 \
+		else Vector3(giron, 0.30, largeur)
+	var risque: Vector3 = Vector3(largeur, contremarche, 0.16) if axe == 0 \
+		else Vector3(0.16, contremarche, largeur)
+	for index: int in marches:
+		var monte: float = contremarche * float(index + 1)
+		var avance: float = sens * giron * (float(index) + 0.5)
+		var glisse: Vector3 = Vector3(0.0, 0.0, avance) if axe == 0 \
+			else Vector3(avance, 0.0, 0.0)
+		out.append(D(B, tapis, bas + glisse + Vector3(0.0, monte - 0.15, 0.0),
+			teinte, M_STONE))
+		var nez: Vector3 = Vector3(0.0, 0.0, -sens * giron * 0.5) if axe == 0 \
+			else Vector3(-sens * giron * 0.5, 0.0, 0.0)
+		out.append(D(B, risque,
+			bas + glisse + nez + Vector3(0.0, monte - contremarche * 0.5, 0.0),
+			teinte.darkened(0.18), M_STONE))
+
+## Echelle : deux montants et ses barreaux.
+##
+## Elle ne se grimpe pas non plus. Elle sert a EXPLIQUER une piece haute : une
+## galerie sans acces visible est un decor qui flotte, la meme galerie avec
+## une echelle au pied est un endroit ou quelqu'un monte tous les jours.
+func echelle(out: Array[SkinPart], at: Vector3, hauteur: float,
+		axe: int) -> void:
+	for cote: float in [-1.0, 1.0]:
+		var ecart: Vector3 = Vector3(0.0, 0.0, cote * 0.32) if axe == 1 \
+			else Vector3(cote * 0.32, 0.0, 0.0)
+		out.append(D(B, Vector3(0.12, hauteur, 0.12),
+			at + ecart + Vector3(0.0, hauteur * 0.5, 0.0), WOOD, M_WOOD))
+	var barreaux: int = maxi(2, int(hauteur / 0.42))
+	var taille: Vector3 = Vector3(0.09, 0.09, 0.72) if axe == 1 \
+		else Vector3(0.72, 0.09, 0.09)
+	for index: int in barreaux:
+		out.append(D(B, taille,
+			at + Vector3(0.0, 0.4 + float(index) * 0.42, 0.0), WOOD, M_WOOD))
+
+## Claveaux d'un arc, poses sur un cercle.
+##
+## `axe` vaut 1 pour un arc qui enjambe X, 0 pour un arc qui enjambe Z.
+## `demi_angle` decide de la forme : PI/2 donne un plein cintre, une valeur
+## plus petite un arc surbaisse. Un pont de vingt metres de portee dont le
+## tablier est a six ne peut pas etre en plein cintre — il monterait a dix
+## metres. C'est un arc de cercle tres ouvert, et il faut savoir le dire.
+func voussoirs(out: Array[SkinPart], sommet: Vector3, rayon: float,
+		demi_angle: float, claveaux: int, epaisseur: float,
+		profondeur: float, axe: int, teinte: Color) -> void:
+	var centre_y: float = sommet.y - rayon
+	var corde: float = 2.0 * demi_angle * rayon / float(claveaux) * 1.14
+	for index: int in claveaux:
+		var angle: float = -demi_angle + (float(index) + 0.5) \
+			* (2.0 * demi_angle / float(claveaux))
+		var lateral: float = sin(angle) * rayon
+		var y: float = centre_y + cos(angle) * rayon
+		var at: Vector3 = Vector3(sommet.x + lateral, y, sommet.z) \
+			if axe == 1 else Vector3(sommet.x, y, sommet.z - lateral)
+		# La longue dimension d'un claveau est TANGENTE au cercle, et son
+		# epaisseur radiale. Prises a l'envers, les pierres deviennent des
+		# rayons de roue et l'arc se lit comme une charpente.
+		var piece: SkinPart = D(B, Vector3(corde, epaisseur, profondeur), at,
+			teinte, M_STONE)
+		piece.rotation_degrees = Vector3(0.0, 0.0, -rad_to_deg(angle)) \
+			if axe == 1 else Vector3(0.0, 90.0, -rad_to_deg(angle))
+		out.append(piece)
+
+## Pont : deux culees, un arc surbaisse, un tablier, deux parapets.
+##
+## Il enjambe X, parce que la digue et le raccourci — les deux seuls goulots
+## du niveau — se traversent tous les deux dans ce sens. Ses culees se posent
+## HORS du praticable : on passe dessous, on ne monte jamais dessus, et rien
+## dans sa forme ne laisse croire le contraire.
+func pont(out: Array[SkinPart], at: Vector3, portee: float, largeur: float,
+		tablier: float, teinte: Color = STONE_PALE) -> void:
+	var demi: float = portee * 0.5
+	var naissance: float = 0.8
+	var fleche: float = maxf(1.2, tablier - 0.9 - naissance)
+	var rayon: float = (demi * demi + fleche * fleche) / (2.0 * fleche)
+	var demi_angle: float = asin(clampf(demi / rayon, 0.0, 1.0))
+	voussoirs(out, Vector3(at.x, at.y + tablier - 0.9, at.z), rayon,
+		demi_angle, 11, 0.60, largeur, 1, teinte)
+	for cote: float in [-1.0, 1.0]:
+		out.append(D(B, Vector3(3.0, tablier + 0.6, largeur + 1.5),
+			Vector3(at.x + cote * (demi + 1.5), at.y + (tablier + 0.6) * 0.5,
+				at.z), teinte, M_STONE))
+		# Tympan : le plein entre l'arc et le tablier. Sans lui on voit le
+		# ciel entre les deux, et le pont devient une planche sur un cerceau.
+		out.append(D(B, Vector3(demi * 0.44, tablier * 0.52, largeur),
+			Vector3(at.x + cote * demi * 0.74, at.y + tablier * 0.28, at.z),
+			teinte.darkened(0.14), M_STONE))
+	out.append(D(B, Vector3(portee + 6.2, 0.55, largeur + 0.6),
+		Vector3(at.x, at.y + tablier - 0.28, at.z), teinte.darkened(0.22),
+		M_STONE))
+	for cote: float in [-1.0, 1.0]:
+		out.append(D(B, Vector3(portee + 6.2, 0.90, 0.34),
+			Vector3(at.x, at.y + tablier + 0.45,
+				at.z + cote * (largeur * 0.5 + 0.22)), teinte, M_STONE))
+
+## Chevalet : deux pieux ecartes, une traverse, deux liens. C'est ce qui porte
+## une passerelle, et c'est surtout ce qu'on voit d'en dessous quand on passe.
+func chevalet(out: Array[SkinPart], at: Vector3, largeur: float,
+		hauteur: float, axe: int) -> void:
+	for cote: float in [-1.0, 1.0]:
+		var ecart: Vector3 = Vector3(0.0, 0.0, cote * largeur * 0.44) \
+			if axe == 1 else Vector3(cote * largeur * 0.44, 0.0, 0.0)
+		var pieu: SkinPart = D(CY, Vector3(0.17, hauteur, 0.22),
+			at + ecart + Vector3(0.0, hauteur * 0.5, 0.0), WOOD, M_WOOD)
+		pieu.rotation_degrees = Vector3(-cote * 3.5, 0.0, 0.0) if axe == 1 \
+			else Vector3(0.0, 0.0, cote * 3.5)
+		out.append(pieu)
+	var traverse: Vector3 = Vector3(0.26, 0.26, largeur + 0.6) if axe == 1 \
+		else Vector3(largeur + 0.6, 0.26, 0.26)
+	out.append(D(B, traverse, at + Vector3(0.0, hauteur - 0.45, 0.0), WOOD,
+		M_WOOD))
+	for cote: float in [-1.0, 1.0]:
+		var pose: Vector3 = Vector3(0.0, hauteur - 1.25, cote * largeur * 0.28) \
+			if axe == 1 else Vector3(cote * largeur * 0.28, hauteur - 1.25, 0.0)
+		var lien: SkinPart = D(B, Vector3(0.16, 2.2, 0.16), at + pose, WOOD,
+			M_WOOD)
+		lien.rotation_degrees = Vector3(cote * 36.0, 0.0, 0.0) if axe == 1 \
+			else Vector3(0.0, 0.0, -cote * 36.0)
+		out.append(lien)
+
+## Passerelle de bois sur chevalets. `depart.y` est la hauteur du TABLIER ;
+## `appuis` donne, le long de la passerelle, les abscisses ou poser un
+## chevalet — jamais au hasard : sur les tables, ils se posent sur les levees,
+## qui sont les seules choses qui bloquent deja.
+func passerelle(out: Array[SkinPart], depart: Vector3, longueur: float,
+		largeur: float, axe: int, appuis: Array[float],
+		garde: bool = true, travee: float = 4.2) -> void:
+	var tablier: Vector3 = Vector3(longueur, 0.32, largeur) if axe == 1 \
+		else Vector3(largeur, 0.32, longueur)
+	var milieu: Vector3 = depart + (Vector3(longueur * 0.5, 0.0, 0.0) \
+		if axe == 1 else Vector3(0.0, 0.0, longueur * 0.5))
+	out.append(D(B, tablier, milieu + Vector3(0.0, -0.16, 0.0), WOOD, M_WOOD))
+	for t: float in appuis:
+		var pied: Vector3 = depart + (Vector3(t, 0.0, 0.0) if axe == 1
+			else Vector3(0.0, 0.0, t))
+		pied.y = 0.0
+		chevalet(out, pied, largeur, depart.y - 0.32, axe)
+	if not garde:
+		return
+	for cote: float in [-1.0, 1.0]:
+		var bord: Vector3 = depart + (Vector3(0.0, 0.0, cote * largeur * 0.5) \
+			if axe == 1 else Vector3(cote * largeur * 0.5, 0.0, 0.0))
+		barriere(out, bord, longueur, axe, 1.00, WOOD, travee)
+
+## Galerie : un plancher de bois plaque contre un mur, ses corbeaux et son
+## garde-corps.
+##
+## C'est la piece qui donne un ETAGE a une salle. Une nef de trente metres sur
+## trente-six avec quinze metres sous charpente et rien entre les deux n'est
+## pas une nef, c'est un hangar : le regard monte, ne rencontre rien, et
+## redescend. `dedans` est le sens dans lequel la galerie deborde du mur.
+func galerie(out: Array[SkinPart], depart: Vector3, longueur: float,
+		profondeur: float, axe: int, dedans: float) -> void:
+	var vers: Vector3 = Vector3(dedans * profondeur * 0.5, 0.0, 0.0) \
+		if axe == 0 else Vector3(0.0, 0.0, dedans * profondeur * 0.5)
+	var milieu: Vector3 = depart + vers + (Vector3(0.0, 0.0, longueur * 0.5) \
+		if axe == 0 else Vector3(longueur * 0.5, 0.0, 0.0))
+	var plancher: Vector3 = Vector3(profondeur, 0.30, longueur) if axe == 0 \
+		else Vector3(longueur, 0.30, profondeur)
+	out.append(D(B, plancher, milieu + Vector3(0.0, -0.15, 0.0), WOOD, M_WOOD))
+	# Poutre de rive : la ligne sombre sous le bord libre, celle qui fait
+	# lire une epaisseur plutot qu'une planche posee sur rien.
+	var rive: Vector3 = Vector3(0.30, 0.45, longueur) if axe == 0 \
+		else Vector3(longueur, 0.45, 0.30)
+	out.append(D(B, rive, milieu + vers + Vector3(0.0, -0.50, 0.0),
+		WOOD.darkened(0.25), M_WOOD))
+	var corbeaux: int = maxi(2, int(longueur / 4.5))
+	for index: int in corbeaux + 1:
+		var t: float = longueur * float(index) / float(corbeaux)
+		var pied: Vector3 = depart + (Vector3(0.0, 0.0, t) if axe == 0
+			else Vector3(t, 0.0, 0.0))
+		var jambe: SkinPart = D(B, Vector3(0.24, profondeur * 1.5, 0.24),
+			pied + vers * 0.55 + Vector3(0.0, -profondeur * 0.62, 0.0), WOOD,
+			M_WOOD)
+		jambe.rotation_degrees = Vector3(0.0, 0.0, dedans * 40.0) if axe == 0 \
+			else Vector3(-dedans * 40.0, 0.0, 0.0)
+		out.append(jambe)
+	var bord: Vector3 = depart + vers * 2.0
+	barriere(out, bord, longueur, axe, 1.00, WOOD, 3.6)
+
+## Tour de guet ruinee.
+##
+## La seule piece du niveau qui depasse tout le reste. Posee hors du
+## praticable, elle donne un point haut a viser depuis n'importe ou, et elle
+## casse la ligne d'horizon d'une saline — qui est, par nature, parfaitement
+## plate. Sa couronne est EBRECHEE : une couronne complete fait un chateau de
+## carte postale, une couronne a laquelle il manque trois merlons fait une
+## ruine.
+const MERLONS: Array[Vector2] = [
+	Vector2(-0.32, -1.0), Vector2(0.32, -1.0),
+	Vector2(1.0, -0.32), Vector2(1.0, 0.32),
+	Vector2(0.32, 1.0), Vector2(-0.32, 1.0),
+	Vector2(-1.0, 0.32), Vector2(-1.0, -0.32),
+]
+
+func tour(out: Array[SkinPart], at: Vector3, cote: float, hauteur: float,
+		lampe: bool) -> void:
+	out.append(D(B, Vector3(cote + 1.0, 1.5, cote + 1.0),
+		at + Vector3(0.0, 0.75, 0.0), STONE, M_STONE))
+	out.append(D(B, Vector3(cote, hauteur, cote),
+		at + Vector3(0.0, hauteur * 0.5, 0.0), STONE_PALE, M_STONE))
+	out.append(D(B, Vector3(cote + 1.1, 0.60, cote + 1.1),
+		at + Vector3(0.0, hauteur - 0.3, 0.0), STONE, M_STONE))
+	var bord: float = (cote + 1.1) * 0.5 - 0.46
+	for index: int in MERLONS.size():
+		if index == 2 or index == 3 or index == 6:
+			continue
+		var m: Vector2 = MERLONS[index]
+		out.append(D(B, Vector3(0.88, 1.05, 0.88),
+			at + Vector3(m.x * bord, hauteur + 0.52, m.y * bord), STONE_PALE,
+			M_STONE))
+	# Meurtrieres : trois fentes noires. Un mur plein de douze metres n'a pas
+	# d'echelle ; trois trous lui en donnent une.
+	for niveau: float in [hauteur * 0.30, hauteur * 0.55, hauteur * 0.80]:
+		out.append(D(B, Vector3(0.44, 1.6, cote + 0.14),
+			at + Vector3(0.0, niveau, 0.0), DARK, M_PLAIN))
+	if lampe:
+		var feu: SkinPart = D(CO, Vector3(0.44, 1.05, 0.0),
+			at + Vector3(0.0, hauteur + 0.95, 0.0), FLAME, M_GLOW)
+		feu.light_range = 15.0
+		out.append(feu)
+
+## Roue d'epuisement : la grande roue a augets qui remonte la saumure d'une
+## table dans la suivante. C'est la silhouette meme d'une saline, et il n'y en
+## avait aucune dans un niveau qui s'appelle « les Salines de Marn ».
+func roue(out: Array[SkinPart], at: Vector3, rayon: float) -> void:
+	var axe_y: float = rayon + 0.6
+	for cote: float in [-1.0, 1.0]:
+		var jante: SkinPart = D(TO, Vector3(rayon - 0.24, 0.0, rayon),
+			at + Vector3(0.0, axe_y, cote * 0.45), WOOD, M_WOOD)
+		jante.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+		out.append(jante)
+	for index: int in 6:
+		var rais: SkinPart = D(B, Vector3(0.16, rayon * 1.94, 0.16),
+			at + Vector3(0.0, axe_y, 0.0), WOOD, M_WOOD)
+		rais.rotation_degrees = Vector3(0.0, 0.0, 30.0 * float(index))
+		out.append(rais)
+	for index: int in 8:
+		var angle: float = TAU * float(index) / 8.0
+		var auget: SkinPart = D(B, Vector3(0.52, 0.36, 1.05),
+			at + Vector3(sin(angle) * (rayon - 0.30), axe_y
+				+ cos(angle) * (rayon - 0.30), 0.0), WOOD.darkened(0.20),
+			M_WOOD)
+		auget.rotation_degrees = Vector3(0.0, 0.0, -rad_to_deg(angle))
+		out.append(auget)
+	var arbre: SkinPart = D(CY, Vector3(0.24, 2.6, 0.24),
+		at + Vector3(0.0, axe_y, 0.0), IRON, M_METAL)
+	arbre.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	out.append(arbre)
+	for cote: float in [-1.0, 1.0]:
+		for sens: float in [-1.0, 1.0]:
+			var jambe: SkinPart = D(B, Vector3(0.28, axe_y * 1.12, 0.28),
+				at + Vector3(sens * axe_y * 0.22, axe_y * 0.5,
+					cote * 1.35), WOOD, M_WOOD)
+			jambe.rotation_degrees = Vector3(0.0, 0.0, -sens * 12.0)
+			out.append(jambe)
+	# L'auge ou la roue verse. Sans elle, la roue tourne pour rien.
+	out.append(D(B, Vector3(1.2, 0.5, 4.4),
+		at + Vector3(rayon * 0.75, axe_y * 0.55, 0.0), WOOD, M_WOOD))
+
+## Arcade : une file d'arches sur piles, qui porte le conduit de saumure d'un
+## bout du marais a l'autre. Elle marche en travers du paysage et donne une
+## LIGNE HAUTE la ou il n'y en avait aucune.
+func arcade(out: Array[SkinPart], depart: Vector3, travees: int,
+		portee: float, hauteur: float, largeur: float, axe: int) -> void:
+	var pile: Vector3 = Vector3(1.6, hauteur, largeur) if axe == 1 \
+		else Vector3(largeur, hauteur, 1.6)
+	for index: int in travees + 1:
+		var t: float = float(index) * portee
+		var pied: Vector3 = depart + (Vector3(t, 0.0, 0.0) if axe == 1
+			else Vector3(0.0, 0.0, t))
+		out.append(D(B, pile, pied + Vector3(0.0, hauteur * 0.5, 0.0),
+			STONE_PALE, M_STONE))
+	for index: int in travees:
+		var t: float = (float(index) + 0.5) * portee
+		var sommet: Vector3 = depart + (Vector3(t, 0.0, 0.0) if axe == 1
+			else Vector3(0.0, 0.0, t)) + Vector3(0.0, hauteur - 0.45, 0.0)
+		voussoirs(out, sommet, portee * 0.5 - 0.8, PI * 0.5, 7, 0.55,
+			largeur * 0.9, axe, STONE)
+	var longueur: float = float(travees) * portee
+	var milieu: Vector3 = depart + (Vector3(longueur * 0.5, 0.0, 0.0) \
+		if axe == 1 else Vector3(0.0, 0.0, longueur * 0.5))
+	var table: Vector3 = Vector3(longueur + 1.6, 0.70, largeur + 0.7) \
+		if axe == 1 else Vector3(largeur + 0.7, 0.70, longueur + 1.6)
+	out.append(D(B, table, milieu + Vector3(0.0, hauteur + 0.35, 0.0), STONE,
+		M_STONE))
+	var conduit: Vector3 = Vector3(longueur + 1.6, 0.60, largeur * 0.45) \
+		if axe == 1 else Vector3(largeur * 0.45, 0.60, longueur + 1.6)
+	out.append(D(B, conduit, milieu + Vector3(0.0, hauteur + 1.0, 0.0),
+		STONE_PALE, M_STONE))
+
+## Pan de mur creve : deux jambages inegaux, ce qui reste d'une baie, et le
+## tas au pied. Une ruine se lit a ce qu'il lui MANQUE — deux jambages de la
+## meme hauteur font un portique, pas une ruine.
+func ruine(out: Array[SkinPart], at: Vector3, largeur: float, hauteur: float,
+		axe: int) -> void:
+	for cote: float in [-1.0, 1.0]:
+		var h: float = hauteur if cote < 0.0 else hauteur * 0.56
+		var ecart: Vector3 = Vector3(0.0, 0.0, cote * largeur * 0.5) \
+			if axe == 0 else Vector3(cote * largeur * 0.5, 0.0, 0.0)
+		var jambage: Vector3 = Vector3(1.6, h, 1.1) if axe == 0 \
+			else Vector3(1.1, h, 1.6)
+		out.append(D(B, jambage, at + ecart + Vector3(0.0, h * 0.5, 0.0),
+			STONE_PALE, M_STONE))
+	voussoirs(out, at + Vector3(0.0, hauteur * 0.74, 0.0),
+		largeur * 0.5 - 0.25, 1.15, 6, 0.55, 1.1, axe, STONE)
+	for index: int in 2:
+		var haut: SkinPart = D(B, Vector3(1.3, 0.9, 1.0),
+			at + Vector3(0.0, hauteur + 0.3 - float(index) * 0.5, 0.0)
+			+ (Vector3(0.0, 0.0, -largeur * (0.5 - float(index) * 0.22)) \
+				if axe == 0
+				else Vector3(-largeur * (0.5 - float(index) * 0.22), 0.0, 0.0)),
+			STONE_PALE, M_STONE)
+		haut.rotation_degrees = Vector3(0.0, 12.0 * float(index), 0.0)
+		out.append(haut)
+	rubble(out, at, largeur * 0.45)
+
+## Caisses empilees. Trois fois la meme boite, une plus petite en travers.
+##
+## Le motif le moins cher du jeu et celui qui manquait le plus : quelque chose
+## a HAUTEUR DE HANCHE qu'on longe. Une salle ne se lit pas par ses murs, elle
+## se lit par ce qu'on frole en la traversant.
+func caisses(out: Array[SkinPart], at: Vector3, angle: float) -> void:
+	var poses: Array[Vector3] = [
+		Vector3(0.0, 0.34, 0.0), Vector3(0.16, 1.01, -0.14),
+		Vector3(-1.02, 0.34, 0.38),
+	]
+	for index: int in poses.size():
+		var caisse: SkinPart = D(B, Vector3(1.05, 0.68, 0.86),
+			at + poses[index], WOOD, M_WOOD)
+		caisse.rotation_degrees = Vector3(0.0, angle + float(index) * 11.0, 0.0)
+		out.append(caisse)
+	var petite: SkinPart = D(B, Vector3(0.62, 0.44, 0.54),
+		at + Vector3(-0.96, 0.90, 0.34), ROPE.darkened(0.42), M_WOOD)
+	petite.rotation_degrees = Vector3(0.0, angle - 26.0, 0.0)
+	out.append(petite)
+
+## Etal de saunier : une planche sur quatre pieds, un tas de sel dessus, un
+## seau, une pelle appuyee contre. C'est la trace de QUELQU'UN, et il n'y en
+## avait nulle part dans une saline censee etre exploitee.
+func etal(out: Array[SkinPart], at: Vector3, angle: float) -> void:
+	var plateau: SkinPart = D(B, Vector3(2.3, 0.13, 0.90),
+		at + Vector3(0.0, 0.90, 0.0), WOOD, M_WOOD)
+	plateau.rotation_degrees = Vector3(0.0, angle, 0.0)
+	out.append(plateau)
+	for sx: float in [-1.0, 1.0]:
+		for sz: float in [-1.0, 1.0]:
+			out.append(D(B, Vector3(0.14, 0.90, 0.14),
+				at + Vector3(sx * 0.95, 0.45, sz * 0.32), WOOD, M_WOOD))
+	out.append(D(CO, Vector3(0.42, 0.42, 0.0), at + Vector3(0.35, 1.17, 0.0),
+		SALT, M_STONE))
+	out.append(D(CY, Vector3(0.26, 0.42, 0.30), at + Vector3(-1.35, 0.21, 0.5),
+		IRON, M_METAL))
+	var pelle: SkinPart = D(B, Vector3(0.10, 1.7, 0.10),
+		at + Vector3(-0.9, 0.85, -0.7), WOOD, M_WOOD)
+	pelle.rotation_degrees = Vector3(14.0, 0.0, 9.0)
+	out.append(pelle)
+
+## Sechoir a toiles : une chevre de bois et deux toiles qui pendent. La seule
+## silhouette MOLLE d'un niveau qui n'en compte que des dures.
+func filets(out: Array[SkinPart], at: Vector3, angle: float) -> void:
+	for cote: float in [-1.0, 1.0]:
+		var pieu: SkinPart = D(CY, Vector3(0.11, 2.5, 0.13),
+			at + Vector3(cote * 1.5, 1.25, 0.0), WOOD, M_WOOD)
+		pieu.rotation_degrees = Vector3(0.0, angle, -cote * 7.0)
+		out.append(pieu)
+	var barre: SkinPart = D(B, Vector3(3.4, 0.11, 0.11),
+		at + Vector3(0.0, 2.42, 0.0), WOOD, M_WOOD)
+	barre.rotation_degrees = Vector3(0.0, angle, 0.0)
+	out.append(barre)
+	for cote: float in [-1.0, 1.0]:
+		var toile: SkinPart = D(B, Vector3(1.25, 1.75, 0.06),
+			at + Vector3(cote * 0.72, 1.52, 0.06), ROPE, M_CLOTH)
+		toile.rotation_degrees = Vector3(0.0, angle, cote * 3.0)
+		out.append(toile)
+
+## Herse levee : une grille remontee sous son arc, et ses deux chaines. Elle
+## dit qu'on est passe SOUS quelque chose, et que ca peut retomber.
+func herse(out: Array[SkinPart], at: Vector3, largeur: float) -> void:
+	out.append(D(B, Vector3(largeur, 0.24, 0.30), at, IRON, M_METAL))
+	for index: int in 5:
+		var x: float = -largeur * 0.4 + largeur * 0.2 * float(index)
+		out.append(D(B, Vector3(0.13, 1.5, 0.13),
+			at + Vector3(x, -0.75, 0.0), IRON, M_METAL))
+	out.append(D(B, Vector3(largeur * 0.9, 0.16, 0.20),
+		at + Vector3(0.0, -1.35, 0.0), IRON, M_METAL))
+	for cote: float in [-1.0, 1.0]:
+		out.append(D(CY, Vector3(0.05, 1.6, 0.05),
+			at + Vector3(cote * largeur * 0.42, 0.8, 0.0), IRON, M_METAL))
+
+## Pieux d'un appontement noye. Rien ne s'y passe et rien n'y mene : c'est une
+## ligne de fuite, et c'est ce qui empeche l'horizon d'etre une seule barre
+## plate. On lit une distance parce que quelque chose de connu y devient petit.
+##
+## Le meme pieu partout, plus ou moins enfonce : la variete vient de
+## l'enfoncement, jamais de la taille — sinon chaque pieu ferait son propre lot
+## de rendu, et une rangee de neuf couterait neuf appels.
+func pilotis(out: Array[SkinPart], depart: Vector3, avance: Vector3,
+		nombre: int, ecart: float) -> void:
+	for index: int in nombre:
+		var enfonce: float = fmod(float(index) * 0.83 + absf(depart.x) * 0.11,
+			1.45)
+		out.append(D(CY, Vector3(0.22, 3.6, 0.26),
+			depart + avance * (float(index) * ecart)
+			+ Vector3(0.0, 1.8 - enfonce, 0.0), WOOD, M_WOOD))
+
+## Lanterne sur pied. Elle balise un chemin, et de nuit c'est la seule chose
+## qui dise ou il continue.
+func lanterne(out: Array[SkinPart], at: Vector3, hauteur: float,
+		portee: float) -> void:
+	out.append(D(CY, Vector3(0.10, hauteur, 0.13),
+		at + Vector3(0.0, hauteur * 0.5, 0.0), WOOD, M_WOOD))
+	var feu: SkinPart = D(SkinPart.Shape.ELLIPSOID, Vector3(0.26, 0.32, 0.26),
+		at + Vector3(0.0, hauteur + 0.22, 0.0), CANDLE, M_GLOW)
+	feu.light_range = portee
+	out.append(feu)
+	out.append(D(PR, Vector3(0.46, 0.26, 0.46),
+		at + Vector3(0.0, hauteur + 0.54, 0.0), IRON, M_METAL))
+
+# ---------------------------------------------------------------------------
+# Les abords
+# ---------------------------------------------------------------------------
+#
+# Le niveau ne fabrique de sol que sous ce qui se marche. Par-dessus le muret
+# d'une zone a ciel ouvert, on ne voyait donc pas un paysage : on voyait le
+# DOME DU CIEL, sa moitie basse, une couleur unie. Les Salines flottaient dans
+# le vide, et c'est la premiere raison pour laquelle elles paraissaient laides
+# — aucun decor pose SUR le niveau ne repare un niveau pose sur rien.
+#
+# Une nappe unique, tres basse, fait le marais ; des plaques de sel, un cran
+# sous le praticable, font les berges ; ce qui reste entre les deux fait les
+# bassins vides. Douze pieces pour rendre au monde son sol.
+func _abords(parts: Array[SkinPart]) -> void:
+	# Le marais. Une seule nappe LIQUIDE sous tout le reste : au crepuscule ce
+	# qu'on en voit n'est pas sa couleur, c'est le ciel dedans.
+	terreplein(parts, Rect2(-64.0, -64.0, 128.0, 250.0), -1.9, BRINE_WET,
+		SkinPart.Surface.LIQUID)
+	# Les berges de sel, un demi-metre sous le pied. Assez pour qu'on lise une
+	# marche, pas assez pour qu'on croie pouvoir y descendre.
+	#
+	# Elles PAVENT : chaque plaque touche ses voisines par un bord et n'en
+	# recouvre aucune. Deux plaques coplanaires qui se chevauchent clignotent
+	# des qu'on bouge la camera, et c'est le seul defaut de rendu qu'un joueur
+	# remarque a coup sur. Elles s'arretent toutes a dix-huit metres du bord du
+	# marais : cette bande d'eau franche est la seule chose qui dise que les
+	# Salines sont AU MILIEU de quelque chose.
+	for berge: Rect2 in [
+			Rect2(-46.0, -52.0, 92.0, 18.0),   # au sud de la halle
+			Rect2(-46.0, -34.0, 31.0, 35.0),   # flanc ouest de la halle
+			Rect2(15.0, -34.0, 31.0, 35.0),    # flanc est de la halle
+			Rect2(-26.0, 1.0, 16.0, 8.0),      # devant, a l'ouest du bassin
+			Rect2(10.0, 1.0, 23.0, 8.0),       # devant, a l'est du bassin
+			Rect2(-46.0, 1.0, 20.0, 105.0),    # tout le bord ouest
+			Rect2(33.0, 1.0, 13.0, 167.0),     # tout le bord est
+			Rect2(-26.0, 104.0, 18.0, 8.0),    # flanc ouest du seuil
+			Rect2(8.0, 104.0, 18.0, 8.0),      # flanc est du seuil
+			Rect2(-46.0, 106.0, 20.0, 44.0),   # a l'ouest de l'arene
+			Rect2(25.0, 118.0, 8.0, 32.0),     # a l'est de l'arene
+			Rect2(-46.0, 150.0, 79.0, 18.0),   # au nord de l'arene
+			Rect2(24.0, 64.0, 2.0, 38.0)]:     # lisere tables / raccourci
+		terreplein(parts, berge, -0.5, SALT_DARK)
+	# Les deux bassins vides qui serrent la digue. Plus bas que les berges,
+	# plus haut que le marais : c'est ce creux qui fait qu'une digue est une
+	# digue et pas un chemin.
+	for bassin: Rect2 in [Rect2(-26.0, 34.0, 19.0, 30.0),
+			Rect2(7.0, 34.0, 19.0, 30.0)]:
+		terreplein(parts, bassin, -1.25, SALT_DARK.darkened(0.22))
+	# Le trait de cote. Les plaques ci-dessus pavent un RECTANGLE, et un
+	# rectangle vu de haut se lit comme une table, pas comme une ile. Ces
+	# quelques langues de sel debordent dans l'eau a contretemps : elles ne
+	# coutent presque rien et elles cassent les quatre angles droits.
+	for langue: Rect2 in [
+			Rect2(-56.0, 22.0, 11.0, 14.0), Rect2(-53.0, 78.0, 8.0, 19.0),
+			Rect2(46.0, 12.0, 9.0, 22.0), Rect2(46.0, 96.0, 13.0, 16.0),
+			Rect2(-14.0, -62.0, 26.0, 11.0), Rect2(-8.0, 168.0, 30.0, 9.0)]:
+		terreplein(parts, langue, -1.05, SALT_DARK.darkened(0.14))
+	# Ce qui peuple le marais : des pieux, deux epaves, et rien d'autre. Le
+	# large doit rester VIDE — c'est de son vide que le niveau tire sa taille.
+	# Tout est plante DANS L'EAU, au-dela des berges : un pieu pose sur le sel
+	# serait enterre jusqu'a la tete et ne se verrait pas du tout.
+	pilotis(parts, Vector3(-49.0, -1.9, 16.0), Vector3(0.30, 0.0, 1.0), 7, 4.6)
+	pilotis(parts, Vector3(49.0, -1.9, 44.0), Vector3(0.0, 0.0, 1.0), 7, 4.8)
+	coque(parts, Vector3(-53.0, -1.9, 70.0), 24.0, 12.0)
+	coque(parts, Vector3(52.0, -1.9, 128.0), 200.0, 10.0)
+
 ## Habille l'exterieur des trois volumes fermes du niveau.
 func _exterieurs(parts: Array[SkinPart]) -> void:
 	corniche(parts, HALLE, H_HALLE, STONE_PALE)
@@ -1184,7 +1769,14 @@ func _exterieurs(parts: Array[SkinPart]) -> void:
 	# qui est la facade qu'on regarde depuis tout le parvis.
 	colombage(parts, Vector3(-15.0, 0.0, -34.0), 36.0, H_HALLE, 0, -1.0, 6.0)
 	colombage(parts, Vector3(15.0, 0.0, -34.0), 36.0, H_HALLE, 0, 1.0, 6.0)
-	colombage(parts, Vector3(-15.0, 0.0, 2.0), 30.0, H_HALLE, 1, 1.0, 5.0)
+	# Le pan de bois du pignon sud s'ARRETE de part et d'autre de l'ouverture
+	# du bassin. Il courait sur les trente metres, et sa trame tombait juste :
+	# un poteau de quinze metres de haut plante en x = 0, exactement au milieu
+	# du passage entre la nef et le feu de camp, plus une sabliere basse en
+	# travers a hauteur de genou. Depuis le feu — l'endroit le plus regarde du
+	# jeu — le poteau masquait le personnage.
+	colombage(parts, Vector3(-15.0, 0.0, 2.0), 5.0, H_HALLE, 1, 1.0, 5.0)
+	colombage(parts, Vector3(10.0, 0.0, 2.0), 5.0, H_HALLE, 1, 1.0, 5.0)
 	for z: float in [-29.0, -21.0, -13.0]:
 		volets(parts, Vector3(-15.1, 9.5, z), 3.0, 4.0, 0, -1.0)
 		volets(parts, Vector3(15.1, 9.5, z), 3.0, 4.0, 0, 1.0)
@@ -1222,12 +1814,15 @@ func build_decor() -> DecorData:
 	var decor: DecorData = DecorData.new()
 	decor.id = &"salines"
 	var parts: Array[SkinPart] = []
+	_abords(parts)
 	_halle(parts)
 	_bassin(parts)
 	_parvis(parts)
 	_digue(parts)
 	_tables(parts)
+	_seuil(parts)
 	_arene(parts)
+	_raccourci(parts)
 	_exterieurs(parts)
 	decor.parts = parts
 	return decor
@@ -1295,6 +1890,16 @@ func _halle(parts: Array[SkinPart]) -> void:
 	tas(parts, Vector3(12.6, 0.0, -3.4), 1.7, 1.6)
 	sechoir(parts, Vector3(10.0, 0.0, -20.0), 90.0)
 	sechoir(parts, Vector3(-10.5, 0.0, -33.0), 90.0)
+	# QUINZE METRES SOUS CHARPENTE ET RIEN ENTRE DEUX. Le regard montait, ne
+	# rencontrait rien, redescendait : une nef sans etage n'est pas une nef,
+	# c'est un hangar. Deux galeries de bois plaquees sur les longs murs
+	# coupent la hauteur en deux et donnent aux membrures quelque chose a
+	# porter.
+	galerie(parts, Vector3(14.7, 6.2, -30.0), 24.0, 2.6, 0, -1.0)
+	echelle(parts, Vector3(13.2, 0.0, -5.4), 6.0, 0)
+	caisses(parts, Vector3(-13.0, 0.0, -21.5), 88.0)
+	etal(parts, Vector3(-11.4, 0.0, -27.5), 14.0)
+	filets(parts, Vector3(11.8, 0.0, -33.0), 92.0)
 
 ## LE BASSIN. Le fond de la halle : une grande cuve, la braise, et rien
 ## d'autre. Le seul endroit chaud du niveau, donc aucun bruit visuel.
@@ -1311,6 +1916,7 @@ func _bassin(parts: Array[SkinPart]) -> void:
 			Vector3(-cote, 0.0, 0.0), 9.0)
 		bitte(parts, Vector3(cote * 7.4, 0.0, 3.0))
 	window(parts, Vector3(0.0, 4.4, 8.85), 0.0, BRINE, 4.0, 2.8)
+	caisses(parts, Vector3(8.5, 0.0, 3.4), -84.0)
 
 ## LE PARVIS. La premiere sortie. On passe d'une halle a neuf metres sous
 ## coque a cinquante-deux metres de large sans un toit : le seul moment du jeu
@@ -1358,6 +1964,27 @@ func _parvis(parts: Array[SkinPart]) -> void:
 			Vector3(at.x, 3.3, at.y), IRON, M_METAL))
 		banniere(parts, Vector3(at.x, 6.2, at.y), 1.9, 4.4,
 			BRINE.darkened(0.34), 0)
+	# LE PARVIS N'AVAIT PAS DE DESSUS. Cinquante-deux metres de large, deux
+	# grues penchees, et pour tout le reste une ligne d'horizon parfaitement
+	# droite. Ce qui suit la casse en quatre endroits, et aucun de ces quatre
+	# n'est au meme etage que les autres.
+	#
+	# La passerelle prend appui d'un cote sur la berge, de l'autre SUR UNE PILE
+	# DE SEL — qui est un obstacle declare. C'est la seule chose du praticable
+	# ou l'on ait le droit de poser un pied.
+	passerelle(parts, Vector3(-29.0, 5.2, 16.0), 11.0, 2.2, 1, [1.0, 10.0])
+	# La volee s'arrete a un metre du chevalet : posee plus pres, ses marches
+	# et les pieds de la passerelle se traversaient.
+	escalier(parts, Vector3(-34.6, -0.5, 16.0), 2.6, 13, 0.36, 0.39, 1, 1.0)
+	tour(parts, Vector3(-21.0, -0.5, -1.0), 3.8, 19.0, true)
+	roue(parts, Vector3(-29.5, -0.5, 26.0), 3.2)
+	ruine(parts, Vector3(-28.6, -0.5, 12.0), 7.0, 7.0, 0)
+	barriere(parts, Vector3(-39.5, -0.5, 12.0), 20.0, 0, 1.05, WOOD, 3.4)
+	for at: Vector2 in [Vector2(-24.4, 14.0), Vector2(24.4, 26.0)]:
+		lanterne(parts, Vector3(at.x, 0.0, at.y), 2.8, 11.0)
+	caisses(parts, Vector3(-23.2, 0.0, 21.0), 84.0)
+	caisses(parts, Vector3(22.4, 0.0, 16.5), -78.0)
+	filets(parts, Vector3(-13.0, 0.0, 34.0), 22.0)
 
 ## LA DIGUE. Quatorze metres entre deux bassins vides : apres le parvis, ca
 ## doit se resserrer. C'est la que les gobelins attendent.
@@ -1367,17 +1994,23 @@ func _digue(parts: Array[SkinPart]) -> void:
 		borne(parts, Vector3(-6.4, 0.0, z))
 		borne(parts, Vector3(6.4, 0.0, z))
 	for z: float in [41.0, 51.0, 59.0]:
-		parts.append(D(SkinPart.Shape.CYLINDER, Vector3(0.16, 3.2, 0.18),
-			Vector3(-6.0, 1.6, z), WOOD, SkinPart.Surface.WOOD))
-		var lampe: SkinPart = D(SkinPart.Shape.ELLIPSOID,
-			Vector3(0.24, 0.30, 0.24), Vector3(-6.0, 3.25, z), CANDLE,
-			SkinPart.Surface.GLOW)
-		lampe.light_range = 7.0
-		parts.append(lampe)
+		lanterne(parts, Vector3(-6.0, 0.0, z), 3.2, 9.0)
 	tas(parts, Vector3(4.0, 0.0, 45.0), 1.1, 1.1)
 	tas(parts, Vector3(-3.5, 0.0, 55.0), 1.3, 1.2)
 	rubble(parts, Vector3(0.0, 0.0, 48.0), 1.4)
 	coque(parts, Vector3(0.0, 0.0, 61.0), 84.0, 6.0)
+	# LE PONT. La digue etait un couloir de vingt-six metres a ciel ouvert avec
+	# rien au-dessus. Un pont qui l'enjambe lui donne un dessous, une ombre en
+	# travers, et un repere qu'on voit aussi bien depuis le parvis que depuis
+	# les tables. Ses culees se posent dans les bassins vides, hors du chemin.
+	pont(parts, Vector3(0.0, -1.25, 47.0), 20.0, 5.0, 8.45)
+	passerelle(parts, Vector3(-9.4, 4.6, 57.0), 18.8, 2.0, 1, [1.1, 17.7])
+	ruine(parts, Vector3(-11.0, -1.25, 53.0), 6.0, 5.5, 0)
+	pilotis(parts, Vector3(-12.5, -1.25, 38.0), Vector3(0.0, 0.0, 1.0), 6, 3.6)
+	pilotis(parts, Vector3(12.5, -1.25, 52.0), Vector3(0.0, 0.0, 1.0), 5, 3.4)
+	caisses(parts, Vector3(-5.7, 0.0, 42.0), 88.0)
+	filets(parts, Vector3(-5.4, 0.0, 52.0), 90.0)
+	etal(parts, Vector3(5.2, 0.0, 49.0), -86.0)
 
 ## LES TABLES. La plus grande surface du jeu et la plus vide : une grille de
 ## vasques separees par des levees basses. On y voit loin, on y est vu de
@@ -1417,6 +2050,27 @@ func _tables(parts: Array[SkinPart]) -> void:
 	for at: Vector2 in [Vector2(-16.0, 66.0), Vector2(8.0, 86.0),
 			Vector2(-24.0, 102.0)]:
 		rubble(parts, Vector3(at.x, 0.0, at.y), 1.8)
+	# L'ESTACADE. Cinquante-quatre metres sur quarante-deux, tout plat, et rien
+	# au-dessus du genou : les tables etaient la zone la plus vide du jeu, et
+	# celle ou l'on se perdait. Une passerelle de bois les traverse d'un bord a
+	# l'autre a quatre metres — on la voit de partout, donc on sait toujours ou
+	# est le milieu.
+	#
+	# Ses chevalets se posent SUR LES LEVEES, qui sont les seules choses du
+	# praticable qui bloquent deja. Les deux trouees de la levee se franchissent
+	# sans appui : c'est la que la passerelle se lit comme un pont.
+	passerelle(parts, Vector3(-28.0, 5.6, 75.45), 49.0, 2.4, 1,
+		[1.0, 6.0, 21.0, 26.0, 41.0, 46.0], true, 6.2)
+	escalier(parts, Vector3(-16.55, 0.55, 70.6), 1.0, 13, 0.36, 0.388, 0, 1.0)
+	tour(parts, Vector3(-34.5, -0.5, 90.0), 3.4, 14.0, true)
+	roue(parts, Vector3(-33.5, -0.5, 68.0), 3.0)
+	ruine(parts, Vector3(-33.0, -0.5, 80.0), 6.5, 6.0, 0)
+	barriere(parts, Vector3(-30.5, -0.5, 66.0), 26.0, 0, 1.05, WOOD, 3.4)
+	for at: Vector2 in [Vector2(-16.5, 67.0), Vector2(-3.5, 99.0)]:
+		lanterne(parts, Vector3(at.x, 0.0, at.y), 2.8, 11.0)
+	caisses(parts, Vector3(-21.0, 0.0, 76.5), 12.0)
+	caisses(parts, Vector3(6.5, 0.0, 92.0), -22.0)
+	etal(parts, Vector3(-9.0, 0.0, 76.5), 4.0)
 
 ## L'ARENE DU GARDIEN. On rentre sous un toit de douze metres apres quarante
 ## metres de plein air : le contraste doit faire baisser la tete.
@@ -1518,6 +2172,138 @@ func _arene(parts: Array[SkinPart]) -> void:
 	for at: Vector2 in [Vector2(-16.0, 147.0), Vector2(19.0, 145.0),
 			Vector2(-20.0, 114.0), Vector2(20.0, 114.0)]:
 		tas(parts, Vector3(at.x, 0.0, at.y), 2.4, 2.3)
+	# Une galerie sur le mur est, et la herse relevee au-dessus de l'entree.
+	# Le boss se bat SOUS quelque chose : douze metres de plafond sans rien
+	# dessous ne sont pas une hauteur, ce sont douze metres de vide.
+	galerie(parts, Vector3(24.7, 7.0, 116.0), 26.0, 2.6, 0, -1.0)
+	herse(parts, Vector3(0.0, 5.8, 112.4), 6.0)
+	caisses(parts, Vector3(-23.0, 0.0, 142.0), 84.0)
+
+
+## LE RACCOURCI. Sept metres de large sur cent-neuf de long, le long du bord.
+##
+## C'etait le pire morceau du niveau, et de tres loin : une ligne droite sans un
+## seul evenement, qu'on parcourait le pouce colle en avant sans jamais rien
+## decider. Un couloir de sept metres n'a AUCUN moyen d'etre interessant par son
+## sol ; ses deux seules dimensions libres sont la HAUTEUR et le RYTHME.
+##
+## La hauteur : une arcade porte le conduit de saumure tout du long, hors du
+## praticable, et jette une ombre en travers du chemin toutes les six travees.
+## On sait ou l'on en est parce qu'on compte les arches. Deux passerelles
+## l'enjambent, une galerie de bois couvre la derniere ligne droite, une tour
+## depasse le tout.
+##
+## Le rythme : l'arcade est CASSEE au milieu. La voute est tombee en travers du
+## couloir, et ce qui en reste oblige a changer de cote — ces quatre blocs sont
+## declares a la simulation (voir `encombres`), et ce sont les seuls obstacles
+## du niveau qu'on contourne en decidant par ou.
+func _raccourci(parts: Array[SkinPart]) -> void:
+	# L'arcade, en deux troncons. Ses piles se posent a x = 35,6 : le
+	# praticable s'arrete a 33, elles sont donc DEHORS, et seule la masse de la
+	# voute survole la tete.
+	arcade(parts, Vector3(35.6, -0.55, 14.0), 6, 6.0, 7.55, 2.4, 0)
+	arcade(parts, Vector3(35.6, -0.55, 70.0), 6, 6.0, 7.55, 2.4, 0)
+	# LA RUPTURE. Une pile penchee, des claveaux tombes en travers du chemin,
+	# la saumure qui s'en echappe depuis on ne sait quand. C'est le seul endroit
+	# du raccourci ou l'on s'arrete pour regarder.
+	var penchee: SkinPart = D(B, Vector3(2.4, 7.6, 1.6),
+		Vector3(36.4, 3.35, 58.5), STONE_PALE, M_STONE)
+	penchee.rotation_degrees = Vector3(0.0, 0.0, 14.0)
+	parts.append(penchee)
+	for index: int in 5:
+		var claveau: SkinPart = D(B, Vector3(1.9, 0.55, 2.16),
+			Vector3(33.4 - float(index) * 1.4, 0.4 + float(index % 2) * 0.5,
+				55.6 + float(index) * 1.7), STONE, M_STONE)
+		claveau.rotation_degrees = Vector3(float(index) * 22.0 - 44.0,
+			float(index) * 14.0, 72.0)
+		parts.append(claveau)
+	# La roue a augets qui alimentait le conduit. Elle explique l'arcade — un
+	# aqueduc sans machine au bout n'est qu'un pont pour personne.
+	roue(parts, Vector3(39.5, -0.5, 59.0), 3.2)
+	for at: Vector2 in [Vector2(30.0, 55.0), Vector2(28.4, 64.5)]:
+		flaque(parts, Vector3(at.x, 0.0, at.y), 1.6)
+
+	# Ce qui encombre. Chaque obstacle declare porte un bloc de decor qui
+	# l'habille exactement : le rendu automatique d'un obstacle est une colonne,
+	# et une colonne au milieu d'un eboulement ne raconte rien.
+	var teintes: Array[Color] = [STONE_PALE, STONE, STONE, SALT]
+	var epaisseurs: Array[float] = [1.75, 2.15, 1.65, 1.35]
+	var genes: Array[Rect2] = encombres()
+	for index: int in genes.size():
+		var bloc: Rect2 = genes[index]
+		var centre: Vector3 = Vector3(bloc.position.x + bloc.size.x * 0.5, 0.0,
+			bloc.position.y + bloc.size.y * 0.5)
+		var haut: float = epaisseurs[index]
+		var masse: SkinPart = D(B,
+			Vector3(bloc.size.x + 0.25, haut, bloc.size.y + 0.25),
+			centre + Vector3(0.0, haut * 0.5, 0.0), teintes[index], M_STONE)
+		masse.rotation_degrees = Vector3(0.0, float(index) * 5.0 - 7.0, 0.0)
+		parts.append(masse)
+		rubble(parts, centre, bloc.size.x * 0.66)
+
+	# Les deux passerelles. Elles ne menent nulle part de jouable : elles
+	# passent AU-DESSUS, et c'est tout ce qu'on leur demande. On les voit de
+	# loin, on marche dessous, on lit d'un coup la hauteur du couloir.
+	for z: float in [44.0, 88.0]:
+		passerelle(parts, Vector3(24.2, 7.2, z), 12.0, 2.2, 1, [0.9, 11.1])
+	# La galerie de bois de la derniere ligne droite : on finit le raccourci a
+	# l'ombre, ce qui le distingue de tout ce qui precede.
+	galerie(parts, Vector3(26.1, 4.6, 93.0), 18.0, 2.2, 0, 1.0)
+	echelle(parts, Vector3(26.6, 0.0, 93.5), 4.4, 0)
+	# Le portique, juste avant la grille. Un couloir qui s'arrete a une grille
+	# sans rien annoncer s'arrete sans qu'on s'en apercoive.
+	for x: float in [25.4, 33.6]:
+		parts.append(D(B, Vector3(1.5, 4.5, 1.8), Vector3(x, 1.85, 110.0),
+			STONE_PALE, M_STONE))
+	voussoirs(parts, Vector3(29.5, 8.1, 110.0), 4.1, PI * 0.5, 8, 0.55, 1.8,
+		1, STONE)
+	# La tour. Elle se voit depuis les tables, depuis la digue et depuis le
+	# parvis : c'est elle qui dit qu'il y a quelque chose de ce cote-la du
+	# monde, bien avant qu'on sache que le raccourci existe.
+	tour(parts, Vector3(41.0, -0.5, 70.0), 3.8, 16.0, true)
+	# Deux pans creves sur le bord ouest : le cote qui n'a pas l'arcade a droit
+	# a quelque chose lui aussi.
+	ruine(parts, Vector3(24.9, 0.0, 70.0), 7.0, 6.5, 0)
+
+	# A HAUTEUR D'HOMME. Tout ce qui suit se longe : ca colle aux deux
+	# parapets et ca laisse la voie libre au milieu. C'est ce qui manquait le
+	# plus — on longeait deux murs nus sur cent metres.
+	for z: float in [17.0, 71.0, 106.0]:
+		lanterne(parts, Vector3(26.6, 0.0, z), 2.7, 10.0)
+	for at: Vector2 in [Vector2(32.0, 19.0), Vector2(31.9, 72.0)]:
+		caisses(parts, Vector3(at.x, 0.0, at.y),
+			90.0 if at.x < 29.5 else -90.0)
+	etal(parts, Vector3(27.6, 0.0, 51.0), 88.0)
+	filets(parts, Vector3(31.0, 0.0, 29.0), 96.0)
+	filets(parts, Vector3(28.2, 0.0, 78.0), 84.0)
+	for z: float in [24.0, 76.0]:
+		borne(parts, Vector3(32.6, 0.0, z))
+	for at: Vector2 in [Vector2(29.2, 21.0), Vector2(28.0, 103.0)]:
+		flaque(parts, Vector3(at.x, 0.0, at.y), 1.3)
+	# Garde-corps sur la berge est, la ou le sol tombe d'un cran vers le
+	# marais. Il ne bloque rien ; il dit ou s'arrete le monde.
+	for z: float in [16.0, 94.0]:
+		barriere(parts, Vector3(33.6, -0.5, z), 20.0, 0, 1.05, WOOD, 3.2)
+
+## LE SEUIL. Huit metres de large entre les tables et l'arene : le dernier
+## goulot, et le seul endroit du niveau ou l'on sait deja qu'on va mourir.
+##
+## Il n'avait rien du tout — un toit a six metres et deux murs. Ce qui suit en
+## fait une PORTE : un portique qu'on passe dessous, deux tours qui l'encadrent,
+## deux feux. On doit voir de loin qu'on arrive quelque part.
+func _seuil(parts: Array[SkinPart]) -> void:
+	for x: float in [-9.2, 9.2]:
+		parts.append(D(B, Vector3(1.6, 4.7, 2.0), Vector3(x, 1.85, 104.4),
+			STONE_PALE, M_STONE))
+	voussoirs(parts, Vector3(0.0, 12.4, 104.4), 8.4, PI * 0.5, 11, 0.62, 2.0,
+		1, STONE)
+	tour(parts, Vector3(-13.5, -0.5, 108.0), 3.2, 12.0, true)
+	tour(parts, Vector3(13.5, -0.5, 108.0), 3.2, 12.0, true)
+	for x: float in [-9.4, 9.4]:
+		lanterne(parts, Vector3(x, -0.5, 110.5), 2.8, 11.0)
+	caisses(parts, Vector3(-6.6, 0.0, 107.0), 84.0)
+	etal(parts, Vector3(6.4, 0.0, 106.5), -80.0)
+	flaque(parts, Vector3(0.0, 0.0, 108.5), 2.2, false)
 
 
 # ---------------------------------------------------------------------------
@@ -1550,7 +2336,10 @@ func rune(id: StringName, at: Vector2, radius: float, line: String,
 ## des runes différentes. C'est le placement qui raconte, pas un compteur.
 func build_tutorial() -> TutorialData:
 	var data: TutorialData = TutorialData.new()
-	data.id = &"chapelle"
+	# Le niveau s'appelle « salines » depuis la refonte, et le tutoriel se
+	# charge par l'identifiant du niveau : un jeu de runes qui se croit encore
+	# a la chapelle est une trace de l'ancien monde, rien de plus.
+	data.id = &"salines"
 	data.signs = [
 		rune(&"regarder", Vector2(0.0, -29.0), 5.2,
 			"Bouge la souris.",
@@ -1583,11 +2372,24 @@ func build_tutorial() -> TutorialData:
 			"Le feu te rend ta vie — et replace tous les gobelins. "
 			+ "C'est le marché.",
 			TutorialSign.Condition.REST, RUNE_COLD),
-		rune(&"couloir", Vector2(0.0, 13.5), 4.6,
+		rune(&"couloir", Vector2(0.0, 12.4), 4.4,
 			"Au-delà, plus rien ne pardonne.",
-			"Trois gobelins dans le boyau. Attire-les un par un ; à deux, "
+			"Ils sont six sur les salines. Attire-les un par un ; à deux, "
 			+ "tu meurs.",
 			TutorialSign.Condition.READ, RUNE_BLOOD, 5.0),
+		# Les deux gestes qu'on ne devine pas. Ils sont poses ICI, dans les
+		# quatre derniers metres avant le premier gobelin : une touche qu'on
+		# apprend loin de ce qu'elle sert ne s'apprend pas.
+		rune(&"verrou", Vector2(0.0, 15.6), 3.8,
+			"Tab, ou le bouton du milieu : accroche-toi à lui.",
+			"Verrouillé, tu lui restes de face. Tu recules, tu tournes "
+			+ "autour, tu ne le perds plus.",
+			TutorialSign.Condition.READ, RUNE_COLD, 5.5),
+		rune(&"pas", Vector2(0.0, 18.2), 3.8,
+			"Esquive sans toucher au déplacement : tu sautes en arrière.",
+			"Moins d'endurance, moins loin, et tu ne lui tournes jamais le "
+			+ "dos. C'est le pas qui sauve à bout portant.",
+			TutorialSign.Condition.READ, RUNE_COLD, 5.5),
 		rune(&"tuer", Vector2(0.0, 24.0), 4.6,
 			"Attends le jaune, roule, PUIS frappe.",
 			"Frapper en premier, c'est mourir en premier.",

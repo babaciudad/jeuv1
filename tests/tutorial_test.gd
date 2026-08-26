@@ -74,6 +74,44 @@ func test_les_gestes_essentiels_sont_tous_enseignes() -> void:
 				"Aucune rune n'enseigne la condition %d." % condition) \
 			.is_true()
 
+## Le verrouillage et le pas d'esquive arriere sont les deux gestes qu'on ne
+## devine pas : rien a l'ecran ne les annonce, et sans eux la moitie du
+## repertoire de deplacement — recul, pas chasses — ne sert jamais.
+##
+## Ils n'ont pas de condition propre : on les lit, la rune s'eteint. C'est donc
+## par leur identifiant qu'on les verifie, et par la touche qu'ils nomment.
+func test_le_verrouillage_et_le_pas_arriere_sont_enseignes() -> void:
+	var textes: Dictionary[StringName, String] = {}
+	for rune: TutorialSign in _tutorial().signs:
+		textes[rune.id] = rune.line + " " + rune.hint
+	for id: StringName in [&"verrou", &"pas"]:
+		assert_bool(textes.has(id)) \
+			.override_failure_message("Aucune rune n'enseigne %s." % id) \
+			.is_true()
+	if textes.has(&"verrou"):
+		assert_str(textes[&"verrou"]) \
+			.override_failure_message(
+				"La rune du verrouillage ne dit pas quelle touche appuyer.") \
+			.contains("Tab")
+
+## Une touche s'apprend la ou elle sert. Ces deux runes-la n'ont de sens que
+## devant un adversaire : posees APRES le premier gobelin, elles arrivent une
+## mort trop tard, et le joueur aura deja pris l'habitude de s'en passer.
+func test_le_verrouillage_est_enseigne_avant_le_premier_ennemi() -> void:
+	var level: LevelData = _level()
+	assert_int(level.enemy_spawns.size()).is_greater(0)
+	var premier: float = INF
+	for at: Vector2 in level.enemy_spawns:
+		premier = minf(premier, at.y)
+	for rune: TutorialSign in _tutorial().signs:
+		if rune.id != &"verrou" and rune.id != &"pas":
+			continue
+		assert_float(rune.position.y) \
+			.override_failure_message(
+				"La rune %s est en z = %.1f, " % [rune.id, rune.position.y]
+				+ "apres le premier ennemi (z = %.1f)." % premier) \
+			.is_less(premier)
+
 ## Le mannequin est le seul adversaire inoffensif du jeu. S'il gagnait une
 ## attaque ou un rayon d'aggro, il tuerait le joueur pendant le tutoriel.
 func test_le_mannequin_ne_peut_blesser_personne() -> void:

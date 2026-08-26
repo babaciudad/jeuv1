@@ -144,6 +144,75 @@ func test_un_client_n_ouvre_pas_le_raccourci() -> void:
 
 	assert_bool(world.shortcut_open).is_false()
 
+## LE RACCOURCI N'EST PLUS UNE LIGNE DROITE. Quatre masses le barrent en
+## alternance : une pile d'arcade tombee, deux blocs de la voute effondree, un
+## bloc de sel. On ne le traverse qu'en changeant de bord.
+##
+## C'est de la geometrie de simulation, pas du decor : un eboulement qu'on
+## traverse ne rythme rien du tout, et cent-neuf metres qu'on parcourt pouce en
+## avant ne sont pas un couloir, ce sont des secondes de marche.
+func test_le_raccourci_est_barre_et_oblige_a_contourner() -> void:
+	var world: World = _make_world(World.Authority.HOST)
+	var player: Actor = world.spawn_player(1, 0)
+	world.shortcut_open = true
+	# Droit sur la premiere masse, qui tient x = 29,4 a 33 sur z = 25 a 26,6.
+	player.position = Vector2(31.2, 20.0)
+
+	_push(world, 1, Vector2(0.0, 1.0), 240)
+
+	assert_float(player.position.y) \
+		.override_failure_message(
+			"Plus rien n'arrete dans le raccourci : le couloir est redevenu "
+			+ "une ligne droite.") \
+		.is_less(25.0)
+	assert_float(player.position.y) \
+		.override_failure_message(
+			"Le joueur n'a pas avance : le test ne prouve rien.") \
+		.is_greater(23.0)
+
+## ... et il reste franchissable en longeant l'autre bord. Un obstacle qui
+## bouche tout un couloir n'est pas un obstacle, c'est un mur — et le
+## raccourci, qui est la seule victoire acquise du niveau, ne servirait plus.
+func test_le_raccourci_se_franchit_en_longeant_l_autre_bord() -> void:
+	var world: World = _make_world(World.Authority.HOST)
+	var player: Actor = world.spawn_player(1, 0)
+	world.shortcut_open = true
+	player.position = Vector2(27.2, 20.0)
+
+	_push(world, 1, Vector2(0.0, 1.0), 400)
+
+	assert_float(player.position.y) \
+		.override_failure_message(
+			"Le bord ouest ne passe plus a cote de la premiere masse.") \
+		.is_greater(45.0)
+
+## Chaque masse laisse une voie libre a cote d'elle, plus large qu'un joueur.
+## C'est la seule chose que cette geometrie DOIVE garantir : une masse posee au
+## travers de toute la largeur ferait du raccourci un cul-de-sac, et personne
+## ne saurait dire si c'est voulu.
+func test_chaque_masse_du_raccourci_laisse_passer() -> void:
+	var level: LevelData = load(LEVEL)
+	# Le couloir du raccourci, tel qu'il est declare dans le niveau.
+	var couloir: Rect2 = Rect2(26.0, 9.0, 7.0, 109.0)
+	var masses: int = 0
+	for masse: Rect2 in level.obstacles:
+		if not couloir.encloses(masse):
+			continue
+		masses += 1
+		var ouest: float = masse.position.x - couloir.position.x
+		var est: float = couloir.end.x - masse.end.x
+		assert_float(maxf(ouest, est)) \
+			.override_failure_message(
+				"La masse en z = %.0f ne laisse que %.2f m a l'ouest et "
+				% [masse.position.y, ouest]
+				+ "%.2f m a l'est : le raccourci est bouche." % est) \
+			.is_greater(1.0)
+	assert_int(masses) \
+		.override_failure_message(
+			"Le raccourci n'a plus une seule masse : c'est de nouveau cent "
+			+ "neuf metres sans un evenement.") \
+		.is_greater_equal(3)
+
 func test_le_repos_au_feu_soigne_et_replace_les_ennemis() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var player: Actor = world.spawn_player(1, 0)
