@@ -154,6 +154,12 @@ func _skin_material(mesh: MeshInstance3D, tone: Color) -> StandardMaterial3D:
 	material.roughness = 0.86
 	material.metallic = 0.0
 	material.metallic_specular = 0.30
+	# Le liseré de bord est ce qui décolle un personnage du fond. Sur un corps
+	# volontairement très sombre, sous un soleil rasant, c'est lui — et lui
+	# seul — qui empêche la silhouette de devenir un trou noir mobile.
+	material.rim_enabled = true
+	material.rim = 0.68
+	material.rim_tint = 0.25
 	if mesh.mesh == null:
 		return material
 	var source: Material = mesh.mesh.surface_get_material(0)

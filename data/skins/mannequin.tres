@@ -9,7 +9,7 @@ shape = 3
 surface = 1
 size = Vector3(0.46, 0.16, 0.52)
 offset = Vector3(0, 0.08, 0)
-color = Color(0.42, 0.42, 0.43, 1)
+color = Color(0.44, 0.37, 0.31, 1)
 
 [sub_resource type="Resource" id="Resource_4n71l"]
 script = ExtResource("1_iwfbt")

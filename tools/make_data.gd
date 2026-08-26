@@ -48,7 +48,7 @@ const M_CLOTH: int = SkinPart.Surface.CLOTH
 const M_GLOW: int = SkinPart.Surface.GLOW
 
 const DARK: Color = Color(0.13, 0.12, 0.15)
-const IRON: Color = Color(0.30, 0.29, 0.32)
+const IRON: Color = Color(0.19, 0.19, 0.23)
 const STEEL: Color = Color(0.62, 0.64, 0.68)
 const GOLD: Color = Color(0.78, 0.62, 0.28)
 const LEATHER: Color = Color(0.28, 0.20, 0.14)
@@ -60,16 +60,23 @@ const SKIN_TONE: Color = Color(0.76, 0.60, 0.48)
 const WOOD: Color = Color(0.38, 0.28, 0.20)
 ## Palette du bassin. Le sel est la seule chose franchement claire, la saumure
 ## la seule couleur froide saturee, et la flamme la seule chaleur.
-const SALT: Color = Color(0.86, 0.88, 0.85)
-const SALT_DARK: Color = Color(0.63, 0.67, 0.64)
-const BRINE: Color = Color(0.40, 0.76, 0.68)
+## Sel. Franchement BLEUTE-BLANC, et plus clair que tout le reste : au
+## crepuscule, un tas de sel est la seule chose du niveau qui renvoie encore
+## toute la lumiere, et c'est ce qui doit guider l'oeil.
+const SALT: Color = Color(0.94, 0.95, 0.97)
+const SALT_DARK: Color = Color(0.66, 0.68, 0.76)
+## Saumure vive : le verre des sorts et des verrieres. La seule couleur
+## franchement saturee du jeu, et elle doit le rester.
+const BRINE: Color = Color(0.24, 0.86, 0.78)
 ## La saumure d'une vasque, vue de dessus : presque grise, a peine verte. Ce
 ## qui la signale, c'est qu'elle est LISSE au milieu d'une croute rugueuse.
-const BRINE_WET: Color = Color(0.33, 0.41, 0.40)
-const ROPE: Color = Color(0.62, 0.57, 0.43)
-const STONE: Color = Color(0.42, 0.42, 0.43)
-const STONE_PALE: Color = Color(0.54, 0.54, 0.54)
-const FLAME: Color = Color(1.0, 0.44, 0.13)
+## Nappe de saumure au repos. Presque NOIRE en propre : ce qu'on voit d'un
+## bassin d'evaporation au couchant n'est pas sa couleur, c'est le ciel dedans.
+const BRINE_WET: Color = Color(0.11, 0.21, 0.23)
+const ROPE: Color = Color(0.72, 0.62, 0.42)
+const STONE: Color = Color(0.44, 0.37, 0.31)
+const STONE_PALE: Color = Color(0.60, 0.53, 0.44)
+const FLAME: Color = Color(1.0, 0.52, 0.16)
 const CANDLE: Color = Color(1.0, 0.80, 0.42)
 const GLASS_BLUE: Color = Color(0.26, 0.48, 0.98)
 const GLASS_GOLD: Color = Color(1.0, 0.78, 0.30)
@@ -1020,6 +1027,152 @@ func cheminee(out: Array[SkinPart], at: Vector3, hauteur: float) -> void:
 	out.append(D(B, Vector3(2.4, 0.3, 2.4),
 		at + Vector3(0.0, hauteur + 1.5, 0.0), IRON, M_METAL))
 
+## Colombage : un quadrillage de bois plaque sur un mur.
+##
+## Trente metres de mur nu ne se lisent pas comme un mur, ils se lisent comme
+## une absence. Un pan de bois donne d'un seul coup une echelle — on compte les
+## travees, donc on sait quelle taille fait le batiment — et une trame de
+## lignes chaudes sur un aplat froid.
+##
+## `axe` vaut 0 pour un mur perpendiculaire a X (on avance en Z), 1 pour
+## l'inverse. `dedans` est le sens dans lequel decaler le bois pour qu'il se
+## plaque contre le mur sans y entrer.
+func colombage(out: Array[SkinPart], depart: Vector3, longueur: float,
+		hauteur: float, axe: int, dedans: float, travee: float = 4.5) -> void:
+	var pas: float = longueur / maxf(1.0, floorf(longueur / travee))
+	var t: float = 0.0
+	var epaisseur: float = 0.26
+	while t <= longueur + 0.01:
+		var at: Vector3 = depart
+		if axe == 0:
+			at += Vector3(dedans * epaisseur * 0.5, 0.0, t)
+		else:
+			at += Vector3(t, 0.0, dedans * epaisseur * 0.5)
+		# Poteau
+		var taille: Vector3 = Vector3(epaisseur, hauteur, 0.42) if axe == 0 \
+			else Vector3(0.42, hauteur, epaisseur)
+		out.append(D(B, taille, at + Vector3(0.0, hauteur * 0.5, 0.0), WOOD,
+			M_WOOD))
+		t += pas
+	# Sablieres : basse, mediane, haute. Ce sont elles qui font la trame.
+	for niveau: float in [0.5, hauteur * 0.52, hauteur - 0.7]:
+		var centre: Vector3 = depart + Vector3(0.0, niveau, 0.0)
+		if axe == 0:
+			centre += Vector3(dedans * epaisseur * 0.5, 0.0, longueur * 0.5)
+			out.append(D(B, Vector3(epaisseur, 0.34, longueur), centre, WOOD,
+				M_WOOD))
+		else:
+			centre += Vector3(longueur * 0.5, 0.0, dedans * epaisseur * 0.5)
+			out.append(D(B, Vector3(longueur, 0.34, epaisseur), centre, WOOD,
+				M_WOOD))
+
+## Fenetre a volets : un encadrement, deux vantaux ouverts, un appui.
+## L'interieur du tableau est presque noir — un trou de fenetre qui rend la
+## meme valeur que le mur n'est pas une fenetre, c'est un rectangle peint.
+func volets(out: Array[SkinPart], at: Vector3, largeur: float, hauteur: float,
+		axe: int, dedans: float) -> void:
+	var e: float = 0.30
+	var cadre: Vector3 = Vector3(e, hauteur + 0.5, largeur + 0.5) if axe == 0 \
+		else Vector3(largeur + 0.5, hauteur + 0.5, e)
+	out.append(D(B, cadre, at + Vector3(dedans * 0.10, 0.0, 0.0) if axe == 0 \
+		else at + Vector3(0.0, 0.0, dedans * 0.10), STONE_PALE, M_STONE))
+	var trou: Vector3 = Vector3(e * 0.5, hauteur, largeur) if axe == 0 \
+		else Vector3(largeur, hauteur, e * 0.5)
+	out.append(D(B, trou, at + Vector3(dedans * 0.22, 0.0, 0.0) if axe == 0 \
+		else at + Vector3(0.0, 0.0, dedans * 0.22), DARK, M_PLAIN))
+	for cote: float in [-1.0, 1.0]:
+		var pos: Vector3 = at
+		var vantail: Vector3
+		var tour: Vector3
+		if axe == 0:
+			pos += Vector3(dedans * 0.42, 0.0, cote * (largeur * 0.5 + 0.28))
+			vantail = Vector3(0.7, hauteur, largeur * 0.55)
+			tour = Vector3(0.0, cote * 26.0, 0.0)
+		else:
+			pos += Vector3(cote * (largeur * 0.5 + 0.28), 0.0, dedans * 0.42)
+			vantail = Vector3(largeur * 0.55, hauteur, 0.7)
+			tour = Vector3(0.0, -cote * 26.0, 0.0)
+		var v: SkinPart = D(B, vantail, pos, WOOD, M_WOOD)
+		v.rotation_degrees = tour
+		out.append(v)
+
+## Banniere : une toile pendue a une hampe. C'est la seule chose du niveau qui
+## ait une couleur franche sur un grand format, et c'est ce qui accroche l'oeil
+## sur une facade.
+func banniere(out: Array[SkinPart], at: Vector3, largeur: float,
+		chute: float, teinte: Color, axe: int) -> void:
+	var hampe: Vector3 = Vector3(0.14, 0.14, largeur + 0.9) if axe == 0 \
+		else Vector3(largeur + 0.9, 0.14, 0.14)
+	out.append(D(B, hampe, at, IRON, M_METAL))
+	var toile: Vector3 = Vector3(0.07, chute, largeur) if axe == 0 \
+		else Vector3(largeur, chute, 0.07)
+	out.append(D(B, toile, at + Vector3(0.0, -chute * 0.5 - 0.1, 0.0), teinte,
+		SkinPart.Surface.CLOTH))
+	# Pointe : deux triangles qui font l'ourlet en V.
+	var pointe: SkinPart = D(PR, Vector3(largeur, chute * 0.22, 0.07) \
+		if axe == 1 else Vector3(0.07, chute * 0.22, largeur),
+		at + Vector3(0.0, -chute - 0.1 - chute * 0.11, 0.0),
+		teinte.darkened(0.22), SkinPart.Surface.CLOTH)
+	pointe.rotation_degrees = Vector3(0.0, 0.0, 180.0)
+	out.append(pointe)
+
+## Chaine pendue avec sa charge : un crochet, des sacs de sel. Elle occupe la
+## hauteur, qui est la dimension la plus vide d'une halle.
+func chaine(out: Array[SkinPart], at: Vector3, longueur: float,
+		sacs: int) -> void:
+	out.append(D(CY, Vector3(0.05, longueur, 0.05),
+		at + Vector3(0.0, -longueur * 0.5, 0.0), IRON, M_METAL))
+	out.append(D(TO, Vector3(0.10, 0.0, 0.17),
+		at + Vector3(0.0, -longueur, 0.0), IRON, M_METAL))
+	for index: int in sacs:
+		var y: float = -longueur - 0.35 - float(index) * 0.62
+		var r: float = 0.36 - float(index) * 0.04
+		out.append(D(SkinPart.Shape.ELLIPSOID, Vector3(r, r * 0.85, r * 0.92),
+			at + Vector3(0.0, y, 0.0), ROPE, SkinPart.Surface.CLOTH))
+		out.append(D(TO, Vector3(0.10, 0.0, r * 0.55),
+			at + Vector3(0.0, y + r * 0.72, 0.0), ROPE,
+			SkinPart.Surface.CLOTH))
+
+## Flaque de saumure : une nappe posee au sol, qui renvoie le ciel. C'est ce
+## qui empeche trente metres de dallage d'etre trente metres de dallage.
+## `miroir` : vrai dehors, faux dedans. Une nappe lisse ne renvoie que ce qui
+## est au-dessus d'elle ; sous un toit, c'est un plafond sombre, et la flaque
+## devient un trou noir a lisere clair — une bouche d'egout au milieu de la
+## nef. Dedans, on la traite donc comme de la pierre MOUILLEE, pas comme un
+## miroir.
+func flaque(out: Array[SkinPart], at: Vector3, rayon: float,
+		miroir: bool = true) -> void:
+	var teinte: Color = BRINE_WET if miroir else BRINE_WET.lightened(0.18)
+	var matiere: int = SkinPart.Surface.LIQUID if miroir else M_STONE
+	out.append(D(CY, Vector3(rayon, 0.03, rayon),
+		at + Vector3(0.0, 0.016, 0.0), teinte, matiere))
+	# Le tore se decrit par son rayon INTERIEUR en x et son rayon EXTERIEUR en
+	# z. Un rayon interieur de cinq centimetres ne fait pas un lisere, il fait
+	# un disque plein — et six disques blancs de trois metres au milieu de la
+	# nef ressemblaient a des beignets.
+	out.append(D(TO, Vector3(rayon * 0.90, 0.0, rayon * 1.02),
+		at + Vector3(0.0, 0.018, 0.0), SALT_DARK, M_STONE))
+
+## Echafaudage : quatre montants, deux planchers, une echelle. De la structure
+## verticale, qui manque partout.
+func echafaud(out: Array[SkinPart], at: Vector3, largeur: float,
+		hauteur: float) -> void:
+	var demi: float = largeur * 0.5
+	for sx: float in [-1.0, 1.0]:
+		for sz: float in [-1.0, 1.0]:
+			out.append(D(CY, Vector3(0.11, hauteur, 0.11),
+				at + Vector3(sx * demi, hauteur * 0.5, sz * demi), WOOD,
+				M_WOOD))
+	for niveau: float in [hauteur * 0.45, hauteur * 0.92]:
+		out.append(D(B, Vector3(largeur + 0.4, 0.14, largeur + 0.4),
+			at + Vector3(0.0, niveau, 0.0), WOOD, M_WOOD))
+	for barreau: int in 5:
+		out.append(D(B, Vector3(0.5, 0.07, 0.07),
+			at + Vector3(-demi - 0.3, 0.4 + float(barreau) * 0.42, 0.0),
+			WOOD, M_WOOD))
+	out.append(D(CY, Vector3(0.06, hauteur * 0.95, 0.06),
+		at + Vector3(-demi - 0.52, hauteur * 0.48, 0.0), WOOD, M_WOOD))
+
 ## Habille l'exterieur des trois volumes fermes du niveau.
 func _exterieurs(parts: Array[SkinPart]) -> void:
 	corniche(parts, HALLE, H_HALLE, STONE_PALE)
@@ -1027,15 +1180,43 @@ func _exterieurs(parts: Array[SkinPart]) -> void:
 	toiture(parts, HALLE, H_HALLE, 5.2, WOOD)
 	for z: float in [-27.0, -18.0, -9.0]:
 		cheminee(parts, Vector3(0.0, H_HALLE + 4.4, z), 3.4)
+	# Pans de bois sur les deux longs cotes de la halle et sur son pignon sud,
+	# qui est la facade qu'on regarde depuis tout le parvis.
+	colombage(parts, Vector3(-15.0, 0.0, -34.0), 36.0, H_HALLE, 0, -1.0, 6.0)
+	colombage(parts, Vector3(15.0, 0.0, -34.0), 36.0, H_HALLE, 0, 1.0, 6.0)
+	colombage(parts, Vector3(-15.0, 0.0, 2.0), 30.0, H_HALLE, 1, 1.0, 5.0)
+	for z: float in [-29.0, -21.0, -13.0]:
+		volets(parts, Vector3(-15.1, 9.5, z), 3.0, 4.0, 0, -1.0)
+		volets(parts, Vector3(15.1, 9.5, z), 3.0, 4.0, 0, 1.0)
+	banniere(parts, Vector3(-8.0, 12.4, 2.3), 2.4, 6.0, BRINE.darkened(0.30), 1)
+	banniere(parts, Vector3(8.0, 12.4, 2.3), 2.4, 6.0, BRINE.darkened(0.30), 1)
+	echafaud(parts, Vector3(-17.5, 0.0, -6.0), 2.6, 9.0)
+
 	corniche(parts, BASSIN, H_BASSIN, STONE_PALE)
 	toiture(parts, BASSIN, H_BASSIN, 2.4, WOOD)
+	colombage(parts, Vector3(-10.0, 0.0, 9.0), 20.0, H_BASSIN, 1, 1.0, 4.0)
+
 	corniche(parts, ARENE, H_ARENE, STONE_PALE)
 	contreforts(parts, ARENE, H_ARENE, 8.0, STONE)
 	toiture(parts, ARENE, H_ARENE, 6.0, WOOD)
 	cheminee(parts, Vector3(0.0, H_ARENE + 5.2, 124.0), 4.2)
 	cheminee(parts, Vector3(0.0, H_ARENE + 5.2, 138.0), 4.2)
+	# Facade sud de l'arene : c'est le BUT du niveau, elle doit se voir depuis
+	# les tables et dire qu'on arrive quelque part.
+	colombage(parts, Vector3(-25.0, 0.0, 112.0), 50.0, H_ARENE, 1, -1.0, 6.25)
+	colombage(parts, Vector3(-25.0, 0.0, 112.0), 38.0, H_ARENE, 0, -1.0, 7.6)
+	colombage(parts, Vector3(25.0, 0.0, 112.0), 38.0, H_ARENE, 0, 1.0, 7.6)
+	for x: float in [-18.0, -11.0, 11.0, 18.0]:
+		volets(parts, Vector3(x, 7.6, 111.9), 2.6, 3.6, 1, -1.0)
+	for x: float in [-9.0, 9.0]:
+		banniere(parts, Vector3(x, 10.6, 111.6), 2.8, 7.0,
+			FLAME.darkened(0.42), 0)
+	echafaud(parts, Vector3(-27.5, 0.0, 126.0), 2.8, 10.0)
+
 	corniche(parts, SEUIL, H_SEUIL, STONE_PALE)
 	toiture(parts, SEUIL, H_SEUIL, 1.8, WOOD)
+	colombage(parts, Vector3(-8.0, 0.0, 104.0), 8.0, H_SEUIL, 0, -1.0, 4.0)
+	colombage(parts, Vector3(8.0, 0.0, 104.0), 8.0, H_SEUIL, 0, 1.0, 4.0)
 
 func build_decor() -> DecorData:
 	var decor: DecorData = DecorData.new()
@@ -1083,6 +1264,37 @@ func _halle(parts: Array[SkinPart]) -> void:
 	tas(parts, Vector3(-9.0, 0.0, -12.0), 1.2, 1.2)
 	rubble(parts, Vector3(4.0, 0.0, -33.0), 1.5)
 	rubble(parts, Vector3(-4.5, 0.0, -2.0), 1.2)
+	# LA NEF ETAIT VIDE. Trente metres sur trente-six de dallage nu : quel que
+	# soit le soin mis a l'eclairage, un sol sans rien dessus se lit comme une
+	# salle pas finie. Ce qui suit occupe le SOL, la HAUTEUR et les BORDS —
+	# les trois manquaient.
+	#
+	# Flaques : elles renvoient le ciel de la grande porte au milieu du
+	# dallage, et c'est le seul reflet qu'on ait a l'interieur.
+	for at: Vector2 in [Vector2(-3.0, -20.0), Vector2(5.5, -16.0),
+			Vector2(-7.0, -26.5), Vector2(2.0, -30.0), Vector2(8.0, -5.0),
+			Vector2(-10.5, -17.5)]:
+		flaque(parts, Vector3(at.x, 0.0, at.y), 0.85 + absf(at.x) * 0.05,
+			false)
+	# Chaines chargees de sacs, pendues aux membrures. C'est la hauteur de la
+	# halle qui devient lisible.
+	for at: Vector2 in [Vector2(-5.0, -24.0), Vector2(5.0, -18.0),
+			Vector2(-6.0, -10.0), Vector2(4.5, -30.0)]:
+		chaine(parts, Vector3(at.x, 9.4, at.y), 3.2, 3)
+	# Deux echafauds contre les piles : on repare toujours une saline.
+	echafaud(parts, Vector3(-11.0, 0.0, -20.0), 2.4, 7.5)
+	echafaud(parts, Vector3(11.5, 0.0, -30.0), 2.2, 6.0)
+	# Bordures : caisses empilees et cuves alignees le long des murs, la ou
+	# personne ne se bat. Elles ferment la salle sans gener le combat.
+	for z: float in [-32.0, -28.5, -19.0, -15.5]:
+		borne(parts, Vector3(-13.6, 0.0, z))
+		borne(parts, Vector3(13.6, 0.0, z + 1.8))
+	for z: float in [-26.0, -22.0, -18.0]:
+		cuve(parts, Vector3(13.2, 0.0, z), 1.0, 1.15)
+	tas(parts, Vector3(-13.0, 0.0, -34.0 + 2.0), 2.0, 1.8)
+	tas(parts, Vector3(12.6, 0.0, -3.4), 1.7, 1.6)
+	sechoir(parts, Vector3(10.0, 0.0, -20.0), 90.0)
+	sechoir(parts, Vector3(-10.5, 0.0, -33.0), 90.0)
 
 ## LE BASSIN. Le fond de la halle : une grande cuve, la braise, et rien
 ## d'autre. Le seul endroit chaud du niveau, donc aucun bruit visuel.
@@ -1091,7 +1303,7 @@ func _bassin(parts: Array[SkinPart]) -> void:
 	parts.append(D(SkinPart.Shape.BOX, Vector3(4.0, 1.45, 2.2),
 		Vector3(-6.8, 0.72, 5.7), STONE_PALE, SkinPart.Surface.STONE))
 	parts.append(D(SkinPart.Shape.BOX, Vector3(3.5, 0.10, 1.8),
-		Vector3(-6.8, 1.50, 5.7), BRINE_WET, SkinPart.Surface.METAL))
+		Vector3(-6.8, 1.50, 5.7), BRINE_WET, SkinPart.Surface.LIQUID))
 	for at: Vector2 in [Vector2(7.2, 5.4), Vector2(8.4, 7.6)]:
 		cuve(parts, Vector3(at.x, 0.0, at.y), 1.15, 1.3)
 	for cote: float in [-1.0, 1.0]:
@@ -1127,10 +1339,25 @@ func _parvis(parts: Array[SkinPart]) -> void:
 	for at: Vector2 in [Vector2(-6.0, 32.0), Vector2(11.0, 34.0),
 			Vector2(-20.0, 33.0)]:
 		tas(parts, Vector3(at.x, 0.0, at.y), 1.8, 1.7)
+	echafaud(parts, Vector3(-23.0, 0.0, 34.5), 2.4, 7.0)
 	sechoir(parts, Vector3(-16.0, 0.0, 22.0), 74.0)
 	sechoir(parts, Vector3(12.0, 0.0, 25.0), 100.0)
 	rubble(parts, Vector3(2.0, 0.0, 16.0), 2.0)
 	rubble(parts, Vector3(-8.0, 0.0, 34.0), 1.6)
+	# Flaques de saumure a ciel ouvert. Dehors, elles renvoient le couchant :
+	# ce sont les seules taches de ciel qu'on ait AU SOL, et elles cassent
+	# cinquante metres de dallage mieux que n'importe quelle texture.
+	for at: Vector2 in [Vector2(-13.0, 18.0), Vector2(4.0, 13.0),
+			Vector2(-3.0, 26.0), Vector2(14.0, 31.0), Vector2(-21.0, 30.0),
+			Vector2(9.0, 17.0), Vector2(-17.0, 11.5), Vector2(20.0, 20.0)]:
+		flaque(parts, Vector3(at.x, 0.0, at.y), 1.1 + absf(at.y - 22.0) * 0.05)
+	# Bannieres au bord du parvis : le seul aplat de couleur franche a hauteur
+	# d'homme sur toute la place.
+	for at: Vector2 in [Vector2(-25.0, 18.0), Vector2(25.0, 26.0)]:
+		parts.append(D(CY, Vector3(0.13, 6.6, 0.13),
+			Vector3(at.x, 3.3, at.y), IRON, M_METAL))
+		banniere(parts, Vector3(at.x, 6.2, at.y), 1.9, 4.4,
+			BRINE.darkened(0.34), 0)
 
 ## LA DIGUE. Quatorze metres entre deux bassins vides : apres le parvis, ca
 ## doit se resserrer. C'est la que les gobelins attendent.
@@ -1175,7 +1402,7 @@ func _tables(parts: Array[SkinPart]) -> void:
 		# Une vasque, c'est une pellicule de saumure MOUILLEE — elle reflete,
 		# elle ne brille pas.
 		parts.append(D(SkinPart.Shape.BOX, Vector3(9.5, 0.05, 9.5),
-			Vector3(at.x, 0.03, at.y), BRINE_WET, SkinPart.Surface.METAL))
+			Vector3(at.x, 0.03, at.y), BRINE_WET, SkinPart.Surface.LIQUID))
 	for at: Vector2 in [Vector2(-26.0, 65.0), Vector2(-2.0, 66.0),
 			Vector2(18.0, 74.0), Vector2(-20.0, 88.0), Vector2(6.0, 92.0),
 			Vector2(-8.0, 100.0), Vector2(20.0, 99.0)]:
@@ -1206,17 +1433,15 @@ func _arene(parts: Array[SkinPart]) -> void:
 	# etaient contre le mur, hors de portee du centre, et l'arene se battait
 	# dans le noir. Une arene de cinquante metres sur trente-huit se tient par
 	# ses feux, pas par son plafond.
-	for at: Vector2 in [Vector2(-15.0, 117.0), Vector2(15.0, 117.0),
-			Vector2(-15.0, 129.0), Vector2(15.0, 129.0),
-			Vector2(-15.0, 141.0), Vector2(15.0, 141.0),
-			Vector2(-6.0, 148.0), Vector2(6.0, 148.0)]:
+	for at: Vector2 in [Vector2(-21.0, 116.0), Vector2(21.0, 116.0),
+			Vector2(-21.0, 147.0), Vector2(21.0, 147.0)]:
 		parts.append(D(SkinPart.Shape.CYLINDER, Vector3(0.42, 1.5, 0.30),
 			Vector3(at.x, 0.75, at.y), IRON, SkinPart.Surface.METAL))
 		parts.append(D(SkinPart.Shape.CYLINDER, Vector3(1.0, 0.42, 0.55),
 			Vector3(at.x, 1.66, at.y), IRON, SkinPart.Surface.METAL))
-		var feu: SkinPart = D(SkinPart.Shape.CONE, Vector3(0.72, 1.5, 0.0),
-			Vector3(at.x, 2.4, at.y), FLAME, SkinPart.Surface.GLOW)
-		feu.light_range = 21.0
+		var feu: SkinPart = D(SkinPart.Shape.CONE, Vector3(0.36, 0.9, 0.0),
+			Vector3(at.x, 2.25, at.y), FLAME, SkinPart.Surface.GLOW)
+		feu.light_range = 13.0
 		parts.append(feu)
 	window(parts, Vector3(-24.7, 6.5, 130.0), 90.0, BRINE, 4.0, 6.0)
 	window(parts, Vector3(24.7, 6.5, 130.0), 90.0, BRINE, 4.0, 6.0)
@@ -1224,6 +1449,59 @@ func _arene(parts: Array[SkinPart]) -> void:
 	window(parts, Vector3(24.7, 6.5, 142.0), 90.0, BRINE, 4.0, 6.0)
 	for z: float in [118.0, 130.0, 142.0]:
 		chandelier(parts, Vector3(0.0, 8.6, z), H_ARENE, 17.0)
+
+	# LE CERCLE. L'arene etait une boite rose de cinquante metres avec des
+	# feux dedans : rien ne disait ou avait lieu le combat, et le boss — qui
+	# est la seule chose CHAUDE du jeu — se perdait dans une salle deja tiede
+	# partout. Une arene se dessine au sol et se ferme par ses bords.
+	var centre_z: float = 132.0
+	# Estrade sombre, deux marches, treize metres de rayon.
+	for marche: int in 2:
+		var r: float = 15.0 - float(marche) * 1.6
+		parts.append(D(CY, Vector3(r, 0.20, r),
+			Vector3(0.0, 0.10 + float(marche) * 0.20, centre_z),
+			STONE.darkened(0.55), M_STONE))
+	# Anneau de sel INCRUSTE. Un tore se decrit par ses rayons interieur et
+	# exterieur, et l'ecart entre les deux est l'epaisseur du boudin : a 12,1
+	# contre 12,9 ca fait un tuyau de quatre-vingts centimetres pose sur le
+	# sol — un boudin blanc, pas une incrustation. Vingt-cinq centimetres
+	# d'ecart, et enfonce jusqu'a fleur de dalle.
+	parts.append(D(TO, Vector3(12.50, 0.0, 12.75),
+		Vector3(0.0, 0.46, centre_z), SALT, M_STONE))
+	parts.append(D(TO, Vector3(5.90, 0.0, 6.10),
+		Vector3(0.0, 0.46, centre_z), SALT_DARK, M_STONE))
+	# Huit piles de sel autour du cercle, chacune coiffee d'une vasque. Elles
+	# ferment l'arene sans la reduire, et elles portent le feu a hauteur de
+	# regard au lieu de le laisser au sol.
+	for index: int in 8:
+		var angle: float = deg_to_rad(22.5 + float(index) * 45.0)
+		var at: Vector3 = Vector3(sin(angle) * 16.5, 0.0,
+			centre_z + cos(angle) * 15.0)
+		parts.append(D(CY, Vector3(0.62, 4.4, 0.78),
+			at + Vector3(0.0, 2.2, 0.0), SALT_DARK, M_STONE))
+		parts.append(D(TO, Vector3(0.62, 0.0, 1.05),
+			at + Vector3(0.0, 4.3, 0.0), IRON, M_METAL))
+		# La flamme est PETITE. A 0,86 de rayon sur 1,7 de haut, un cone
+		# emissif ne se lit pas comme un feu : c'est un triangle jaune plat,
+		# et huit triangles jaunes plats font une guirlande de fanions.
+		var vasque: SkinPart = D(CO, Vector3(0.40, 0.95, 0.0),
+			at + Vector3(0.0, 4.85, 0.0), FLAME, M_GLOW)
+		vasque.light_range = 17.0
+		parts.append(vasque)
+		parts.append(D(SkinPart.Shape.SPHERE, Vector3(0.26, 0.0, 0.0),
+			at + Vector3(0.0, 4.52, 0.0), CANDLE, M_GLOW))
+	# Chaines pendues du plafond tout autour : c'est la hauteur de l'arene qui
+	# devient lisible, et ce qui fait qu'on leve les yeux en entrant.
+	for index: int in 10:
+		var angle: float = deg_to_rad(float(index) * 36.0)
+		chaine(parts, Vector3(sin(angle) * 19.0, H_ARENE - 0.4,
+			centre_z + cos(angle) * 17.0), 3.6 + float(index % 3) * 1.1, 2)
+	# Deux grandes bannieres au fond, derriere le boss.
+	for x: float in [-7.0, 7.0]:
+		banniere(parts, Vector3(x, 11.0, 149.2), 3.2, 8.0,
+			FLAME.darkened(0.48), 1)
+	colombage(parts, Vector3(-25.0, 0.0, 112.0), 38.0, H_ARENE, 0, 1.0, 7.6)
+	colombage(parts, Vector3(25.0, 0.0, 112.0), 38.0, H_ARENE, 0, -1.0, 7.6)
 	# Les murs nus etaient le second defaut : trente-huit metres de gris plein
 	# derriere le boss. On les habille de ce que la halle fabrique — sechoirs
 	# ranges, cuves vides, tas de sel abandonnes.

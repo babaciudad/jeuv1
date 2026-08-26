@@ -109,6 +109,14 @@ const FINISH: Dictionary[int, Vector2] = {
 	SkinPart.Surface.METAL: Vector2(0.42, 0.38),
 	SkinPart.Surface.CLOTH: Vector2(0.97, 0.0),
 	SkinPart.Surface.GLOW: Vector2(1.0, 0.0),
+	# Saumure : quasiment un miroir. Il y a désormais un ciel et une sonde de
+	# radiance, donc une nappe lisse renvoie autre chose que du noir — et ce
+	# qu'elle renvoie, au crépuscule, est la plus belle chose du niveau.
+	# 0,06 faisait un MIROIR PARFAIT. Dehors c'est splendide ; dans une halle
+	# couverte, un miroir parfait ne reflete rien du tout et les flaques
+	# devenaient des trous noirs a lisere blanc — des bouches d'egout. A 0,22
+	# le reflet s'etale assez pour attraper les torches.
+	SkinPart.Surface.LIQUID: Vector2(0.30, 0.0),
 }
 
 static func _noise(surface: SkinPart.Surface, bumpy: bool) -> NoiseTexture2D:
@@ -163,11 +171,26 @@ static func material_for(color: Color, unshaded: bool,
 	# cela revenait à peindre chaque face d'un aplat, ce qui donnait
 	# exactement l'aspect de carton dont on voulait sortir.
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	# LISERÉ DE BORD. Un objet vu à contre-jour n'est pas une découpe noire :
+	# le bord de sa silhouette attrape toujours un peu de ciel. Sans ce terme,
+	# tout ce qui n'est pas éclairé de face disparaît en aplat sombre, et à
+	# contre-jour d'un soleil rasant c'est la moitié du décor.
+	material.rim_enabled = true
+	material.rim = 0.30
+	material.rim_tint = 0.35
 	var finish: Vector2 = FINISH.get(surface, Vector2(0.8, 0.0))
 	material.roughness = finish.x
 	material.metallic = finish.y
 	# Le métal accroche des reflets nets ; le reste, non.
 	material.metallic_specular = 0.85 if surface == SkinPart.Surface.METAL else 0.42
+	if surface == SkinPart.Surface.LIQUID:
+		# Réflexion franche, et pas de grain : une nappe d'eau salée au repos
+		# n'a pas de matière propre, elle n'a qu'un reflet.
+		material.metallic_specular = 1.0
+		material.rim_enabled = true
+		material.rim = 0.9
+		material.rim_tint = 0.1
+		return material
 
 	if GRAIN.has(surface):
 		var grain: Vector3 = GRAIN[surface]

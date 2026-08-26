@@ -28,9 +28,13 @@ const GATE_HEIGHT: float = 4.4
 # Sol volontairement sombre : dehors, le sel est ce qu'il y a de blanc dans
 # l'image. Un dallage a 0,62 passait au blanc pur sous le soleil et avalait
 # et les tas de sel et la variation de teinte des dalles.
-const COLOR_FLOOR: Color = Color(0.44, 0.45, 0.43)
-const COLOR_WALL: Color = Color(0.58, 0.60, 0.58)
-const COLOR_CEILING: Color = Color(0.20, 0.23, 0.23)
+#
+# TIÈDE, aussi. Il était neutre — 0,44 des trois côtés — et sous un soleil
+# ambré un gris neutre ne devient pas chaud, il devient sale. Une pierre a une
+# teinte propre, et c'est elle qui répond au bleu des ombres.
+const COLOR_FLOOR: Color = Color(0.48, 0.41, 0.34)
+const COLOR_WALL: Color = Color(0.56, 0.48, 0.40)
+const COLOR_CEILING: Color = Color(0.17, 0.16, 0.19)
 const COLOR_GATE: Color = Color(0.40, 0.34, 0.24)
 const COLOR_BONFIRE: Color = Color(1.0, 0.50, 0.16)
 const COLOR_SWITCH: Color = Color(0.50, 0.86, 0.76)
@@ -218,17 +222,28 @@ func _add_walls(cells: Array[Vector3]) -> void:
 ## Déterministe, jamais tiré au hasard : deux joueurs doivent voir le même sol,
 ## et un niveau rechargé doit être identique au précédent.
 func _stone_tint(cell: Vector3) -> Color:
-	var wave: float = sin(cell.x * 1.7 + cell.z * 0.9) * 0.5 \
-		+ sin(cell.x * 0.31 - cell.z * 2.3) * 0.5
-	# Depuis que le joint creusé a disparu, la teinte est le SEUL marqueur de
-	# dallage : elle doit se voir. Deux ondes de périodes premières entre
-	# elles, pour qu'aucun damier ne se forme sur quarante mètres.
-	var shade: float = 1.0 + wave * 0.115
-	# Une pointe de chaleur ou de froid selon la case, pas seulement du gris
-	# plus ou moins clair : c'est la variation de teinte qui se voit, pas la
-	# variation de luminosité.
-	var brine: float = 1.0 + sin(cell.x * 0.7 + cell.z * 0.13) * 0.026
-	return Color(shade / brine, shade, shade / sqrt(brine), 1.0)
+	# GRAIN PAR DALLE, pas motif. La version précédente empilait deux sinus de
+	# basse fréquence : sur quarante mètres ça ne fait pas du hasard, ça fait
+	# un TARTAN — de grands carrés clairs et sombres qu'on lit comme un défaut
+	# de rendu. Le bruit doit venir de la dalle elle-même.
+	var grain: float = _hash(cell.x, cell.z) - 0.5
+	# Et une dérive lente par-dessus, de très basse amplitude : elle empêche le
+	# grain d'être uniforme sur toute la halle sans dessiner de figure.
+	var drift: float = sin(cell.x * 0.083 + cell.z * 0.051) * 0.5 \
+		+ sin(cell.x * 0.037 - cell.z * 0.061) * 0.5
+	var shade: float = 1.0 + grain * 0.11 + drift * 0.05
+	# Auréoles de saumure : la pierre d'une saline est tachée, et ces taches
+	# sont FROIDES sur une pierre chaude. C'est le contraste de teinte qui
+	# porte le sol, pas le contraste de valeur.
+	var patch: float = _hash(floorf(cell.x * 0.24), floorf(cell.z * 0.24))
+	var stain: float = clampf(patch * 1.6 - 0.75, 0.0, 1.0) * 0.22
+	return Color(shade * (1.0 - stain * 1.15), shade * (1.0 - stain * 0.30),
+		shade * (1.0 + stain * 0.28), 1.0)
+
+## Bruit reproductible sur deux coordonnées, entre 0 et 1.
+func _hash(x: float, z: float) -> float:
+	var v: float = sin(x * 127.1 + z * 311.7) * 43758.5453
+	return v - floorf(v)
 
 ## Pans verticaux au-dessus d'un décroché de plafond. Une case, un pan, de la
 ## hauteur basse à la hauteur haute.
@@ -582,20 +597,43 @@ func _build_lever(at: Vector2) -> void:
 ## En `gl_compatibility`, tout ce bloc est ignoré en silence et la chapelle
 ## redevient un aplat gris — c'était l'état du jeu avant.
 func _build_atmosphere() -> void:
-	# Lune froide entrant par la toiture crevée. Faible : dans une chapelle en
-	# ruine, ce sont les feux qui éclairent, pas le ciel. Mais elle porte les
-	# ombres, et une scène sans ombre portée n'a pas de volume.
-	var moon: DirectionalLight3D = DirectionalLight3D.new()
-	moon.name = "Moon"
-	moon.rotation = Vector3(deg_to_rad(-46.0), deg_to_rad(-38.0), 0.0)
-	moon.light_energy = 1.65
-	moon.light_color = Color(1.0, 0.98, 0.94)
-	moon.shadow_enabled = true
-	moon.directional_shadow_max_distance = 90.0
-	moon.directional_shadow_blend_splits = true
-	# Sans ce biais, une ombre rasante se décolle de l'objet qui la porte.
-	moon.shadow_normal_bias = 1.4
-	add_child(moon)
+	# SOLEIL COUCHANT, TRÈS BAS. C'est le pivot de toute la direction
+	# artistique du niveau, et ce qui a le plus manqué jusqu'ici.
+	#
+	# Le jeu était éclairé par un midi blanc sur des matières grises sous une
+	# brume blanche : trois absences de couleur superposées. On peut soigner
+	# les modèles autant qu'on veut, une image sans écart de teinte ET sans
+	# écart de valeur ne peut pas être belle — il n'y a rien à regarder.
+	#
+	# Un soleil à seize degrés donne tout d'un coup : des ombres longues qui
+	# dessinent le relief du sol, une lumière AMBRÉE contre des ombres BLEUES
+	# — le seul contraste de teinte qui marche à tous les coups —, et un ciel
+	# qui vaut la peine d'être reflété par les bassins.
+	var sun: DirectionalLight3D = DirectionalLight3D.new()
+	sun.name = "Soleil"
+	sun.rotation = Vector3(deg_to_rad(-16.0), deg_to_rad(-124.0), 0.0)
+	sun.light_energy = 3.2
+	sun.light_color = Color(1.0, 0.74, 0.46)
+	sun.shadow_enabled = true
+	sun.directional_shadow_max_distance = 120.0
+	sun.directional_shadow_blend_splits = true
+	# Sans ce biais, une ombre rasante se décolle de l'objet qui la porte — et
+	# à seize degrés, toutes les ombres sont rasantes.
+	sun.shadow_normal_bias = 1.6
+	sun.shadow_bias = 0.04
+	add_child(sun)
+
+	# Contre-jour froid, sans ombre. Il ne sert qu'à décoller les silhouettes
+	# du fond du côté opposé au soleil : sans lui, tout ce qui n'est pas
+	# éclairé de face devient une découpe noire, ce qui est exactement le
+	# reproche qu'on faisait à l'image.
+	var fill: DirectionalLight3D = DirectionalLight3D.new()
+	fill.name = "Contre-jour"
+	fill.rotation = Vector3(deg_to_rad(-34.0), deg_to_rad(58.0), 0.0)
+	fill.light_energy = 0.55
+	fill.light_color = Color(0.44, 0.60, 0.92)
+	fill.shadow_enabled = false
+	add_child(fill)
 
 	var holder: WorldEnvironment = WorldEnvironment.new()
 	holder.name = "Atmosphere"
@@ -612,19 +650,50 @@ func _environment() -> Environment:
 	environment.sky = _sky()
 	environment.background_color = Color(0.026, 0.031, 0.034)
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	environment.ambient_light_sky_contribution = 0.55
-	# Ambiante très basse, et bleutée. Elle ne sert qu'à empêcher le noir
-	# absolu ; tout le reste vient des feux, des cierges et des vitraux.
-	environment.ambient_light_color = Color(0.40, 0.46, 0.50)
-	environment.ambient_light_energy = 0.85
+	# L'ambiante vient du CIEL, presque entièrement. C'est ce qui rend les
+	# ombres bleues sans qu'on ait à peindre quoi que ce soit : au crépuscule,
+	# ce qui n'est pas touché par le soleil est éclairé par un demi-dôme
+	# indigo, et c'est de là que vient le contraste chaud/froid.
+	# Moitié ciel, moitié bleu déclaré. À 0,92 de ciel, l'ambiante prenait
+	# l'ORANGE de l'horizon et les ombres devenaient brunes : on se retrouvait
+	# avec une image d'une seule teinte, ce qui n'est pas mieux qu'une image
+	# sans teinte du tout. La moitié déclarée garantit que ce qui est à l'ombre
+	# est FROID, quoi que fasse le ciel.
+	environment.ambient_light_sky_contribution = 0.35
+	environment.ambient_light_color = Color(0.30, 0.45, 0.80)
+	environment.ambient_light_energy = 0.55
+	# Réflexions du ciel sur tout ce qui est lisse. Sans cette ligne, les
+	# nappes de saumure renvoient du noir et la surface LIQUID ne sert à rien.
+	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+
+	# ÉCLAIRAGE INDIRECT. C'est ce qui manquait pour de bon.
+	#
+	# Sans lui, une ambiante est un nombre unique appliqué partout : la monter
+	# pour que le dehors respire inondait l'intérieur de la halle de la même
+	# lumière et la halle devenait un hangar rose ; la baisser pour que la
+	# halle soit sombre écrasait le dehors. Aucune valeur ne convient aux deux,
+	# parce que le problème n'est pas la valeur — c'est qu'un toit ne bloquait
+	# rien du tout.
+	#
+	# SDFGI occlut l'ambiante ET fait rebondir la lumière : le soleil rasant
+	# frappe le sel du parvis, rebondit par la grande porte et remonte sous les
+	# membrures. C'est de la lumière qu'aucun réglage manuel n'aurait produite.
+	environment.sdfgi_enabled = true
+	environment.sdfgi_use_occlusion = true
+	environment.sdfgi_read_sky_light = true
+	environment.sdfgi_bounce_feedback = 0.6
+	environment.sdfgi_energy = 1.35
+	environment.sdfgi_cascades = 4
+	environment.sdfgi_min_cell_size = 0.35
+	environment.sdfgi_y_scale = Environment.SDFGI_Y_SCALE_75_PERCENT
 
 	# Halo : c'est lui qui fait qu'une flamme éblouit au lieu d'être un rond
 	# orange. Seuil au-dessus de 1 pour que seules les pièces émissives
 	# débordent, et pas les murs clairs.
 	environment.glow_enabled = true
-	environment.glow_intensity = 0.42
-	environment.glow_bloom = 0.08
-	environment.glow_hdr_threshold = 1.60
+	environment.glow_intensity = 0.60
+	environment.glow_bloom = 0.14
+	environment.glow_hdr_threshold = 1.20
 	environment.glow_hdr_scale = 2.2
 	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	# Les niveaux de halo ne sont pas exposés comme propriétés typées ; ils se
@@ -639,7 +708,7 @@ func _environment() -> Environment:
 	# mur du sol sans qu'on ait à peindre une ligne.
 	environment.ssao_enabled = true
 	environment.ssao_radius = 1.4
-	environment.ssao_intensity = 1.35
+	environment.ssao_intensity = 1.05
 	environment.ssao_power = 1.35
 	environment.ssao_detail = 0.6
 	environment.ssao_light_affect = 0.15
@@ -648,30 +717,42 @@ func _environment() -> Environment:
 	# deviennent visibles DANS l'air. C'est ce qui donne sa profondeur à une
 	# scène sans texture, et ce qui masque le bout du couloir.
 	environment.volumetric_fog_enabled = true
-	environment.volumetric_fog_density = 0.009
-	environment.volumetric_fog_albedo = Color(0.74, 0.81, 0.85)
-	environment.volumetric_fog_emission = Color(0.024, 0.028, 0.032)
-	environment.volumetric_fog_gi_inject = 0.6
-	environment.volumetric_fog_anisotropy = 0.32
-	environment.volumetric_fog_length = 120.0
-	environment.volumetric_fog_ambient_inject = 0.8
+	environment.volumetric_fog_density = 0.010
+	environment.volumetric_fog_albedo = Color(0.88, 0.78, 0.72)
+	environment.volumetric_fog_emission = Color(0.030, 0.024, 0.038)
+	environment.volumetric_fog_gi_inject = 1.0
+	# Anisotropie forte : la brume s'allume franchement quand on regarde VERS
+	# le soleil et reste sombre quand on lui tourne le dos. C'est ce qui
+	# fabrique les rais de lumière entre les piles de la halle, et ça ne coûte
+	# qu'un nombre.
+	environment.volumetric_fog_anisotropy = 0.72
+	environment.volumetric_fog_length = 140.0
+	environment.volumetric_fog_ambient_inject = 0.5
 
 	environment.fog_enabled = true
-	environment.fog_light_color = Color(0.55, 0.60, 0.62)
-	# 0,0085 mettait 57 % de brume a cent metres : la halle disparaissait
-	# depuis le parvis et tout le fond virait au blanc.
-	environment.fog_density = 0.0034
+	# Brume BLEUE de fond, qui se réchauffe vers le soleil. `fog_sun_scatter`
+	# fait tout le travail : le lointain vire au bleu profond partout sauf
+	# autour du soleil, où il vire à l'orange. Une brume d'une seule couleur —
+	# et blanche par-dessus le marché — écrase la profondeur au lieu de la
+	# fabriquer.
+	environment.fog_light_color = Color(0.22, 0.32, 0.55)
+	environment.fog_sun_scatter = 0.65
+	environment.fog_density = 0.0052
 	environment.fog_sky_affect = 0.0
+	environment.fog_aerial_perspective = 0.35
 
 	# Contraste et saturation : sans cela, une palette de gris reste une
 	# palette de gris, quelle que soit la qualité de l'éclairage.
 	environment.adjustment_enabled = true
-	environment.adjustment_contrast = 1.05
-	environment.adjustment_saturation = 0.94
-	environment.adjustment_brightness = 1.02
+	# Il y a enfin de la couleur à saturer. Sur la palette de gris d'avant,
+	# monter la saturation ne faisait rien du tout ; c'était le signe qu'on
+	# soignait le mauvais bout.
+	environment.adjustment_contrast = 1.08
+	environment.adjustment_saturation = 1.06
+	environment.adjustment_brightness = 1.0
 
 	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
-	environment.tonemap_white = 7.5
+	environment.tonemap_white = 5.5
 	return environment
 
 ## Exposition. Le rendu travaille en HDR : sans exposition explicite, une
@@ -681,18 +762,29 @@ func _environment() -> Environment:
 ## où finit le sol et où commence l'air — c'est ce qu'on cherche.
 func _sky() -> Sky:
 	var material: ProceduralSkyMaterial = ProceduralSkyMaterial.new()
-	material.sky_top_color = Color(0.62, 0.68, 0.74)
-	material.sky_horizon_color = Color(0.88, 0.90, 0.90)
-	material.sky_energy_multiplier = 1.0
-	material.ground_bottom_color = Color(0.30, 0.33, 0.34)
-	material.ground_horizon_color = Color(0.80, 0.83, 0.83)
-	material.ground_energy_multiplier = 1.0
-	# Aucun disque solaire : le ciel du bassin est un voile, pas un beau jour.
-	material.sun_angle_max = 1.0
-	material.sun_curve = 1.0
+	# Indigo au zénith, braise à l'horizon. Trois octaves de valeur entre les
+	# deux : c'est ce dégradé que les bassins renvoient, et c'est lui qui donne
+	# sa couleur à toutes les ombres du niveau, puisque l'ambiante vient du
+	# ciel.
+	material.sky_top_color = Color(0.13, 0.20, 0.44)
+	material.sky_horizon_color = Color(0.92, 0.57, 0.34)
+	# Courbe haute : la bande chaude de l'horizon monte plus haut dans le dome.
+	# C'est elle que les nappes de saumure renvoient quand on les regarde d'en
+	# haut — avec une courbe serree elles ne voyaient que le zenith indigo et
+	# restaient noires.
+	material.sky_curve = 0.30
+	material.sky_energy_multiplier = 1.15
+	material.ground_bottom_color = Color(0.06, 0.07, 0.11)
+	material.ground_horizon_color = Color(0.62, 0.36, 0.22)
+	material.ground_curve = 0.05
+	material.ground_energy_multiplier = 0.7
+	# Un DISQUE SOLAIRE, cette fois. Un ciel sans soleil n'a pas de direction,
+	# et un couchant sans soleil n'est qu'un dégradé.
+	material.sun_angle_max = 8.0
+	material.sun_curve = 0.06
 	var sky: Sky = Sky.new()
 	sky.sky_material = material
-	sky.radiance_size = Sky.RADIANCE_SIZE_128
+	sky.radiance_size = Sky.RADIANCE_SIZE_256
 	return sky
 
 func _exposure() -> CameraAttributesPractical:

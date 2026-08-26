@@ -62,6 +62,11 @@ enum Surface {
 	CLOTH,
 	## Émissif : brille de sa propre couleur, et déborde dans le halo.
 	GLOW,
+	## Saumure : une nappe LISSE. Elle ne tire presque rien d'elle-même et
+	## renvoie le ciel — c'est ce qui fait qu'un bassin d'évaporation est beau
+	## et pas seulement vert. Ajouté en fin d'énumération : les indices des
+	## surfaces déjà écrites dans les .tres ne bougent pas.
+	LIQUID,
 }
 
 @export var shape: Shape = Shape.BOX

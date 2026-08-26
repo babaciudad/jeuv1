@@ -584,7 +584,7 @@ surface = 3
 size = Vector3(0.26, 0, 0.33)
 offset = Vector3(-0.07, -0.26, -0.21)
 rotation_degrees = Vector3(90, 0, 0)
-color = Color(0.3, 0.29, 0.32, 1)
+color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_ckndx"]
 script = ExtResource("1_6p5n4")
@@ -593,7 +593,7 @@ role = 4
 surface = 3
 size = Vector3(0.11, 0, 0)
 offset = Vector3(-0.07, -0.26, -0.22)
-color = Color(0.3, 0.29, 0.32, 1)
+color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_xwmwx"]
 script = ExtResource("1_6p5n4")
