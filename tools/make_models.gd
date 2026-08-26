@@ -73,6 +73,15 @@ const CAST: Array[Dictionary] = [
 		},
 	},
 	{
+		# Le mannequin d'entrainement etait reste en primitives : au milieu de
+		# personnages a corps skinne, il ressortait comme un jouet oublie.
+		"id": "mannequin",
+		"repos": "plus/Rest Pose", "marche": "plus/Rest Pose",
+		"course": "plus/Rest Pose",
+		"chute": "plus/Death_B", "chute_bis": "Death_D",
+		"gestes": {},
+	},
+	{
 		"id": "warden",
 		"repos": "plus/Fighting Idle", "marche": "Walk_Large", "course": "Jog",
 		"chute": "plus/Death_A", "chute_bis": "Death_D",
@@ -128,7 +137,7 @@ func _init() -> void:
 			if premier == "":
 				premier = valeur
 		model.attack_clips = gestes
-		model.attack = StringName(premier)
+		model.attack = StringName(premier) if premier != "" else &"Idle_A"
 		model.run_speed = 3.0
 		model.blend_time = 0.16
 		var code: int = ResourceSaver.save(model, "res://models/%s.tres" % id)

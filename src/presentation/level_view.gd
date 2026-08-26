@@ -22,8 +22,10 @@ const PROBE_MARGIN: float = 2.0
 ## il arrête, il ne cache pas.
 const RAMPART_HEIGHT: float = 1.15
 
-const COLOR_FLOOR: Color = Color(0.62, 0.63, 0.60)
-const COLOR_MORTAR: Color = Color(0.13, 0.16, 0.16)
+# Sol volontairement sombre : dehors, le sel est ce qu'il y a de blanc dans
+# l'image. Un dallage a 0,62 passait au blanc pur sous le soleil et avalait
+# et les tas de sel et la variation de teinte des dalles.
+const COLOR_FLOOR: Color = Color(0.44, 0.45, 0.43)
 const COLOR_WALL: Color = Color(0.58, 0.60, 0.58)
 const COLOR_CEILING: Color = Color(0.20, 0.23, 0.23)
 const COLOR_GATE: Color = Color(0.40, 0.34, 0.24)
@@ -108,13 +110,15 @@ func _build_shell(level: LevelData) -> void:
 			z += CELL
 		x += CELL
 
-	# Le sol se pose en deux passes : un lit sombre pleine largeur, puis les
-	# dalles, rétrécies de quatre centimètres. Ce sont ces quatre centimètres
-	# qui font le joint de mortier — sans eux, quarante mètres de dallage sont
-	# une seule surface lisse, et aucune texture ne rattrape ça.
-	_add_slabs("FloorBed", floor_cells, -SLAB_THICKNESS * 0.5 - 0.035,
-		COLOR_MORTAR)
-	_add_slabs("Floor", floor_cells, -SLAB_THICKNESS * 0.5, COLOR_FLOOR, 0.09)
+	# Le sol se pose d'une seule passe, et les dalles se CHEVAUCHENT d'un
+	# centimètre et demi. Ce n'est pas un détail : le joint creusé qu'on avait
+	# avant exposait quatre faces verticales par dalle, et la passe d'encre
+	# détoure toute face verticale. À une dalle par mètre, ça faisait du papier
+	# millimétré sur cinquante mètres — le défaut le plus visible de l'image.
+	# Ce qui distingue une dalle de sa voisine, désormais, c'est sa teinte
+	# seule (`_stone_tint`), et le chevauchement garantit qu'aucune arête ne
+	# peut réapparaître entre deux dalles coplanaires.
+	_add_slabs("Floor", floor_cells, -SLAB_THICKNESS * 0.5, COLOR_FLOOR, -0.015)
 	_add_slabs("Ceiling", ceiling_cells, SLAB_THICKNESS * 0.5, COLOR_CEILING)
 	_add_walls(wall_cells)
 	_add_spandrels(spandrels, spandrel_tops)
@@ -154,6 +158,9 @@ func _borders_sky(cell: Vector2, level: LevelData) -> bool:
 	return false
 
 ## Dalles toutes identiques : `at.y` porte la hauteur, la boîte ne change pas.
+## `joint` rétrécit la dalle ; une valeur NÉGATIVE l'élargit, et c'est ce qu'on
+## veut au sol pour que deux dalles voisines se chevauchent au lieu de laisser
+## une arête que la passe d'encre irait détourer.
 func _add_slabs(slab_name: String, cells: Array[Vector3], lift: float,
 		color: Color, joint: float = 0.0) -> void:
 	if cells.is_empty():
@@ -210,7 +217,10 @@ func _add_walls(cells: Array[Vector3]) -> void:
 func _stone_tint(cell: Vector3) -> Color:
 	var wave: float = sin(cell.x * 1.7 + cell.z * 0.9) * 0.5 \
 		+ sin(cell.x * 0.31 - cell.z * 2.3) * 0.5
-	var shade: float = 1.0 + wave * 0.07
+	# Depuis que le joint creusé a disparu, la teinte est le SEUL marqueur de
+	# dallage : elle doit se voir. Deux ondes de périodes premières entre
+	# elles, pour qu'aucun damier ne se forme sur quarante mètres.
+	var shade: float = 1.0 + wave * 0.115
 	# Une pointe de chaleur ou de froid selon la case, pas seulement du gris
 	# plus ou moins clair : c'est la variation de teinte qui se voit, pas la
 	# variation de luminosité.
@@ -556,10 +566,10 @@ func _build_atmosphere() -> void:
 	var moon: DirectionalLight3D = DirectionalLight3D.new()
 	moon.name = "Moon"
 	moon.rotation = Vector3(deg_to_rad(-46.0), deg_to_rad(-38.0), 0.0)
-	moon.light_energy = 2.55
-	moon.light_color = Color(0.94, 0.96, 1.0)
+	moon.light_energy = 1.65
+	moon.light_color = Color(1.0, 0.98, 0.94)
 	moon.shadow_enabled = true
-	moon.directional_shadow_max_distance = 60.0
+	moon.directional_shadow_max_distance = 90.0
 	moon.directional_shadow_blend_splits = true
 	# Sans ce biais, une ombre rasante se décolle de l'objet qui la porte.
 	moon.shadow_normal_bias = 1.4
@@ -580,19 +590,19 @@ func _environment() -> Environment:
 	environment.sky = _sky()
 	environment.background_color = Color(0.026, 0.031, 0.034)
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	environment.ambient_light_sky_contribution = 0.34
+	environment.ambient_light_sky_contribution = 0.55
 	# Ambiante très basse, et bleutée. Elle ne sert qu'à empêcher le noir
 	# absolu ; tout le reste vient des feux, des cierges et des vitraux.
-	environment.ambient_light_color = Color(0.32, 0.42, 0.48)
-	environment.ambient_light_energy = 0.55
+	environment.ambient_light_color = Color(0.40, 0.46, 0.50)
+	environment.ambient_light_energy = 0.85
 
 	# Halo : c'est lui qui fait qu'une flamme éblouit au lieu d'être un rond
 	# orange. Seuil au-dessus de 1 pour que seules les pièces émissives
 	# débordent, et pas les murs clairs.
 	environment.glow_enabled = true
-	environment.glow_intensity = 0.72
-	environment.glow_bloom = 0.18
-	environment.glow_hdr_threshold = 1.30
+	environment.glow_intensity = 0.42
+	environment.glow_bloom = 0.08
+	environment.glow_hdr_threshold = 1.60
 	environment.glow_hdr_scale = 2.2
 	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	# Les niveaux de halo ne sont pas exposés comme propriétés typées ; ils se
@@ -607,7 +617,7 @@ func _environment() -> Environment:
 	# mur du sol sans qu'on ait à peindre une ligne.
 	environment.ssao_enabled = true
 	environment.ssao_radius = 1.4
-	environment.ssao_intensity = 2.0
+	environment.ssao_intensity = 1.35
 	environment.ssao_power = 1.35
 	environment.ssao_detail = 0.6
 	environment.ssao_light_affect = 0.15
@@ -616,7 +626,7 @@ func _environment() -> Environment:
 	# deviennent visibles DANS l'air. C'est ce qui donne sa profondeur à une
 	# scène sans texture, et ce qui masque le bout du couloir.
 	environment.volumetric_fog_enabled = true
-	environment.volumetric_fog_density = 0.016
+	environment.volumetric_fog_density = 0.009
 	environment.volumetric_fog_albedo = Color(0.74, 0.81, 0.85)
 	environment.volumetric_fog_emission = Color(0.024, 0.028, 0.032)
 	environment.volumetric_fog_gi_inject = 0.6
@@ -626,18 +636,20 @@ func _environment() -> Environment:
 
 	environment.fog_enabled = true
 	environment.fog_light_color = Color(0.55, 0.60, 0.62)
-	environment.fog_density = 0.0085
+	# 0,0085 mettait 57 % de brume a cent metres : la halle disparaissait
+	# depuis le parvis et tout le fond virait au blanc.
+	environment.fog_density = 0.0034
 	environment.fog_sky_affect = 0.0
 
 	# Contraste et saturation : sans cela, une palette de gris reste une
 	# palette de gris, quelle que soit la qualité de l'éclairage.
 	environment.adjustment_enabled = true
-	environment.adjustment_contrast = 1.16
-	environment.adjustment_saturation = 1.04
+	environment.adjustment_contrast = 1.05
+	environment.adjustment_saturation = 0.94
 	environment.adjustment_brightness = 1.02
 
 	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
-	environment.tonemap_white = 3.2
+	environment.tonemap_white = 7.5
 	return environment
 
 ## Exposition. Le rendu travaille en HDR : sans exposition explicite, une
@@ -649,7 +661,7 @@ func _sky() -> Sky:
 	var material: ProceduralSkyMaterial = ProceduralSkyMaterial.new()
 	material.sky_top_color = Color(0.62, 0.68, 0.74)
 	material.sky_horizon_color = Color(0.88, 0.90, 0.90)
-	material.sky_energy_multiplier = 0.85
+	material.sky_energy_multiplier = 1.0
 	material.ground_bottom_color = Color(0.30, 0.33, 0.34)
 	material.ground_horizon_color = Color(0.80, 0.83, 0.83)
 	material.ground_energy_multiplier = 1.0
@@ -663,18 +675,18 @@ func _sky() -> Sky:
 
 func _exposure() -> CameraAttributesPractical:
 	var attributes: CameraAttributesPractical = CameraAttributesPractical.new()
-	attributes.exposure_multiplier = 1.05
-	# Exposition automatique, et c'est indispensable ici : la passe d'encre
-	# étalonne entre un point noir et un point blanc FIXES. Réglés sur la nef,
-	# ils laissaient l'arène du boss — quatre fois plus vaste et éclairée par
-	# six torches — entièrement noire : on voyait la barre de vie du warden
-	# sans voir le warden. On ne peut pas esquiver ce qu'on ne voit pas.
+	attributes.exposure_multiplier = 1.0
+	# Exposition FIXE. Elle était automatique, et il le fallait tant que la
+	# passe d'encre étalonnait entre un point noir et un point blanc figés :
+	# sans elle, l'arène du boss tombait entièrement sous le point noir.
 	#
-	# La plage est étroite et la réponse lente : une exposition qui pompe à
-	# chaque torche qui entre dans le champ serait pire que le mal.
-	attributes.auto_exposure_enabled = true
-	attributes.auto_exposure_scale = 0.38
-	attributes.auto_exposure_min_sensitivity = 40.0
-	attributes.auto_exposure_max_sensitivity = 420.0
-	attributes.auto_exposure_speed = 0.35
+	# Cette contrainte a disparu avec la posterisation, et l'auto-exposition
+	# ne faisait plus que du mal : l'image s'assombrissait dès qu'on levait
+	# les yeux vers le ciel et s'éclaircissait dès qu'on regardait un mur.
+	# Une luminosité qui bouge quand on tourne la caméra, ça ne se lit pas
+	# comme une caméra qui s'adapte — ça se lit comme un éclairage cassé.
+	#
+	# Elle est fixe, donc c'est à l'ÉCLAIRAGE d'être juste partout. C'est plus
+	# exigeant, et c'est la seule façon d'obtenir une image stable.
+	attributes.auto_exposure_enabled = false
 	return attributes

@@ -627,7 +627,7 @@ const MEMBRURES_X: Array = [-10.5, 10.5]
 const MEMBRURES_Z: Array = [-30.0, -25.0, -20.0, -15.0, -10.0, -5.0]
 
 ## Cuve a saumure du fond : c'est l'autel de ce monde, et elle bloque.
-const CUVE_BASSIN: Rect2 = Rect2(-2.6, 5.6, 5.2, 2.4)
+const CUVE_BASSIN: Rect2 = Rect2(-8.8, 4.6, 4.0, 2.2)
 
 ## Murets des tables d'evaporation. Ce sont eux qui donnent leur forme aux
 ## bassins : une grille de vasques separees par des levees de sel, avec des
@@ -746,22 +746,32 @@ func torch(out: Array[SkinPart], at: Vector3, into: Vector3, reach: float) -> vo
 	out.append(flamme)
 
 ## Ratelier de lampes suspendu : il eclaire par en haut, ce que ne fait aucune
-## lampe murale.
-func chandelier(out: Array[SkinPart], at: Vector3, ceiling: float) -> void:
+## lampe murale. `reach` est la portee de la lampe centrale, et elle doit
+## depasser la hauteur de suspension : un ratelier accroche a huit metres avec
+## une portee de cinq n'eclaire rien du tout, il se contente de briller. C'est
+## exactement ce qui laissait l'arene dans le noir.
+func chandelier(out: Array[SkinPart], at: Vector3, ceiling: float,
+		reach: float = 16.0) -> void:
 	out.append(D(SkinPart.Shape.CYLINDER, Vector3(0.05, ceiling - at.y, 0.05),
 		Vector3(at.x, (at.y + ceiling) * 0.5, at.z), IRON,
 		SkinPart.Surface.METAL))
 	out.append(D(SkinPart.Shape.BOX, Vector3(1.7, 0.10, 0.10), at, IRON,
 		SkinPart.Surface.METAL))
+	# La lampe centrale porte la lumiere ; les quatre laterales ne sont que des
+	# points brillants. Quatre omnis de longue portee au meme endroit coutent
+	# quatre fois le prix d'une pour le meme resultat.
+	var maitresse: SkinPart = D(SkinPart.Shape.ELLIPSOID,
+		Vector3(0.24, 0.30, 0.24), Vector3(at.x, at.y - 0.36, at.z),
+		CANDLE, SkinPart.Surface.GLOW)
+	maitresse.light_range = reach
+	out.append(maitresse)
 	for index: int in 4:
 		var x: float = at.x - 0.66 + float(index) * 0.44
 		out.append(D(SkinPart.Shape.CYLINDER, Vector3(0.028, 0.22, 0.028),
 			Vector3(x, at.y - 0.14, at.z), IRON, SkinPart.Surface.METAL))
-		var lampe: SkinPart = D(SkinPart.Shape.ELLIPSOID,
+		out.append(D(SkinPart.Shape.ELLIPSOID,
 			Vector3(0.17, 0.22, 0.17), Vector3(x, at.y - 0.34, at.z),
-			CANDLE, SkinPart.Surface.GLOW)
-		lampe.light_range = 5.4
-		out.append(lampe)
+			CANDLE, SkinPart.Surface.GLOW))
 
 ## Cuve a saumure : un bac cercle de fer. La halle en est pleine — c'est ce
 ## qu'on y fabriquait.
@@ -776,7 +786,8 @@ func cuve(out: Array[SkinPart], at: Vector3, rayon: float, hauteur: float) -> vo
 			IRON, SkinPart.Surface.METAL))
 	out.append(D(SkinPart.Shape.CYLINDER,
 		Vector3(rayon * 0.92, 0.05, rayon * 0.92),
-		at + Vector3(0.0, hauteur * 0.94, 0.0), BRINE, SkinPart.Surface.GLOW))
+		at + Vector3(0.0, hauteur * 0.94, 0.0), BRINE.darkened(0.30),
+		SkinPart.Surface.METAL))
 
 ## Tas de sel : un cone et deux plus petits. Le motif le plus repete du jeu,
 ## et celui qui dit le metier sans un mot.
@@ -942,7 +953,7 @@ func _halle(parts: Array[SkinPart]) -> void:
 		window(parts, Vector3(-14.75, 5.4, z), 90.0, BRINE, 3.0, 5.0)
 		window(parts, Vector3(14.75, 5.4, z), 90.0, BRINE, 3.0, 5.0)
 	for z: float in [-27.0, -17.0, -7.0]:
-		chandelier(parts, Vector3(0.0, 10.5, z), H_HALLE)
+		chandelier(parts, Vector3(0.0, 10.5, z), H_HALLE, 19.0)
 	for z: float in [-31.0, -23.0, -15.0]:
 		torch(parts, Vector3(-14.6, 2.8, z), Vector3(1.0, 0.0, 0.0), 9.0)
 		torch(parts, Vector3(14.6, 2.8, z), Vector3(-1.0, 0.0, 0.0), 9.0)
@@ -960,10 +971,13 @@ func _halle(parts: Array[SkinPart]) -> void:
 ## LE BASSIN. Le fond de la halle : une grande cuve, la braise, et rien
 ## d'autre. Le seul endroit chaud du niveau, donc aucun bruit visuel.
 func _bassin(parts: Array[SkinPart]) -> void:
-	parts.append(D(SkinPart.Shape.BOX, Vector3(5.2, 1.45, 2.4),
-		Vector3(0.0, 0.72, 6.8), STONE_PALE, SkinPart.Surface.STONE))
-	parts.append(D(SkinPart.Shape.CYLINDER, Vector3(2.3, 0.10, 2.3),
-		Vector3(0.0, 1.50, 6.8), BRINE, SkinPart.Surface.GLOW))
+	# La grande cuve, repoussee contre le mur ouest : elle meuble sans barrer.
+	parts.append(D(SkinPart.Shape.BOX, Vector3(4.0, 1.45, 2.2),
+		Vector3(-6.8, 0.72, 5.7), STONE_PALE, SkinPart.Surface.STONE))
+	parts.append(D(SkinPart.Shape.BOX, Vector3(3.5, 0.10, 1.8),
+		Vector3(-6.8, 1.50, 5.7), BRINE_WET, SkinPart.Surface.METAL))
+	for at: Vector2 in [Vector2(7.2, 5.4), Vector2(8.4, 7.6)]:
+		cuve(parts, Vector3(at.x, 0.0, at.y), 1.15, 1.3)
 	for cote: float in [-1.0, 1.0]:
 		torch(parts, Vector3(cote * 9.6, 2.6, 5.0),
 			Vector3(-cote, 0.0, 0.0), 9.0)
@@ -1072,25 +1086,44 @@ func _arene(parts: Array[SkinPart]) -> void:
 			SkinPart.Surface.STONE))
 		parts.append(D(SkinPart.Shape.TORUS, Vector3(1.05, 0.0, 1.35),
 			centre + Vector3(0.0, 0.55, 0.0), STONE, SkinPart.Surface.STONE))
-	for at: Vector2 in [Vector2(-21.0, 126.0), Vector2(21.0, 126.0),
-			Vector2(-21.0, 140.0), Vector2(21.0, 140.0)]:
+	# Huit braseros au lieu de quatre, et rentres dans la salle : a x = 21 ils
+	# etaient contre le mur, hors de portee du centre, et l'arene se battait
+	# dans le noir. Une arene de cinquante metres sur trente-huit se tient par
+	# ses feux, pas par son plafond.
+	for at: Vector2 in [Vector2(-15.0, 117.0), Vector2(15.0, 117.0),
+			Vector2(-15.0, 129.0), Vector2(15.0, 129.0),
+			Vector2(-15.0, 141.0), Vector2(15.0, 141.0),
+			Vector2(-6.0, 148.0), Vector2(6.0, 148.0)]:
 		parts.append(D(SkinPart.Shape.CYLINDER, Vector3(0.42, 1.5, 0.30),
 			Vector3(at.x, 0.75, at.y), IRON, SkinPart.Surface.METAL))
 		parts.append(D(SkinPart.Shape.CYLINDER, Vector3(1.0, 0.42, 0.55),
 			Vector3(at.x, 1.66, at.y), IRON, SkinPart.Surface.METAL))
 		var feu: SkinPart = D(SkinPart.Shape.CONE, Vector3(0.72, 1.5, 0.0),
 			Vector3(at.x, 2.4, at.y), FLAME, SkinPart.Surface.GLOW)
-		feu.light_range = 16.0
+		feu.light_range = 21.0
 		parts.append(feu)
 	window(parts, Vector3(-24.7, 6.5, 130.0), 90.0, BRINE, 4.0, 6.0)
 	window(parts, Vector3(24.7, 6.5, 130.0), 90.0, BRINE, 4.0, 6.0)
-	for z: float in [118.0, 132.0, 146.0]:
-		chandelier(parts, Vector3(0.0, 8.6, z), H_ARENE)
+	window(parts, Vector3(-24.7, 6.5, 142.0), 90.0, BRINE, 4.0, 6.0)
+	window(parts, Vector3(24.7, 6.5, 142.0), 90.0, BRINE, 4.0, 6.0)
+	for z: float in [118.0, 130.0, 142.0]:
+		chandelier(parts, Vector3(0.0, 8.6, z), H_ARENE, 17.0)
+	# Les murs nus etaient le second defaut : trente-huit metres de gris plein
+	# derriere le boss. On les habille de ce que la halle fabrique — sechoirs
+	# ranges, cuves vides, tas de sel abandonnes.
+	for at: Vector2 in [Vector2(-23.0, 121.0), Vector2(-23.0, 137.0),
+			Vector2(23.0, 121.0), Vector2(23.0, 137.0)]:
+		sechoir(parts, Vector3(at.x, 0.0, at.y), 90.0 if at.x < 0.0 else -90.0)
+	for at: Vector2 in [Vector2(-22.0, 128.0), Vector2(22.0, 128.0),
+			Vector2(-21.0, 146.0)]:
+		cuve(parts, Vector3(at.x, 0.0, at.y), 1.3, 1.5)
 	coque(parts, Vector3(-12.0, 0.0, 148.0), 20.0, 9.0)
 	for at: Vector2 in [Vector2(8.0, 147.0), Vector2(-6.0, 116.0),
 			Vector2(14.0, 122.0)]:
 		rubble(parts, Vector3(at.x, 0.0, at.y), 2.2)
-	tas(parts, Vector3(-16.0, 0.0, 147.0), 2.4, 2.3)
+	for at: Vector2 in [Vector2(-16.0, 147.0), Vector2(19.0, 145.0),
+			Vector2(-20.0, 114.0), Vector2(20.0, 114.0)]:
+		tas(parts, Vector3(at.x, 0.0, at.y), 2.4, 2.3)
 
 
 # ---------------------------------------------------------------------------

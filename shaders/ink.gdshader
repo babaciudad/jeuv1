@@ -1,11 +1,22 @@
-// Passe d'encre plein écran : contours tracés, aplats posterisés, grain de
-// papier. C'est ICI que se joue la direction artistique du jeu, pas dans la
-// géométrie.
+// Passe de trait plein écran : elle DÉTOURE, elle ne repeint pas.
 //
-// Le raisonnement : une géométrie simple éclairée en PBR lisse se lit comme
-// de la 3D ratée. La MÊME géométrie passée à l'encre se lit comme un parti
-// pris. On ne cherche donc pas à cacher que ce sont des volumes simples — on
-// les assume, en les dessinant.
+// CE QUI A CHANGÉ, ET POURQUOI
+//
+// Elle posterisait l'image sur six valeurs et la repeignait en bichromie
+// encre-sépia-papier. C'était une erreur, et elle a coûté cher : dehors tout
+// partait en blanc, dedans tout partait en noir, et un personnage devenait
+// une silhouette découpée sans un gramme de modelé. On ne peut pas juger un
+// personnage à travers ça — il n'y a plus rien à voir. Le rendu était
+// « pas clair » parce qu'on l'avait aplati à la main.
+//
+// La bonne moitié de l'effet, c'est le TRAIT : le contour de silhouette et
+// l'arête interne, qui donnent le côté illustration. Elle est gardée. La
+// posterisation, la bichromie et la hachure sont éteintes par leurs réglages
+// dans `ink.tres` — le code les garde pour qu'on puisse les remonter d'un cran
+// si on veut, mais leur place par défaut est à zéro.
+//
+// Le reste de l'image est le rendu PBR tel quel. C'est l'ÉCLAIRAGE qui doit
+// faire le travail, pas un filtre posé par-dessus.
 //
 // Fonctionne en Forward+ uniquement : `hint_normal_roughness_texture` n'existe
 // pas dans le rendu de compatibilité. Sans elle, les contours disparaîtraient
@@ -130,12 +141,23 @@ void fragment() {
 	float d1 = linear_depth(uv + vec2(step_uv.x, 0.0), INV_PROJECTION_MATRIX);
 	float d2 = linear_depth(uv + vec2(0.0, step_uv.y), INV_PROJECTION_MATRIX);
 	float d3 = linear_depth(uv + step_uv, INV_PROJECTION_MATRIX);
+	vec3 n0 = view_normal(uv);
 	// Le seuil grandit avec la distance : sans cela, un sol vu en fuite est
 	// un décroché permanent et se retrouve entièrement hachuré.
-	float slope = max(d0, 0.6) * 0.03;
+	//
+	// Il grandit AUSSI quand la surface fuit. `n0.z` est la composante vue de
+	// la normale : 1 pour une face qui regarde la caméra, 0 pour une face vue
+	// par la tranche. Sur un sol pris à hauteur d'homme, la bande juste sous
+	// l'horizon est vue par la tranche : deux pixels voisins y sont distants
+	// de plusieurs mètres, le décroché sature, et la passe d'encre remplissait
+	// toute cette bande en NOIR PLEIN. C'était la barre noire qui traversait
+	// chaque plan du jeu — prise pour un défaut d'éclairage pendant des jours,
+	// alors qu'aucune lumière n'était en cause : un test à ambiante rouge vif
+	// laissait la bande parfaitement noire.
+	float facing = max(abs(n0.z), 0.10);
+	float slope = max(d0, 0.6) * 0.03 / facing;
 	float depth_diff = (abs(d0 - d3) + abs(d1 - d2)) / slope;
 
-	vec3 n0 = view_normal(uv);
 	vec3 n1 = view_normal(uv + vec2(step_uv.x, 0.0));
 	vec3 n2 = view_normal(uv + vec2(0.0, step_uv.y));
 	vec3 n3 = view_normal(uv + step_uv);

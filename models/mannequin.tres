@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ModelData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/humain/gestes_plus.glb" id="1_ma2i3"]
+[ext_resource type="PackedScene" path="res://models/humain/gestes_base.glb" id="2_pj5ea"]
+[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="3_smrsg"]
+
+[resource]
+script = ExtResource("3_smrsg")
+id = &"mannequin"
+scene = ExtResource("2_pj5ea")
+extra_animations = ExtResource("1_ma2i3")
+yaw_degrees = 180.0
+idle = &"plus/Rest Pose"
+walk = &"plus/Rest Pose"
+run = &"plus/Rest Pose"
+attack = &"Idle_A"
+death = &"plus/Death_B"
+death_alt = &"Death_D"
+run_speed = 3.0
+blend_time = 0.16

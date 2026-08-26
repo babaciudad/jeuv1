@@ -30,13 +30,13 @@ extends RefCounted
 ## Toile huilée : ce que tout le monde porte contre la brûlure du sel. C'est
 ## la teinte du CORPS lui-même — dans ce monde on est emmailloté des pieds à
 ## la tête, donc le maillage nu se lit déjà comme un vêtement.
-const TOILE: Color = Color(0.38, 0.36, 0.30)
-const TOILE_CLAIRE: Color = Color(0.62, 0.60, 0.51)
+const TOILE: Color = Color(0.52, 0.49, 0.41)
+const TOILE_CLAIRE: Color = Color(0.70, 0.67, 0.57)
 ## Croûte de sel. La seule chose franchement claire d'un personnage : elle se
 ## lit de loin, et elle dit depuis combien de temps l'ennemi est mort.
 const SEL: Color = Color(0.89, 0.91, 0.88)
 const SEL_OMBRE: Color = Color(0.66, 0.70, 0.67)
-const CUIR: Color = Color(0.27, 0.24, 0.19)
+const CUIR: Color = Color(0.34, 0.30, 0.24)
 const CORDE: Color = Color(0.73, 0.67, 0.51)
 ## Verre de saumure : la seule couleur froide saturée du jeu.
 const VERRE: Color = Color(0.40, 0.76, 0.68)
@@ -86,14 +86,21 @@ static func _find_skeleton(node: Node) -> Skeleton3D:
 			return found
 	return null
 
-## Le corps importé arrive avec sa texture d'origine. On la remplace par un
-## aplat de la palette : le personnage est emmailloté, pas nu, et une texture
-## de peau étrangère au monde serait la seule chose de l'écran à ne pas être
-## du sel.
+## Teinte le corps importé sans lui retirer sa matière.
+##
+## Il était repeint avec le bruit TRIPLANAIRE du décor : une projection en
+## coordonnées du MONDE. Sur un mur, c'est parfait ; sur une peau qui se
+## déplace, le grain glisse sur le corps à chaque pas. C'était l'une des
+## raisons pour lesquelles le personnage ne se lisait pas comme une matière.
+##
+## On garde donc la texture du modèle — qui est dépliée sur ses UV, donc
+## solidaire de la peau — et on ne fait que la TEINTER. Le personnage est
+## emmailloté de toile huilée : sa couleur vient de la palette du sel, son
+## grain vient de son propre dépliage.
 func _paint_skin(rig: Node3D, id: StringName) -> void:
 	var tone: Color = TOILE
 	if id == &"gobelin":
-		# La chair du cristallise reste SOMBRE : c'est la croute qui doit etre
+		# La chair du cristallisé reste SOMBRE : c'est la croûte qui doit être
 		# la seule chose claire de lui. Peint en blanc partout, il ne lisait
 		# plus comme un homme pris par le sel mais comme une statue de marbre.
 		tone = TOILE.lerp(SEL_OMBRE, 0.22)
@@ -101,11 +108,31 @@ func _paint_skin(rig: Node3D, id: StringName) -> void:
 		tone = CUIR
 	for node: Node in SaltBody._meshes(rig):
 		var mesh: MeshInstance3D = node as MeshInstance3D
-		mesh.material_override = PrimitiveFactory.material_for(
-			tone, false, SkinPart.Surface.CLOTH)
+		mesh.material_override = _skin_material(mesh, tone)
 		pieces.append(mesh)
 		colors.append(tone)
 		weapons.append(false)
+
+func _skin_material(mesh: MeshInstance3D, tone: Color) -> StandardMaterial3D:
+	var material: StandardMaterial3D = StandardMaterial3D.new()
+	material.albedo_color = tone
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	# Toile huilée : mate, mais pas plate. Une rugosité à 1,0 tue le relief au
+	# point qu'un corps rond se lit comme une découpe de papier.
+	material.roughness = 0.86
+	material.metallic = 0.0
+	material.metallic_specular = 0.30
+	if mesh.mesh == null:
+		return material
+	var source: Material = mesh.mesh.surface_get_material(0)
+	if source is StandardMaterial3D:
+		var base: StandardMaterial3D = source as StandardMaterial3D
+		material.albedo_texture = base.albedo_texture
+		if base.normal_texture != null:
+			material.normal_enabled = true
+			material.normal_texture = base.normal_texture
+			material.normal_scale = 0.7
+	return material
 
 static func _meshes(node: Node) -> Array[Node]:
 	var found: Array[Node] = []
@@ -357,6 +384,8 @@ func _capuche(color: Color) -> void:
 
 func _build(id: StringName) -> void:
 	match id:
+		&"mannequin":
+			_mannequin()
 		&"archer":
 			_harponneur()
 		&"mage":
@@ -407,6 +436,35 @@ func _rabot() -> void:
 		SkinPart.Surface.STONE, true)
 	_prop(SkinPart.Shape.TORUS, Vector3(0.030, 0.0, 0.050),
 		Vector3(0.0, 0.10, 0.0), Vector3.ZERO, CORDE)
+
+## LE MANNEQUIN D'ENTRAINEMENT. Un corps de saunier mort empaille de toile et
+## plante sur un pieu : dans ce monde on ne s'entraine pas sur un sac, on
+## s'entraine sur un cristallise qu'on a redresse. C'est le premier chose que
+## le joueur frappe, donc c'est la premiere chose qui doit dire ou il est.
+func _mannequin() -> void:
+	_manchon("upperarm_l", "lowerarm_l", 0.0, 1.0, 0.09, 0.085, TOILE_CLAIRE)
+	_manchon("upperarm_r", "lowerarm_r", 0.0, 1.0, 0.09, 0.085, TOILE_CLAIRE)
+	_manchon("lowerarm_l", "hand_l", 0.0, 1.0, 0.075, 0.065, TOILE_CLAIRE)
+	_manchon("lowerarm_r", "hand_r", 0.0, 1.0, 0.075, 0.065, TOILE_CLAIRE)
+	_manchon("thigh_l", "calf_l", 0.0, 1.0, 0.12, 0.10, TOILE_CLAIRE)
+	_manchon("thigh_r", "calf_r", 0.0, 1.0, 0.12, 0.10, TOILE_CLAIRE)
+	_manchon("calf_l", "foot_l", 0.0, 1.0, 0.095, 0.08, TOILE_CLAIRE)
+	_manchon("calf_r", "foot_r", 0.0, 1.0, 0.095, 0.08, TOILE_CLAIRE)
+	_add("spine_02", SkinPart.Shape.ELLIPSOID, Vector3(0.44, 0.52, 0.32),
+		Vector3(0.0, 0.06, 0.0), Vector3.ZERO, TOILE_CLAIRE)
+	# Tete : un sac de toile serre au cou. Pas de visage, pas de lunettes —
+	# ce n'est plus quelqu'un.
+	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.24, 0.28, 0.25),
+		Vector3(0.0, 0.05, 0.0), Vector3.ZERO, TOILE_CLAIRE)
+	_add("head", SkinPart.Shape.TORUS, Vector3(0.075, 0.0, 0.11),
+		Vector3(0.0, -0.07, 0.0), Vector3.ZERO, CORDE)
+	for tour: int in 4:
+		_bande("spine_02", "spine_03", 0.1 + float(tour) * 0.26, 0.24, CORDE)
+	_eclat("clavicle_r", Vector3(0.13, 0.12, 0.12),
+		Vector3(-0.05, 0.05, 0.0), Vector3(0.0, 0.0, 26.0), SEL_OMBRE)
+	# Le pieu qui le tient debout : il sort du dos et se plante au sol.
+	_add("pelvis", SkinPart.Shape.CYLINDER, Vector3(0.075, 2.4, 0.085),
+		Vector3(0.0, -0.35, -0.26), Vector3(6.0, 0.0, 0.0), CUIR)
 
 ## LE HARPONNEUR — capuche rabattue, lunettes, rouleau de cordage à la
 ## ceinture. Sa signature dit ce qu'il fait.
