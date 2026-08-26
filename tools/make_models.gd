@@ -75,8 +75,13 @@ const CAST: Array[Dictionary] = [
 		# Le mannequin d'entrainement etait reste en primitives : au milieu de
 		# personnages a corps skinne, il ressortait comme un jouet oublie.
 		"id": "mannequin",
-		"repos": "plus/Rest Pose", "marche": "plus/Rest Pose",
-		"course": "plus/Rest Pose",
+		# PAS « Rest Pose » : c'est la pose en T du rig, bras a l'horizontale.
+		# Un mannequin en croix au milieu de la halle ne se lit pas comme un
+		# corps empaille, il se lit comme une animation manquante — et c'en
+		# etait une. PAS « Tired Hunched » non plus : celle-la met le bassin a
+		# quarante centimetres du sol, le mannequin se retrouvait couche.
+		"repos": "plus/Idle Hurt", "marche": "plus/Idle Hurt",
+		"course": "plus/Idle Hurt",
 		"chute": "plus/Death_B", "chute_bis": "Death_D",
 		"gestes": {},
 	},
@@ -137,6 +142,14 @@ func _vitesse(lecteur: AnimationPlayer, nom: String) -> float:
 		return 0.0
 	return ClipMeasure.ground_speed(_os, _chemin, lecteur.get_animation(nom),
 		_bassin, _pied_g, _pied_d)
+
+func _relevee(lecteur: AnimationPlayer, nom: String) -> float:
+	if _os == null or not lecteur.has_animation(nom):
+		return 1.0
+	var anim: Animation = lecteur.get_animation(nom)
+	if anim.length <= 0.01:
+		return 1.0
+	return ClipMeasure.recovery_time(_os, _chemin, anim, _bassin) / anim.length
 
 func _contact(lecteur: AnimationPlayer, nom: String) -> float:
 	if _os == null or not lecteur.has_animation(nom):
@@ -244,6 +257,7 @@ func _init() -> void:
 			_vitesse(banc, "plus/Strafe_left")
 			+ _vitesse(banc, "plus/Strafe_right"))
 		model.dodge = _clip("Roll", id, "esquive")
+		model.dodge_span = _relevee(banc, "Roll")
 		model.hurt = _clip("Hit_Chest", id, "encaissement")
 		model.hurt_alt = _clip("Hit_Head", id, "encaissement bis")
 		model.death = _clip(chute, id, "chute")
@@ -264,9 +278,10 @@ func _init() -> void:
 		model.run_speed = 3.0
 		model.blend_time = 0.16
 		var code: int = ResourceSaver.save(model, "res://models/%s.tres" % id)
-		print("%-10s marche %.2f  course %.2f  recul %.2f  chasse %.2f  (%d)"
+		print("%-10s marche %.2f  course %.2f  recul %.2f  chasse %.2f  roulade %.0f %%  (%d)"
 			% [id, model.walk_clip_speed, model.run_clip_speed,
-				model.back_clip_speed, model.strafe_clip_speed, code])
+				model.back_clip_speed, model.strafe_clip_speed,
+				100.0 * model.dodge_span, code])
 	if _faute:
 		printerr("des clips manquent : modeles NON valides")
 		quit(1)

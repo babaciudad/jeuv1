@@ -307,7 +307,7 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 	_recoil = maxf(0.0, _recoil - delta)
 	_advance_gait(shown, delta)
 	if _animator != null and _animator.ready():
-		_animator.drive(actor, _travel, actor.facing)
+		_animator.drive(actor, _travel, actor.facing, dodge)
 	elif _model == null:
 		_animate(actor, delta)
 	_apply_pose(actor, dodge)

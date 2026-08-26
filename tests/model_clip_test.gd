@@ -82,6 +82,44 @@ func test_la_course_couvre_la_vitesse_du_personnage() -> void:
 				% [id, vitesse, model.run_clip_speed]) \
 			.is_greater_equal(vitesse * 0.95)
 
+## Toute animation d'attente doit tenir DEBOUT.
+##
+## Le rig apporte des poses au sol — « Tired Hunched » met le bassin a quarante
+## centimetres, « Kneeling Tired » a quarante et un — et rien ne distingue leur
+## nom de celui d'une attente ordinaire. Le mannequin d'entrainement a passe
+## une version couche par terre a cause de ca, et une autre en croix parce que
+## « Rest Pose » est la pose en T du rig.
+func test_les_attentes_tiennent_debout() -> void:
+	for id: String in IDS:
+		var model: ModelData = load("res://models/%s.tres" % id)
+		var lecteur: AnimationPlayer = _banc(model)
+		var os: Skeleton3D = _squelette(lecteur.get_parent())
+		if os == null:
+			os = _squelette(lecteur.get_node(lecteur.root_node))
+		assert_object(os).is_not_null()
+		var chemin: String = ClipMeasure.prefix_for(lecteur, os)
+		var bassin: int = os.find_bone("pelvis")
+		var tete: int = os.find_bone("head")
+		var main: int = os.find_bone("hand_l")
+		if not lecteur.has_animation(model.idle):
+			continue
+		var anim: Animation = lecteur.get_animation(model.idle)
+		var pose: Array[Transform3D] = ClipMeasure.poses(
+			os, chemin, anim, anim.length * 0.4)
+		assert_float(pose[bassin].origin.y) \
+			.override_failure_message("%s : bassin a %.2f m dans « %s »"
+				% [id, pose[bassin].origin.y, model.idle]) \
+			.is_greater(0.70)
+		assert_float(pose[tete].origin.y) \
+			.override_failure_message("%s : tete a %.2f m dans « %s »"
+				% [id, pose[tete].origin.y, model.idle]) \
+			.is_greater(1.15)
+		# Et pas en croix : la pose en T du rig ecarte la main de 74 cm.
+		assert_float(absf(pose[main].origin.x)) \
+			.override_failure_message("%s : bras en croix dans « %s »"
+				% [id, model.idle]) \
+			.is_less(0.55)
+
 ## Marche strictement plus lente que course, et les deux non nulles : deux
 ## points de mélange au même endroit rendent le mélange indéfini.
 func test_les_allures_sont_ordonnees() -> void:

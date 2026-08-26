@@ -43,6 +43,7 @@ var _tree: AnimationTree = null
 var _model: ModelData = null
 var _player: AnimationPlayer = null
 var _attack: AnimationNodeAnimation = null
+var _roll: AnimationNodeAnimation = null
 var _hurt: AnimationNodeAnimation = null
 var _death: AnimationNodeAnimation = null
 ## Vrai quand une impulsion est en cours : sert à ne la déclencher qu'une fois
@@ -193,8 +194,20 @@ func _assemble(rig: Node3D) -> void:
 	tree_root.add_node(&"esquive", _one_shot(), Vector2(460.0, 0.0))
 	tree_root.add_node(&"coup", _one_shot(), Vector2(680.0, 0.0))
 	tree_root.add_node(&"douleur", _one_shot(), Vector2(900.0, 0.0))
-	tree_root.add_node(&"roulade",
-		_animation(_clip(_model.dodge, idle)), Vector2(240.0, 320.0))
+	_roll = _animation(_clip(_model.dodge, idle))
+	tree_root.add_node(&"roulade", _roll, Vector2(0.0, 320.0))
+	# Chercheur de temps : l'esquive n'est PAS jouée, elle est POSITIONNÉE.
+	#
+	# La roulade dure 1,83 s dans la bibliothèque ; l'esquive simulée en dure
+	# 0,43 — vingt-six ticks. Lancée comme une impulsion, elle s'arrêtait au
+	# quart et le personnage se redressait d'un coup au milieu du plongeon. En
+	# la posant chaque image sur l'avancement réel de l'esquive, elle finit
+	# toujours pile avec elle, quelle que soit la classe et quel que soit le
+	# réglage — et si demain l'esquive passe à trente ticks, il n'y a rien à
+	# retoucher ici.
+	var seek: AnimationNodeTimeSeek = AnimationNodeTimeSeek.new()
+	tree_root.add_node(&"temps_roulade", seek, Vector2(240.0, 320.0))
+	tree_root.connect_node(&"temps_roulade", 0, &"roulade")
 
 	var end: AnimationNodeTransition = AnimationNodeTransition.new()
 	end.input_count = 2
@@ -208,7 +221,7 @@ func _assemble(rig: Node3D) -> void:
 	tree_root.connect_node(&"cadence", 0, &"sol")
 	tree_root.connect_node(&"tempo", 0, &"geste")
 	tree_root.connect_node(&"esquive", 0, &"cadence")
-	tree_root.connect_node(&"esquive", 1, &"roulade")
+	tree_root.connect_node(&"esquive", 1, &"temps_roulade")
 	tree_root.connect_node(&"coup", 0, &"esquive")
 	tree_root.connect_node(&"coup", 1, &"tempo")
 	tree_root.connect_node(&"douleur", 0, &"coup")
@@ -243,7 +256,8 @@ func _one_shot() -> AnimationNodeOneShot:
 ## On mesure le déplacement au lieu de lire `actor.velocity` : la vitesse d'un
 ## acteur distant est interpolée et ne veut rien dire ici, alors que la
 ## distance parcourue à l'écran est vraie pour tout le monde.
-func drive(actor: Actor, travel: Vector2, facing: Vector2) -> void:
+func drive(actor: Actor, travel: Vector2, facing: Vector2,
+		dodge: float = 0.0) -> void:
 	if _tree == null:
 		return
 	if actor.state == Actor.State.DEAD:
@@ -259,7 +273,7 @@ func drive(actor: Actor, travel: Vector2, facing: Vector2) -> void:
 		_tree.set(&"parameters/mort/transition_request", &"vivant")
 
 	_drive_ground(travel, facing)
-	_drive_dodge(actor)
+	_drive_dodge(actor, dodge)
 	_drive_attack(actor)
 	_drive_hurt(actor)
 
@@ -301,8 +315,18 @@ func _capacite(blend: Vector2) -> float:
 		return _run
 	return 1.0 / sqrt(terme)
 
-func _drive_dodge(actor: Actor) -> void:
+func _drive_dodge(actor: Actor, progress: float) -> void:
 	var rolling: bool = actor.state == Actor.State.DODGING
+	if rolling:
+		# On repose la roulade à chaque image sur l'avancement de l'esquive
+		# simulée. `dodge_span` coupe le temps mort de fin de clip, où le
+		# personnage est déjà debout et ne fait plus rien.
+		var length: float = 0.0
+		if _player.has_animation(_roll.animation):
+			length = _player.get_animation(_roll.animation).length
+		var span: float = clampf(_model.dodge_span, 0.05, 1.0)
+		_tree.set(&"parameters/temps_roulade/seek_request",
+			clampf(progress, 0.0, 1.0) * length * span)
 	if rolling == _dodging:
 		return
 	_dodging = rolling

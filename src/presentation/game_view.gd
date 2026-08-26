@@ -44,6 +44,9 @@ var _flight_spin: float = 0.0
 ## Points de vie à l'image précédente. Les effets naissent d'un ÉCART déjà
 ## constaté, jamais d'un événement que la vue aurait deviné : la simulation ne
 ## prévient personne, et c'est très bien ainsi (invariant 2).
+## Hauteur, en mètres, à laquelle naît la gerbe d'un coup reçu : le buste.
+const HIT_HEIGHT: float = 1.05
+
 var _last_health: Dictionary[int, int] = {}
 ## Attaques déjà saluées par un anneau de lancer, pour n'en poser qu'un.
 var _cast_seen: Dictionary[int, int] = {}
@@ -261,10 +264,19 @@ func _watch_health(world: World) -> void:
 		if actor.health >= previous:
 			Vfx.spawn(_actors_root, Vfx.Kind.RINSE, at, COLOR_HEAL)
 			continue
-		Vfx.spawn(_actors_root, Vfx.Kind.HIT, at, COLOR_HIT)
+		# La gerbe part du POINT TOUCHÉ, pas des pieds. Elle naissait à
+		# hauteur de sol, à l'aplomb du personnage : ça ne se lisait pas comme
+		# un coup reçu mais comme de la poussière, et le seul repère visuel de
+		# l'impact était la barre de vie.
+		var from: Vector2 = _nearest_other(world, actor)
+		var toward: Vector2 = from - actor.position
+		if not toward.is_zero_approx():
+			toward = toward.normalized() * actor.radius
+		var touche: Vector3 = at + Vector3(toward.x, HIT_HEIGHT, toward.y)
+		Vfx.spawn(_actors_root, Vfx.Kind.HIT, touche, COLOR_HIT)
 		var view: ActorView = _views.get(actor.id, null)
 		if view != null:
-			view.impact(_nearest_other(world, actor))
+			view.impact(from)
 		if actor.id != world.local_actor_id:
 			continue
 		# La caméra ne tremble QUE pour le personnage local : secouer l'écran

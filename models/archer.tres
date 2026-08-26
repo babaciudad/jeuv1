@@ -11,6 +11,7 @@ scene = ExtResource("2_mwppd")
 extra_animations = ExtResource("1_x8j2u")
 yaw_degrees = 180.0
 attack = &"Sword_Regular_B"
+dodge_span = 0.6954166666666667
 death = &"plus/Death_B"
 walk_clip_speed = 0.7386171209764816
 run_clip_speed = 6.565322949645836

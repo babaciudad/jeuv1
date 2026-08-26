@@ -12,6 +12,7 @@ extra_animations = ExtResource("1_3wxa0")
 yaw_degrees = 180.0
 walk = &"Walk_Formal"
 run = &"plus/Run_Anime"
+dodge_span = 0.6954166666666667
 death = &"plus/Death_B"
 walk_clip_speed = 0.7340097611310442
 run_clip_speed = 4.891635980762419

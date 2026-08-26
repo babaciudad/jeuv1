@@ -53,23 +53,30 @@ func _process(_delta: float) -> void:
 	if me == null:
 		return
 	if _frame == 20:
-		me.position = Vector2(0.0, -26.0)
+		# Devant le mannequin d'entrainement, a portee de rabot.
+		me.position = Vector2(6.0, -23.4)
 		me.facing = Vector2(0.0, 1.0)
 	# 24 -> 68 : course en avant, une image sur deux gardee
-	if _frame >= 22 and _frame < 70:
-		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(0.0, 1.0)})
+	if _frame >= 22 and _frame < 62:
+		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(1.0, 0.35)})
 	if _frame >= 30 and _frame < 70 and _frame % 4 == 0:
 		await _prise("course_%02d" % _frame)
 	# 72 : roulade
+	if _frame == 66:
+		me.position = Vector2(6.0, -23.4)
+		me.facing = Vector2(0.0, 1.0)
 	if _frame == 72:
 		_boot.submit_command(Command.Type.DODGE, {"d": Vector2(0.0, 1.0)})
-	if _frame >= 74 and _frame < 100 and _frame % 3 == 0:
+	if _frame >= 73 and _frame < 97 and _frame % 2 == 0:
 		await _prise("roulade_%02d" % _frame)
 	# 104 : attaque
+	if _frame == 100:
+		me.position = Vector2(6.0, -22.9)
+		me.facing = Vector2(0.0, 1.0)
 	if _frame == 104:
 		_boot.submit_command(Command.Type.ATTACK,
 			{"i": 0, "d": Vector2(0.0, 1.0)})
-	if _frame >= 106 and _frame < 140 and _frame % 3 == 0:
+	if _frame >= 105 and _frame < 141 and _frame % 2 == 0:
 		await _prise("coup_%02d" % _frame)
 	# Tour des cinq zones : on se pose, on laisse une image passer, on garde.
 	if _frame >= 150:

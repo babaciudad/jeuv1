@@ -50,6 +50,10 @@ extends Resource
 @export var run: StringName = &"Sprint"
 @export var attack: StringName = &"Sword_Regular_A"
 @export var dodge: StringName = &"Roll"
+## Part utile du clip d'esquive : de son début jusqu'au moment où le
+## personnage est de nouveau debout. Mesurée. Le reste du clip est un temps
+## mort qu'on ne joue pas.
+@export var dodge_span: float = 1.0
 @export var hurt: StringName = &"Hit_Chest"
 @export var death: StringName = &"Death_D"
 

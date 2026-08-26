@@ -158,3 +158,36 @@ static func contact_time(skeleton: Skeleton3D, prefix: String,
 	if when < length * 0.05:
 		return quickest
 	return when
+
+## Fin utile d'un clip d'esquive, en secondes : l'instant où le bassin est
+## revenu à sa hauteur de départ après avoir plongé.
+##
+## Une roulade dure 1,83 s dans la bibliothèque, mais l'esquive simulée dure
+## 0,43 s — vingt-six ticks. Jouée telle quelle, la roulade s'arrêtait au quart
+## et le personnage se redressait d'un coup au milieu du plongeon. Jouée quatre
+## fois trop vite, elle est illisible. En réalité le dernier tiers du clip est
+## un temps mort où le personnage est déjà debout : on ne joue que la partie
+## utile, et elle tient dans l'esquive à un peu plus du double de sa vitesse.
+static func recovery_time(skeleton: Skeleton3D, prefix: String,
+		anim: Animation, pelvis: int) -> float:
+	if anim == null or pelvis < 0:
+		return 0.0
+	var length: float = anim.length
+	if length <= 0.01:
+		return 0.0
+	var start: float = ClipMeasure.poses(
+		skeleton, prefix, anim, 0.0)[pelvis].origin.y
+	if start <= 0.01:
+		return length
+	var dipped: bool = false
+	for index: int in PAS + 1:
+		var time: float = length * float(index) / float(PAS)
+		var height: float = ClipMeasure.poses(
+			skeleton, prefix, anim, time)[pelvis].origin.y
+		if height < start * 0.72:
+			dipped = true
+		elif dipped and height > start * 0.95:
+			# Un peu de rab : on veut voir le personnage FINIR de se relever,
+			# pas le couper à l'image où il repasse la barre.
+			return minf(length, time + length * 0.06)
+	return length
