@@ -130,6 +130,9 @@ func _build_cast() -> void:
 		if REPERES:
 			_axes_de_main(corps)
 		corps.scale = Vector3.ONE * maxf(0.001, data.scale)
+		# Même lacet qu'en jeu (`ActorView`) : sans lui la planche montre les
+		# personnages sous un autre angle que celui qu'on juge à l'écran.
+		corps.rotation.y = deg_to_rad(data.yaw_degrees)
 		corps.position = Vector3(_abscisse(index),
 			data.lift + sel.lift * maxf(0.001, data.scale), 0.0)
 		var lecteur: AnimationPlayer = _lecteur(corps)
@@ -220,8 +223,10 @@ func _cadre_ligne() -> void:
 
 func _cadre_portrait(index: int) -> void:
 	var x: float = _abscisse(index)
-	_camera.position = Vector3(x + 0.85, 1.05, 2.45)
-	_camera.look_at(Vector3(x, 0.82, 0.0))
+	# Le cadrage précédent (recul 2,45 m, visée à 0,82 m) coupait la tête des
+	# grandes silhouettes : le boss culmine à plus de 2 m une fois habillé.
+	_camera.position = Vector3(x + 1.55, 1.40, 4.30)
+	_camera.look_at(Vector3(x, 1.05, 0.0))
 
 func _pose(index: int, animation: StringName, fraction: float) -> void:
 	var lecteur: AnimationPlayer = _players[index]

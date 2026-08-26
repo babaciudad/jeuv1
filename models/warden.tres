@@ -13,7 +13,7 @@ yaw_degrees = 180.0
 idle = &"plus/Fighting Idle"
 walk = &"plus/Walk_Large"
 run = &"plus/Run_Female"
-attack = &"Sword_Regular_C"
+attack = &"Sword_Attack"
 dodge_span = 0.6954166666666667
 backstep_span = 0.5652083333333333
 death = &"plus/Death_A"
@@ -24,10 +24,10 @@ strafe_clip_speed = 0.7288484546514598
 death_alt = &"Death_D"
 attack_clips = Dictionary[StringName, StringName]({
 &"boss_slam": &"plus/Attack_Ground_Pound",
-&"boss_swing": &"Sword_Regular_C"
+&"boss_swing": &"Sword_Attack"
 })
 attack_contact = Dictionary[StringName, float]({
-&"Sword_Regular_C": 0.6597222064932188,
+&"Sword_Attack": 0.5390624888241291,
 &"plus/Attack_Ground_Pound": 0.733506922920545
 })
 run_speed = 3.0

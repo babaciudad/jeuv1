@@ -144,7 +144,7 @@ func _process(delta: float) -> void:
 			view = _make_view(world, actor)
 		view.refresh(actor, eye, actor.id == world.local_actor_id, player_distance,
 			delta, _shown_position(actor), world.dodge_progress(actor),
-			world.tell_progress(actor))
+			world.tell_progress(actor), _is_simulated(world, actor))
 		_watch_cast(actor)
 		_watch_dodge(actor)
 
@@ -259,6 +259,17 @@ func _flight_material(tone: Color, additive: bool) -> StandardMaterial3D:
 	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	return material
+
+## Vrai si la vitesse simulée de cet acteur décrit vraiment ce qu'on affiche.
+##
+## C'est le cas de notre propre personnage — qu'on prédit — et de tous les
+## acteurs quand on est l'hôte. Pour un acteur distant chez un client, la
+## position affichée est interpolée en retard sur la simulation (invariant 4)
+## et la vitesse d'instantané ne lui correspond pas.
+func _is_simulated(world: World, actor: Actor) -> bool:
+	if actor.id == world.local_actor_id:
+		return true
+	return _bootstrap != null and _bootstrap.is_host()
 
 ## Marque l'adversaire verrouillé d'un losange au-dessus de la tête.
 ##

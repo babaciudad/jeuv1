@@ -381,18 +381,37 @@ func _vetement(color: Color) -> void:
 	for side: String in ["l", "r"]:
 		_manchon("upperarm_" + side, "lowerarm_" + side, 0.05, 0.78,
 			0.075, 0.070, color)
-		_bande("lowerarm_" + side, "hand_" + side, 0.18, 0.058)
-		_bande("lowerarm_" + side, "hand_" + side, 0.52, 0.052)
-		_bande("lowerarm_" + side, "hand_" + side, 0.84, 0.048)
+		# BANDES : rayon INTÉRIEUR du tore, donc il doit être PLUS PETIT que le
+		# membre pour mordre dedans. Mesuré sur le maillage : l'avant-bras fait
+		# 0,053 de rayon moyen et le mollet 0,060. Les bandes étaient décrites
+		# au rayon d'un bras HABILLÉ — jusqu'à 0,075 sur un mollet de 0,060 —
+		# et se lisaient comme des cerceaux enfilés autour du personnage.
+		_bande("lowerarm_" + side, "hand_" + side, 0.18, 0.048)
+		_bande("lowerarm_" + side, "hand_" + side, 0.52, 0.045)
+		_bande("lowerarm_" + side, "hand_" + side, 0.84, 0.042)
 		_manchon("thigh_" + side, "calf_" + side, 0.02, 0.62,
 			0.105, 0.090, color)
-		_bande("calf_" + side, "foot_" + side, 0.22, 0.075)
-		_bande("calf_" + side, "foot_" + side, 0.55, 0.068)
-		_bande("calf_" + side, "foot_" + side, 0.84, 0.062)
-		# Botte : lourde, carrée, posée devant la cheville.
+		_bande("calf_" + side, "foot_" + side, 0.22, 0.058)
+		_bande("calf_" + side, "foot_" + side, 0.55, 0.052)
+		_bande("calf_" + side, "foot_" + side, 0.84, 0.046)
+		# BOTTE. Elle ne couvrait pas le pied — elle flottait au-dessus.
+		#
+		# Mesuré sur le rig : l'os de cheville `foot_l` est à y = 0,1037 et
+		# l'orteil `ball_l` à y = 0,0152, soit huit centimètres et demi PLUS
+		# BAS, et quinze centimètres en avant. La caisse faisait dix
+		# centimètres de haut centrée trois centimètres au-dessus de la
+		# cheville : son dessous s'arrêtait donc à sept centimètres au-dessus
+		# de l'orteil. Sur toutes les images, le pied nu du maillage sortait
+		# par-dessous et par-derrière — deux triangles sombres devant, un talon
+		# nu derrière.
+		#
+		# Elle descend maintenant sous l'orteil et remonte derrière le talon.
 		_add("foot_" + side, SkinPart.Shape.BOX,
-			Vector3(0.135, 0.10, 0.27), Vector3(0.0, 0.03, 0.05),
+			Vector3(0.145, 0.145, 0.30), Vector3(0.0, -0.028, 0.065),
 			Vector3.ZERO, CUIR)
+		_add("foot_" + side, SkinPart.Shape.BOX,
+			Vector3(0.135, 0.105, 0.11), Vector3(0.0, -0.048, -0.062),
+			Vector3.ZERO, CUIR.darkened(0.18))
 
 ## Redingote : un tronc de cône de la taille à mi-cuisse, plus des plis et des
 ## loques nouées à la ceinture. C'est la pièce qui porte la silhouette.

@@ -114,7 +114,19 @@ const CAST: Array[Dictionary] = [
 		"course": "plus/Run_Female",
 		"chute": "plus/Death_A", "chute_bis": "Death_D",
 		"gestes": {
-			"boss_swing": "Sword_Regular_C",
+			# PAS « Sword_Regular_C », qui est le coup lourd du gardien. Deux
+			# raisons, toutes deux mesurées contre l'ouverture de boîte de
+			# `boss_swing`, à 0,5417 s :
+			#
+			#   Sword_Regular_C  contact 0,660  tempo 1,218  fin coupée à 87 %
+			#   Sword_Attack     contact 0,539  tempo 0,995  fin coupée à 94 %
+			#
+			# Le tempo est le facteur dont `SaltAnimator` étire le clip pour
+			# faire tomber le contact sur l'ouverture : à 1,218 le boss frappait
+			# vingt-deux pour cent trop vite pour son propre geste, et le coup
+			# se lisait comme une saccade. À 0,995 il n'y a plus d'étirement.
+			# Et le boss cesse de partager le geste du gardien.
+			"boss_swing": "Sword_Attack",
 			"boss_slam": "plus/Attack_Ground_Pound",
 		},
 	},

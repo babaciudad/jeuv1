@@ -307,7 +307,7 @@ func _stub(role: SkinPart.Role, radius: float, drop: float) -> SkinPart:
 ## que la carte graphique s'ennuie.
 func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 		player_distance: float, delta: float, shown: Vector2,
-		dodge: float = 0.0, tell: float = 0.0) -> void:
+		dodge: float = 0.0, tell: float = 0.0, simulated: bool = false) -> void:
 	position = Vector3(shown.x, 0.0, shown.y)
 	if not actor.facing.is_zero_approx():
 		var forward: Vector3 = Vector3(actor.facing.x, 0.0, actor.facing.y)
@@ -316,7 +316,14 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 	_recoil = maxf(0.0, _recoil - delta)
 	if _animator != null:
 		_animator.tick_freeze(delta)
-	_advance_gait(shown, delta)
+	# Plafond de vitesse observée : la vitesse SIMULÉE, quand on l'a. Voir
+	# `_advance_gait`. On ne l'applique qu'aux acteurs qu'on simule
+	# réellement : la position affichée d'un acteur distant est interpolée en
+	# retard sur la simulation (invariant 4), donc sa vitesse d'instantané ne
+	# décrit pas ce qu'on est en train de montrer, et s'en servir figerait ses
+	# jambes à chaque paquet.
+	var cap: float = actor.velocity.length() if simulated else -1.0
+	_advance_gait(shown, delta, cap)
 	if _animator != null and _animator.ready():
 		_animator.drive(actor, _travel, actor.facing, dodge)
 	elif _model == null:
@@ -340,13 +347,59 @@ func impact(from: Vector2) -> void:
 		_animator.freeze()
 
 ## Vrai si cette vue est bâtie sur un modèle importé.
+## Le pilote d'animation de cet acteur, ou `null` s'il n'en a pas.
+##
+## Les instruments de mesure en ont besoin pour lire le mélange et la cadence
+## réellement posés : les relire sur l'arbre rendrait un Variant, que le
+## typage strict de ce projet refuse.
+func animator() -> SaltAnimator:
+	return _animator
+
 func uses_model() -> bool:
 	return _model != null
 
 ## La foulée avance avec la distance réellement parcourue, mesurée entre deux
 ## images. C'est la seule mesure disponible pour un acteur distant, dont la
 ## position est interpolée et dont la vitesse simulée ne veut rien dire ici.
-func _advance_gait(shown: Vector2, delta: float) -> void:
+## `cap` : vitesse maximale que le déplacement observé a le droit d'annoncer,
+## en mètres par seconde. Négatif pour ne pas plafonner.
+##
+## LE FREINAGE EST PLUS RAPIDE QUE LE FILTRE.
+##
+## `_travel` est lissé à douze par seconde, soit une constante de temps de
+## quatre-vingt-trois millisecondes. La simulation, elle, freine à quarante
+## mètres par seconde carrée : un gardien lancé à 4,2 m/s est immobile en cent
+## millisecondes. Pendant tout le freinage le filtre annonce donc encore trois
+## à quatre mètres par seconde, et les jambes courent sous un corps déjà
+## arrêté. Le seul remède est de croire la simulation plutôt que le filtre.
+##
+## Mesuré par `tools/arret.gd`, qui définit le patinage d'une image comme le
+## RESTE d'un pied posé — un pied posé ne bouge pas dans le monde, donc dans
+## le repère du squelette il doit reculer d'exactement ce que le corps avance :
+##
+##   glissade = |dz_pied_local + dz_corps_monde|
+##
+## Sur les trente-cinq images qui suivent l'arrêt complet, et sur quarante
+## images d'un personnage qui ne bouge pas du tout :
+##
+##                        après l'arrêt    à l'arrêt, immobile
+##   sans plafond            0,387 m            2,206 m
+##   avec plafond            0,058 m            0,003 m
+##
+## La deuxième colonne est le vrai motif. Le banc téléporte le personnage
+## avant de mesurer ; sans plafond, le filtre lit ce saut comme un
+## déplacement et le personnage PÉDALE SUR PLACE pendant deux mètres. C'est
+## exactement ce que fait un paquet réseau en retard.
+##
+## Ce qui reste après l'arrêt — cinq centimètres et demi — se joue pendant la
+## retombée du mélange vers l'attente, et ce n'est PAS une histoire de cadence :
+## geler le film pendant la retombée donne 0,059 m contre 0,058 m, soit rien.
+## Ce sont les points du mélange qui se déplacent, pas le film qui défile.
+##
+## Enfin, le freinage lui-même (0,416 m sur six images) n'est pas attribuable
+## avec cet instrument : à 4,2 m/s la foulée a une phase de vol, où aucun pied
+## n'est posé et où la formule ci-dessus n'a pas de sens.
+func _advance_gait(shown: Vector2, delta: float, cap: float = -1.0) -> void:
 	_clock += delta
 	if not _has_last:
 		_last_position = shown
@@ -364,6 +417,8 @@ func _advance_gait(shown: Vector2, delta: float) -> void:
 		_push = _push.lerp((mesure - _travel) / delta,
 			clampf(delta * 6.0, 0.0, 1.0))
 		_travel = _travel.lerp(mesure, clampf(delta * 12.0, 0.0, 1.0))
+		if cap >= 0.0 and _travel.length() > cap:
+			_travel = _travel.limit_length(cap)
 		# Lissage : un paquet réseau en retard fait un saut de position, et un
 		# saut de position ferait un sprint d'une image sans ce filtre.
 		_speed = lerpf(_speed, travelled / delta, clampf(delta * 12.0, 0.0, 1.0))

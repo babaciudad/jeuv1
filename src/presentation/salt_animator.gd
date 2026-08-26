@@ -399,6 +399,14 @@ func _drive_ground(travel: Vector2, facing: Vector2) -> void:
 		blend = _arret_franc()
 		# Pendant le temps d'arrêt la cadence tombe presque à zéro : les
 		# jambes tiennent leur dernier appui au lieu de continuer à pédaler.
+		#
+		# La retombée, elle, garde sa cadence pleine, et ce n'est pas un
+		# oubli. On a essayé de la geler aussi, en pensant y trouver le
+		# patinage d'arrêt : mesuré des deux façons par `tools/arret.gd`, le
+		# patinage après l'arrêt complet vaut 0,0584 m à cadence pleine et
+		# 0,0592 m film gelé — soit rien du tout. Ce qui bouge le pied pendant
+		# la retombée, ce sont les POINTS du mélange qui se rapprochent de
+		# l'attente, pas le film qui défile.
 		scale = 0.05 if _stop_left > STOP_FALL else 1.0
 	else:
 		blend = Vector2(_pivot(), 0.0)
