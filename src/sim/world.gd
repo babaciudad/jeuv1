@@ -691,7 +691,8 @@ func _resolve_player_hitbox(attacker: Actor, attack: AttackData) -> void:
 		if not target.is_alive():
 			continue
 		if not SimMath.cone_contains(attacker.position, attacker.facing,
-				attack.range_meters, attack.half_angle_degrees, target.position, target.radius):
+				attack.range_meters, attack.half_angle_degrees, target.position,
+				target.radius, attack.arc_offset_degrees):
 			continue
 		if not attacker.runner.try_register_hit(target.id):
 			continue
@@ -705,7 +706,7 @@ func _resolve_heal(healer: Actor, attack: AttackData) -> void:
 			continue
 		if ally.id != healer.id and not SimMath.cone_contains(healer.position,
 				healer.facing, attack.range_meters, attack.half_angle_degrees,
-				ally.position, ally.radius):
+				ally.position, ally.radius, attack.arc_offset_degrees):
 			continue
 		if not healer.runner.try_register_hit(ally.id):
 			continue
@@ -717,7 +718,8 @@ func _resolve_enemy_hitbox(attacker: Actor, attack: AttackData, victim: Actor) -
 	if not victim.is_alive() or is_invulnerable(victim):
 		return
 	if not SimMath.cone_contains(attacker.position, attacker.facing,
-			attack.range_meters, attack.half_angle_degrees, victim.position, victim.radius):
+			attack.range_meters, attack.half_angle_degrees, victim.position,
+			victim.radius, attack.arc_offset_degrees):
 		return
 	if not attacker.runner.try_register_hit(victim.id):
 		return

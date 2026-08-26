@@ -56,15 +56,21 @@ static func slide(from: Vector2, to: Vector2, radius: float,
 ## de portée `range_meters` et de demi-angle `half_angle_degrees`.
 ## C'est la forme de toutes les hitboxes du jeu : une arme au corps-à-corps
 ## balaie un arc, pas une boîte.
+## `arc_offset_degrees` tourne l'axe du cône par rapport au cap : un coup
+## diagonal ne balaie pas autour de l'axe du corps.
 static func cone_contains(origin: Vector2, facing: Vector2, range_meters: float,
-		half_angle_degrees: float, target: Vector2, target_radius: float) -> bool:
+		half_angle_degrees: float, target: Vector2, target_radius: float,
+		arc_offset_degrees: float = 0.0) -> bool:
+	var axe: Vector2 = facing
+	if not is_zero_approx(arc_offset_degrees):
+		axe = facing.rotated(deg_to_rad(arc_offset_degrees))
 	var offset: Vector2 = target - origin
 	var distance: float = offset.length()
 	if distance > range_meters + target_radius:
 		return false
 	if distance <= target_radius:
 		return true
-	var deviation: float = rad_to_deg(absf(facing.angle_to(offset)))
+	var deviation: float = rad_to_deg(absf(axe.angle_to(offset)))
 	# Un adversaire proche est plus facile à toucher de biais : on élargit le
 	# cône du demi-angle sous-tendu par son rayon.
 	var forgiveness: float = rad_to_deg(asin(clampf(target_radius / distance, 0.0, 1.0)))

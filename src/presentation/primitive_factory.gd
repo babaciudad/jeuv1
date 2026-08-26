@@ -20,6 +20,43 @@ const GRAIN_METRES: float = 3.2
 static var _albedo: Dictionary[int, NoiseTexture2D] = {}
 static var _normals: Dictionary[int, NoiseTexture2D] = {}
 
+static var _imported: Dictionary[String, Mesh] = {}
+
+## Maillage d'un modèle importé, mis en cache.
+##
+## Un `.glb` s'importe en `PackedScene`, pas en `Mesh` : il faut l'instancier
+## une fois, descendre au premier `MeshInstance3D` et garder son maillage. On
+## le fait UNE seule fois par chemin — sans ce cache, deux cents tonneaux
+## instancieraient deux cents scènes pour en jeter cent quatre-vingt-dix-neuf.
+##
+## Les sous-maillages sont fusionnés dans l'ordre de la scène : un modèle en
+## plusieurs morceaux (un tonneau et ses cercles) rend un seul maillage à
+## plusieurs surfaces, ce qui est exactement ce qu'un MultiMesh sait instancier.
+static func imported_mesh(path: String) -> Mesh:
+	if path == "":
+		return null
+	if _imported.has(path):
+		return _imported[path]
+	var scene: PackedScene = load(path) as PackedScene
+	if scene == null:
+		push_warning("maillage introuvable : %s" % path)
+		return null
+	var root: Node = scene.instantiate()
+	var trouve: Mesh = _first_mesh(root)
+	root.queue_free()
+	if trouve != null:
+		_imported[path] = trouve
+	return trouve
+
+static func _first_mesh(node: Node) -> Mesh:
+	if node is MeshInstance3D:
+		return (node as MeshInstance3D).mesh
+	for child: Node in node.get_children():
+		var found: Mesh = _first_mesh(child)
+		if found != null:
+			return found
+	return null
+
 static func mesh_for(part: SkinPart) -> Mesh:
 	match part.shape:
 		SkinPart.Shape.BOX:
@@ -54,6 +91,8 @@ static func mesh_for(part: SkinPart) -> Mesh:
 			blob.radial_segments = 16
 			blob.rings = 8
 			return blob
+		SkinPart.Shape.MESH:
+			return imported_mesh(part.mesh_path)
 		SkinPart.Shape.CYLINDER:
 			var cylinder: CylinderMesh = CylinderMesh.new()
 			cylinder.top_radius = part.size.x
@@ -241,14 +280,19 @@ static func instance_for(part: SkinPart, color: Color) -> MeshInstance3D:
 	# lumineuse — sa portée — décide donc à la fois de sa lueur et de sa
 	# lampe : un vitrail qui baigne la nef ne peut pas être terne, et une
 	# bougie qui n'éclaire qu'elle-même ne peut pas éblouir.
-	instance.material_override = material_for(color, part.unshaded, part.surface,
-		0.0 if part.light_range <= 0.0 else 1.15 + part.light_range * 0.13)
+	# Un maillage importé GARDE SES MATIÈRES. C'est tout l'intérêt d'en avoir
+	# un plutôt qu'une primitive : lui plaquer notre palette par-dessus le
+	# ramènerait à l'aplat qu'on cherche justement à quitter.
+	if part.shape != SkinPart.Shape.MESH:
+		instance.material_override = material_for(color, part.unshaded,
+			part.surface,
+			0.0 if part.light_range <= 0.0 else 1.15 + part.light_range * 0.13)
 	instance.position = part.offset
 	instance.rotation = Vector3(
 		deg_to_rad(part.rotation_degrees.x),
 		deg_to_rad(part.rotation_degrees.y),
 		deg_to_rad(part.rotation_degrees.z))
-	if part.shape == SkinPart.Shape.ELLIPSOID:
+	if part.shape == SkinPart.Shape.ELLIPSOID or part.shape == SkinPart.Shape.MESH:
 		instance.scale = part.size
 	# Une pièce émissive n'a pas à s'assombrir elle-même, et une pièce de
 	# décor lointaine ne mérite pas le coût d'une ombre portée.

@@ -26,6 +26,15 @@ extends Resource
 @export_group("Portée")
 @export var range_meters: float = 2.2
 @export var half_angle_degrees: float = 60.0
+## Décalage de l'axe du cône par rapport au cap, en degrés.
+##
+## Un cône symétrique ne sait pas décrire un coup DIAGONAL, et c'est pourtant
+## ce que sont presque tous les gestes de la bibliothèque : mesuré en jeu,
+## l'épée du gardien balaie de 0 à +63 degrés, c'est-à-dire entièrement d'un
+## côté. Sans ce décalage, la moitié du cône touchait là où le fer ne passe
+## jamais — le joueur voyait son coup partir à gauche et l'ennemi mourir à
+## droite. Voir `tools/frappe.gd`, qui mesure le balayage réel du fer.
+@export var arc_offset_degrees: float = 0.0
 @export_group("Projectile")
 ## Non nul : l'attaque tire au lieu de balayer un arc. La portée et l'angle
 ## ci-dessus ne servent alors plus.

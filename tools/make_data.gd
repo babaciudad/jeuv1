@@ -110,6 +110,82 @@ func D(shape: int, size: Vector3, offset: Vector3, color: Color,
 	return P(R_STATIC, shape, size, offset, color, false, 0.0, false, false,
 		rot, surface, light)
 
+## Taille reelle d'un modele du kit, en metres, mise en cache.
+##
+## Un `.glb` Quaternius porte son echelle SUR LE NOEUD, pas sur le maillage :
+## le tonneau mesure 1,6 MILLIMETRE en donnees brutes, et c'est un facteur 100
+## sur le `MeshInstance3D` qui en fait un objet de seize centimetres. Le lot de
+## MultiMesh, lui, n'instancie que le maillage : il perd ce facteur. Un modele
+## pose tel quel se rendait donc a deux millimetres, invisible.
+##
+## On mesure donc la boite brute une fois par modele, et on place ensuite en
+## METRES — ce qui a l'avantage de ne dependre d'aucun nombre magique et de
+## rester juste si un modele est remplace par un autre.
+var _boites: Dictionary[String, Vector3] = {}
+var _bas: Dictionary[String, float] = {}
+
+func _mesurer(chemin: String) -> void:
+	if _boites.has(chemin):
+		return
+	_boites[chemin] = Vector3.ONE
+	_bas[chemin] = 0.0
+	var scene: PackedScene = load(chemin) as PackedScene
+	if scene == null:
+		printerr("modele introuvable : %s" % chemin)
+		return
+	var root: Node = scene.instantiate()
+	var maillage: MeshInstance3D = _premier_maillage(root)
+	if maillage != null and maillage.mesh != null:
+		var boite: AABB = maillage.mesh.get_aabb()
+		_boites[chemin] = boite.size
+		_bas[chemin] = boite.position.y
+	root.queue_free()
+
+func _premier_maillage(node: Node) -> MeshInstance3D:
+	if node is MeshInstance3D:
+		return node as MeshInstance3D
+	for child: Node in node.get_children():
+		var trouve: MeshInstance3D = _premier_maillage(child)
+		if trouve != null:
+			return trouve
+	return null
+
+## Piece tiree d'un MODELE, et non taillee dans les primitives.
+##
+## Le decor a longtemps ete fait de boites et de cylindres — c'etait le
+## reproche numero un, et il etait juste : une caisse en boite reste une boite,
+## quel que soit l'eclairage.
+##
+## `hauteur` est une HAUTEUR EN METRES, pas un facteur : le modele est mis a
+## cette taille, et sa base est posee sur le `y` demande. Voir `_mesurer`.
+##
+## PROVENANCE DES MODELES. `models/kit/` contient des paquets Quaternius,
+## domaine public (CC0), recuperes depuis un miroir GitHub tiers
+## (`trebeljahr/quaternius-showcase`) parce que le reseau de la machine de
+## developpement n'atteint ni kenney.nl ni quaternius.com. ATTENTION : ce
+## miroir ne porte AUCUN fichier de licence — son `LICENSE` est un modele MIT
+## sans rapport. Les paquets d'origine sont bien CC0 et les noms correspondent
+## au catalogue public de Quaternius, mais avant toute publication
+## commerciale il faut les retelecharger depuis Quaternius directement, pour
+## avoir une provenance verifiable.
+func M(chemin: String, at: Vector3, hauteur: float,
+		angle: float = 0.0) -> SkinPart:
+	var res: String = "res://models/kit/%s.glb" % chemin
+	_mesurer(res)
+	var boite: Vector3 = _boites[res]
+	var facteur: float = 1.0
+	if boite.y > 0.0000001:
+		facteur = hauteur / boite.y
+	var piece: SkinPart = SkinPart.new()
+	piece.shape = SkinPart.Shape.MESH
+	piece.mesh_path = res
+	piece.size = Vector3.ONE * facteur
+	# La base du modele se pose sur le y demande, quelle que soit l'origine
+	# choisie par son auteur.
+	piece.offset = at + Vector3(0.0, -_bas[res] * facteur, 0.0)
+	piece.rotation_degrees = Vector3(0.0, angle, 0.0)
+	return piece
+
 func save(resource: Resource, path: String) -> void:
 	var code: int = ResourceSaver.save(resource, path)
 	if code != OK:
@@ -919,16 +995,13 @@ func grue(out: Array[SkinPart], at: Vector3, angle: float) -> void:
 
 ## Gravats : des blocs de croute cassee. Ils ne bloquent pas, ils salissent.
 func rubble(out: Array[SkinPart], at: Vector3, spread: float) -> void:
-	var tailles: Array[float] = [0.62, 0.44, 0.32, 0.52, 0.38]
-	for index: int in tailles.size():
-		var angle: float = TAU * float(index) / float(tailles.size()) + at.x
-		var taille: float = tailles[index]
-		var bloc: SkinPart = D(SkinPart.Shape.BOX,
-			Vector3(taille, taille * 0.62, taille * 0.86),
-			at + Vector3(cos(angle) * spread, taille * 0.31,
-				sin(angle) * spread), SALT_DARK, SkinPart.Surface.STONE)
-		bloc.rotation_degrees = Vector3(0.0, rad_to_deg(angle) * 0.7, 0.0)
-		out.append(bloc)
+	var blocs: Array[String] = ["donjon/Rock1", "donjon/Rock2", "donjon/Rock3",
+		"donjon/Rock4", "donjon/Rock5"]
+	for index: int in blocs.size():
+		var angle: float = TAU * float(index) / float(blocs.size()) + at.x
+		out.append(M(blocs[index],
+			at + Vector3(cos(angle) * spread, 0.0, sin(angle) * spread),
+			0.34 + float(index % 3) * 0.16, rad_to_deg(angle) * 0.7))
 
 ## Panneau de verre de saumure : ce qui remplace le vitrail. Vert pale, il
 ## brille de lui-meme parce que dehors il fait plus clair que dedans.
@@ -1600,19 +1673,13 @@ func ruine(out: Array[SkinPart], at: Vector3, largeur: float, hauteur: float,
 ## a HAUTEUR DE HANCHE qu'on longe. Une salle ne se lit pas par ses murs, elle
 ## se lit par ce qu'on frole en la traversant.
 func caisses(out: Array[SkinPart], at: Vector3, angle: float) -> void:
-	var poses: Array[Vector3] = [
-		Vector3(0.0, 0.34, 0.0), Vector3(0.16, 1.01, -0.14),
-		Vector3(-1.02, 0.34, 0.38),
-	]
-	for index: int in poses.size():
-		var caisse: SkinPart = D(B, Vector3(1.05, 0.68, 0.86),
-			at + poses[index], WOOD, M_WOOD)
-		caisse.rotation_degrees = Vector3(0.0, angle + float(index) * 11.0, 0.0)
-		out.append(caisse)
-	var petite: SkinPart = D(B, Vector3(0.62, 0.44, 0.54),
-		at + Vector3(-0.96, 0.90, 0.34), ROPE.darkened(0.42), M_WOOD)
-	petite.rotation_degrees = Vector3(0.0, angle - 26.0, 0.0)
-	out.append(petite)
+	out.append(M("village/Crate", at, 0.78, angle))
+	out.append(M("village/Crate", at + Vector3(0.16, 0.78, -0.14), 0.62,
+		angle + 24.0))
+	out.append(M("village/Barrel", at + Vector3(-1.02, 0.0, 0.38), 0.92,
+		angle - 15.0))
+	out.append(M("village/Package_1", at + Vector3(-0.96, 0.0, 1.10), 0.48,
+		angle + 52.0))
 
 ## Etal de saunier : une planche sur quatre pieds, un tas de sel dessus, un
 ## seau, une pelle appuyee contre. C'est la trace de QUELQU'UN, et il n'y en

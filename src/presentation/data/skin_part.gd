@@ -27,6 +27,16 @@ enum Shape {
 	## un ovoïde a un dégradé continu. C'est toute la différence entre un
 	## empilement de caisses et un bonhomme.
 	ELLIPSOID,
+	## Maillage importé, chargé depuis `mesh_path`.
+	##
+	## Tout le décor a longtemps été taillé dans les six primitives au-dessus.
+	## Ça se voyait : une halle en boîtes et en cylindres reste une halle en
+	## boîtes et en cylindres, quel que soit l'éclairage qu'on lui met. Un
+	## tonneau, un banc, un arbre ne se fabriquent pas avec un cône.
+	##
+	## `size` sert ici d'ÉCHELLE, pas de dimensions : (1, 1, 1) laisse le
+	## modèle à sa taille d'export.
+	MESH,
 }
 
 ## Os auquel la pièce est accrochée. STATIC reste solidaire du buste ; tous les
@@ -80,7 +90,14 @@ enum Surface {
 ##   CYLINDER   : rayon du haut, hauteur, rayon du bas
 ##   CONE       : rayon de la base, hauteur, —
 ##   TORUS      : rayon intérieur, —, rayon extérieur
+##   MESH       : facteurs d'échelle sur les trois axes
 @export var size: Vector3 = Vector3.ONE
+
+## Chemin du maillage importé, pour la forme MESH. Ignoré par les autres.
+##
+## Le maillage garde SES PROPRES matières : c'est tout l'intérêt d'avoir un
+## modèle plutôt qu'une primitive, et `surface` ne s'y applique pas.
+@export var mesh_path: String = ""
 
 ## Position RELATIVE AU PIVOT de son rôle, pas au sol. Pour une pièce STATIC le
 ## pivot est le sol du personnage, donc y = 0 au sol ; pour un bras, le pivot

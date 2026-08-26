@@ -2667,83 +2667,83 @@ color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_s1674"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(3.0195346, 0.1922, -34.135204)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(3.0195346, 0.14981093, -34.135204)
 rotation_degrees = Vector3(0, 160.42818, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_bnb8n"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(4.7766623, 0.1364, -34.283276)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(4.7766623, 0.26661593, -34.283276)
 rotation_degrees = Vector3(0, 210.82819, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_j0767"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(5.4604692, 0.0992, -32.657906)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(5.4604692, 0.34207714, -32.657906)
 rotation_degrees = Vector3(0, 261.22818, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_d6hyv"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(4.125957, 0.1612, -31.505299)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(4.125957, 0.1717149, -31.505299)
 rotation_degrees = Vector3(0, 311.62817, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_5lmnp"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(2.6173766, 0.1178, -32.41832)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(2.6173766, 0.26099363, -32.41832)
 rotation_degrees = Vector3(0, 362.02817, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_8wq83"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-4.752955, 0.1922, -0.8269639)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-4.752955, 0.14981093, -0.8269639)
 rotation_degrees = Vector3(0, -180.4817, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_wieqp"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-5.693791, 0.1364, -1.8780863)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-5.693791, 0.26661593, -1.8780863)
 rotation_degrees = Vector3(0, -130.08171, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_fn55u"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-4.9848485, 0.0992, -3.0976894)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-4.9848485, 0.34207714, -3.0976894)
 rotation_degrees = Vector3(0, -79.6817, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_nihxr"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-3.6058617, 0.1612, -2.800323)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-3.6058617, 0.1717149, -2.800323)
 rotation_degrees = Vector3(0, -29.281706, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ktw4u"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-3.4625437, 0.1178, -1.3969374)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-3.4625437, 0.26099363, -1.3969374)
 rotation_degrees = Vector3(0, 21.118294, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_aywn2"]
 script = ExtResource("1_q2sv5")
@@ -3945,35 +3945,35 @@ color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_jp2hf"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-13, 0.34, -21.5)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-13, 0.38994133, -21.5)
 rotation_degrees = Vector3(0, 88, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_o2rou"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-12.84, 1.01, -21.64)
-rotation_degrees = Vector3(0, 99, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-12.84, 1.0899533, -21.64)
+rotation_degrees = Vector3(0, 112, 0)
 
 [sub_resource type="Resource" id="Resource_21rke"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-14.02, 0.34, -21.12)
-rotation_degrees = Vector3(0, 110, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(-14.02, 0.45840508, -21.12)
+rotation_degrees = Vector3(0, 73, 0)
 
 [sub_resource type="Resource" id="Resource_idjp1"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(-13.96, 0.9, -21.16)
-rotation_degrees = Vector3(0, 62, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(-13.96, 0.24, -20.4)
+rotation_degrees = Vector3(0, 140, 0)
 
 [sub_resource type="Resource" id="Resource_utt1w"]
 script = ExtResource("1_q2sv5")
@@ -4284,35 +4284,35 @@ color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_321vq"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(8.5, 0.34, 3.4)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(8.5, 0.38994133, 3.4)
 rotation_degrees = Vector3(0, -84, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_l4e4l"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(8.66, 1.01, 3.26)
-rotation_degrees = Vector3(0, -73, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(8.66, 1.0899533, 3.26)
+rotation_degrees = Vector3(0, -60, 0)
 
 [sub_resource type="Resource" id="Resource_1u7x2"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(7.48, 0.34, 3.7800002)
-rotation_degrees = Vector3(0, -62, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(7.48, 0.45840508, 3.7800002)
+rotation_degrees = Vector3(0, -99, 0)
 
 [sub_resource type="Resource" id="Resource_vhi4y"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(7.54, 0.9, 3.74)
-rotation_degrees = Vector3(0, -110, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(7.54, 0.24, 4.5)
+rotation_degrees = Vector3(0, -32, 0)
 
 [sub_resource type="Resource" id="Resource_lum0f"]
 script = ExtResource("1_q2sv5")
@@ -5061,83 +5061,83 @@ color = Color(0.94, 0.95, 0.97, 1)
 
 [sub_resource type="Resource" id="Resource_enw45"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(1.1677063, 0.1922, 17.818594)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(1.1677063, 0.14981093, 17.818594)
 rotation_degrees = Vector3(0, 80.21409, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_nf084"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(0.013220668, 0.1364, 15.770418)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(0.013220668, 0.26661593, 15.770418)
 rotation_degrees = Vector3(0, 130.61409, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_24078"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(1.6043965, 0.0992, 14.0395155)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(1.6043965, 0.34207714, 14.0395155)
 rotation_degrees = Vector3(0, 181.01408, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_cbr3g"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(3.7422829, 0.1612, 15.017936)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(3.7422829, 0.1717149, 15.017936)
 rotation_degrees = Vector3(0, 231.4141, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_lun2c"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(3.4723935, 0.1178, 17.353535)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(3.4723935, 0.26099363, 17.353535)
 rotation_degrees = Vector3(0, 281.8141, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_eadhj"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-8.2328005, 0.1922, 32.417027)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-8.2328005, 0.14981093, 32.417027)
 rotation_degrees = Vector3(0, -320.85635, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_i6677"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-6.5664425, 0.1364, 33.28943)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-6.5664425, 0.26661593, 33.28943)
 rotation_degrees = Vector3(0, -270.45636, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_p71du"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-6.881212, 0.0992, 35.143814)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-6.881212, 0.34207714, 35.143814)
 rotation_degrees = Vector3(0, -220.05637, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_yf2x3"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-8.742109, 0.1612, 35.41749)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-8.742109, 0.1717149, 35.41749)
 rotation_degrees = Vector3(0, -169.65637, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_h71wi"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-9.577436, 0.1178, 33.73224)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-9.577436, 0.26099363, 33.73224)
 rotation_degrees = Vector3(0, -119.25636, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ys0c1"]
 script = ExtResource("1_q2sv5")
@@ -6022,43 +6022,43 @@ color = Color(0.6, 0.53, 0.44, 1)
 
 [sub_resource type="Resource" id="Resource_uk0cj"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-31.584429, -0.3078, 13.0078125)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-31.584429, -0.3501891, 13.0078125)
 rotation_degrees = Vector3(0, -1147.0615, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_c284f"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-30.480726, -0.36360002, 9.47307)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-30.480726, -0.23338407, 9.47307)
 rotation_degrees = Vector3(0, -1096.6615, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_4bjn1"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-26.777924, -0.4008, 9.43046)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-26.777924, -0.15792286, 9.43046)
 rotation_degrees = Vector3(0, -1046.2615, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_pxg1l"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-25.59317, -0.3388, 12.938866)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-25.59317, -0.3282851, 12.938866)
 rotation_degrees = Vector3(0, -995.8615, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_edm68"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-28.563753, -0.3822, 15.149792)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-28.563753, -0.23900637, 15.149792)
 rotation_degrees = Vector3(0, -945.46155, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_kb67i"]
 script = ExtResource("1_q2sv5")
@@ -6175,67 +6175,67 @@ color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_lya3x"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-23.2, 0.34, 21)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-23.2, 0.38994133, 21)
 rotation_degrees = Vector3(0, 84, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_rnuix"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-23.04, 1.01, 20.86)
-rotation_degrees = Vector3(0, 95, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-23.04, 1.0899533, 20.86)
+rotation_degrees = Vector3(0, 108, 0)
 
 [sub_resource type="Resource" id="Resource_ynrco"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-24.220001, 0.34, 21.38)
-rotation_degrees = Vector3(0, 106, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(-24.220001, 0.45840508, 21.38)
+rotation_degrees = Vector3(0, 69, 0)
 
 [sub_resource type="Resource" id="Resource_uxg3g"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(-24.16, 0.9, 21.34)
-rotation_degrees = Vector3(0, 58, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(-24.16, 0.24, 22.1)
+rotation_degrees = Vector3(0, 136, 0)
 
 [sub_resource type="Resource" id="Resource_aa4tk"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(22.4, 0.34, 16.5)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(22.4, 0.38994133, 16.5)
 rotation_degrees = Vector3(0, -78, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_t71j0"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(22.56, 1.01, 16.36)
-rotation_degrees = Vector3(0, -67, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(22.56, 1.0899533, 16.36)
+rotation_degrees = Vector3(0, -54, 0)
 
 [sub_resource type="Resource" id="Resource_jktrs"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(21.38, 0.34, 16.88)
-rotation_degrees = Vector3(0, -56, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(21.38, 0.45840508, 16.88)
+rotation_degrees = Vector3(0, -93, 0)
 
 [sub_resource type="Resource" id="Resource_ny7la"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(21.44, 0.9, 16.84)
-rotation_degrees = Vector3(0, -104, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(21.44, 0.24, 17.6)
+rotation_degrees = Vector3(0, -26, 0)
 
 [sub_resource type="Resource" id="Resource_v5mk6"]
 script = ExtResource("1_q2sv5")
@@ -6674,42 +6674,42 @@ color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_f84ae"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(1.4, 0.1922, 48)
-color = Color(0.66, 0.68, 0.76, 1)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(1.4, 0.14981093, 48)
 
 [sub_resource type="Resource" id="Resource_a3n6k"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(0.4326238, 0.1364, 49.33148)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(0.4326238, 0.26661593, 49.33148)
 rotation_degrees = Vector3(0, 50.4, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_qt3jk"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-1.1326238, 0.0992, 48.8229)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-1.1326238, 0.34207714, 48.8229)
 rotation_degrees = Vector3(0, 100.8, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_1r5vj"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-1.1326238, 0.1612, 47.1771)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-1.1326238, 0.1717149, 47.1771)
 rotation_degrees = Vector3(0, 151.2, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ndm5d"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(0.4326238, 0.1178, 46.66852)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(0.4326238, 0.26099363, 46.66852)
 rotation_degrees = Vector3(0, 201.6, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_r8egd"]
 script = ExtResource("1_q2sv5")
@@ -7153,43 +7153,43 @@ color = Color(0.6, 0.53, 0.44, 1)
 
 [sub_resource type="Resource" id="Resource_krfm7"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-10.98805, -1.0578, 55.699974)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-10.98805, -1.1001891, 55.699974)
 rotation_degrees = Vector3(0, -441.1775, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_adske"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-13.564135, -1.1136, 53.845703)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-13.564135, -0.9833841, 53.845703)
 rotation_degrees = Vector3(0, -390.7775, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_mktsf"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-12.596672, -1.1508, 50.8227)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-12.596672, -0.90792286, 50.8227)
 rotation_degrees = Vector3(0, -340.3775, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ipdfd"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-9.422663, -1.0888, 50.80865)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-9.422663, -1.0782851, 50.80865)
 rotation_degrees = Vector3(0, -289.9775, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_7n0ky"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-8.42848, -1.1322, 53.82297)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-8.42848, -0.9890064, 53.82297)
 rotation_degrees = Vector3(0, -239.5775, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_lceo7"]
 script = ExtResource("1_q2sv5")
@@ -7281,35 +7281,35 @@ color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_h41xj"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-5.7, 0.34, 42)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-5.7, 0.38994133, 42)
 rotation_degrees = Vector3(0, 88, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_fsv0o"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-5.54, 1.01, 41.86)
-rotation_degrees = Vector3(0, 99, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-5.54, 1.0899533, 41.86)
+rotation_degrees = Vector3(0, 112, 0)
 
 [sub_resource type="Resource" id="Resource_egbnr"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-6.72, 0.34, 42.38)
-rotation_degrees = Vector3(0, 110, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(-6.72, 0.45840508, 42.38)
+rotation_degrees = Vector3(0, 73, 0)
 
 [sub_resource type="Resource" id="Resource_mp4xc"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(-6.66, 0.9, 42.34)
-rotation_degrees = Vector3(0, 62, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(-6.66, 0.24, 43.1)
+rotation_degrees = Vector3(0, 140, 0)
 
 [sub_resource type="Resource" id="Resource_alyii"]
 script = ExtResource("1_q2sv5")
@@ -8216,123 +8216,123 @@ color = Color(0.94, 0.95, 0.97, 1)
 
 [sub_resource type="Resource" id="Resource_4q66y"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-17.723787, 0.1922, 66.51823)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-17.723787, 0.14981093, 66.51823)
 rotation_degrees = Vector3(0, -641.7127, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_kxh65"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-17.025541, 0.1364, 64.52072)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-17.025541, 0.26661593, 64.52072)
 rotation_degrees = Vector3(0, -591.31274, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_3yrow"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-14.910032, 0.0992, 64.56753)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-14.910032, 0.34207714, 64.56753)
 rotation_degrees = Vector3(0, -540.9127, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_5grvt"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-14.300821, 0.1612, 66.59396)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-14.300821, 0.1717149, 66.59396)
 rotation_degrees = Vector3(0, -490.51273, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_sq1dg"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-16.039818, 0.1178, 67.79956)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-16.039818, 0.26099363, 67.79956)
 rotation_degrees = Vector3(0, -440.11273, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_7740n"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(7.7381, 0.1922, 87.780846)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(7.7381, 0.14981093, 87.780846)
 rotation_degrees = Vector3(0, 320.85635, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_v0mno"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(6.225384, 0.1364, 86.30123)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(6.225384, 0.26661593, 86.30123)
 rotation_degrees = Vector3(0, 371.25638, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_mtnna"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(7.1651273, 0.0992, 84.40533)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(7.1651273, 0.34207714, 84.40533)
 rotation_degrees = Vector3(0, 421.65637, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_cclp1"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(9.2586355, 0.1612, 84.71321)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(9.2586355, 0.1717149, 84.71321)
 rotation_degrees = Vector3(0, 472.05637, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_v25k3"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(9.612753, 0.1178, 86.79939)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(9.612753, 0.26099363, 86.79939)
 rotation_degrees = Vector3(0, 522.45636, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_s8dup"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-23.236477, 0.1922, 103.63004)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-23.236477, 0.14981093, 103.63004)
 rotation_degrees = Vector3(0, -962.5691, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_7kgj7"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-25.31432, 0.1364, 103.229866)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-25.31432, 0.26661593, 103.229866)
 rotation_degrees = Vector3(0, -912.16907, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_7fli2"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-25.575817, 0.0992, 101.13006)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-25.575817, 0.34207714, 101.13006)
 rotation_degrees = Vector3(0, -861.7691, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_he3rl"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-23.659588, 0.1612, 100.23248)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-23.659588, 0.1717149, 100.23248)
 rotation_degrees = Vector3(0, -811.3691, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_5cmlj"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-22.213797, 0.1178, 101.77756)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-22.213797, 0.26099363, 101.77756)
 rotation_degrees = Vector3(0, -760.9691, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ty576"]
 script = ExtResource("1_q2sv5")
@@ -9261,43 +9261,43 @@ color = Color(0.6, 0.53, 0.44, 1)
 
 [sub_resource type="Resource" id="Resource_lnn7g"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-33.038834, -0.3078, 77.07526)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-33.038834, -0.3501891, 77.07526)
 rotation_degrees = Vector3(0, -1323.5325, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_5r0k4"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-30.230406, -0.36360002, 79.05927)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-30.230406, -0.23338407, 79.05927)
 rotation_degrees = Vector3(0, -1273.1324, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_6st72"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-31.249462, -0.4008, 82.34334)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-31.249462, -0.15792286, 82.34334)
 rotation_degrees = Vector3(0, -1222.7325, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_56wgq"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-34.687702, -0.3388, 82.38899)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-34.687702, -0.3282851, 82.38899)
 rotation_degrees = Vector3(0, -1172.3325, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_2bx1q"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-35.793594, -0.3822, 79.13314)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-35.793594, -0.23900637, 79.13314)
 rotation_degrees = Vector3(0, -1121.9325, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_j1iqw"]
 script = ExtResource("1_q2sv5")
@@ -9428,66 +9428,67 @@ color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_nlmmd"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-21, 0.34, 76.5)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-21, 0.38994133, 76.5)
 rotation_degrees = Vector3(0, 12, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1de1n"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-20.84, 1.01, 76.36)
-rotation_degrees = Vector3(0, 23, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-20.84, 1.0899533, 76.36)
+rotation_degrees = Vector3(0, 36, 0)
 
 [sub_resource type="Resource" id="Resource_e744l"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-22.02, 0.34, 76.88)
-rotation_degrees = Vector3(0, 34, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(-22.02, 0.45840508, 76.88)
+rotation_degrees = Vector3(0, -3, 0)
 
 [sub_resource type="Resource" id="Resource_4pr73"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(-21.96, 0.9, 76.84)
-rotation_degrees = Vector3(0, -14, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(-21.96, 0.24, 77.6)
+rotation_degrees = Vector3(0, 64, 0)
 
 [sub_resource type="Resource" id="Resource_whoj5"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(6.5, 0.34, 92)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(6.5, 0.38994133, 92)
 rotation_degrees = Vector3(0, -22, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xxnv3"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(6.66, 1.01, 91.86)
-rotation_degrees = Vector3(0, -11, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(6.66, 1.0899533, 91.86)
+rotation_degrees = Vector3(0, 2, 0)
 
 [sub_resource type="Resource" id="Resource_nrvqa"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(5.48, 0.34, 92.38)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(5.48, 0.45840508, 92.38)
+rotation_degrees = Vector3(0, -37, 0)
 
 [sub_resource type="Resource" id="Resource_8c4lo"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(5.54, 0.9, 92.34)
-rotation_degrees = Vector3(0, -48, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(5.54, 0.24, 93.1)
+rotation_degrees = Vector3(0, 30, 0)
 
 [sub_resource type="Resource" id="Resource_0a200"]
 script = ExtResource("1_q2sv5")
@@ -9868,35 +9869,35 @@ color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_amr37"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-6.6, 0.34, 107)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-6.6, 0.38994133, 107)
 rotation_degrees = Vector3(0, 84, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_157c4"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-6.44, 1.01, 106.86)
-rotation_degrees = Vector3(0, 95, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-6.44, 1.0899533, 106.86)
+rotation_degrees = Vector3(0, 108, 0)
 
 [sub_resource type="Resource" id="Resource_6uttv"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-7.62, 0.34, 107.38)
-rotation_degrees = Vector3(0, 106, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(-7.62, 0.45840508, 107.38)
+rotation_degrees = Vector3(0, 69, 0)
 
 [sub_resource type="Resource" id="Resource_kjffa"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(-7.56, 0.9, 107.34)
-rotation_degrees = Vector3(0, 58, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(-7.56, 0.24, 108.1)
+rotation_degrees = Vector3(0, 136, 0)
 
 [sub_resource type="Resource" id="Resource_817x0"]
 script = ExtResource("1_q2sv5")
@@ -11988,123 +11989,123 @@ color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4m5x2"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(7.6799, 0.1922, 149.17659)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(7.6799, 0.14981093, 149.17659)
 rotation_degrees = Vector3(0, 320.85635, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_jtqvn"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(5.831025, 0.1364, 147.36816)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(5.831025, 0.26661593, 147.36816)
 rotation_degrees = Vector3(0, 371.25638, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_sxba6"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(6.9796, 0.0992, 145.05095)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(6.9796, 0.34207714, 145.05095)
 rotation_degrees = Vector3(0, 421.65637, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_wu4qc"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(9.538333, 0.1612, 145.42725)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(9.538333, 0.1717149, 145.42725)
 rotation_degrees = Vector3(0, 472.05637, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_0bppc"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(9.971142, 0.1178, 147.97704)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(9.971142, 0.26099363, 147.97704)
 rotation_degrees = Vector3(0, 522.45636, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_v7hb0"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(-3.8876255, 0.1922, 116.614716)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(-3.8876255, 0.14981093, 116.614716)
 rotation_degrees = Vector3(0, -240.64227, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_u342k"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(-5.931868, 0.1364, 118.198944)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(-5.931868, 0.26661593, 118.198944)
 rotation_degrees = Vector3(0, -190.24228, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_gvrvq"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(-8.070267, 0.0992, 116.74431)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(-8.070267, 0.34207714, 116.74431)
 rotation_degrees = Vector3(0, -139.84227, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ek08e"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(-7.347627, 0.1612, 114.26106)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(-7.347627, 0.1717149, 114.26106)
 rotation_degrees = Vector3(0, -89.442276, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_al34p"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(-4.7626123, 0.1178, 114.18097)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(-4.7626123, 0.26099363, 114.18097)
 rotation_degrees = Vector3(0, -39.042274, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_sdcwr"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(14.300822, 0.1922, 124.17934)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(14.300822, 0.14981093, 124.17934)
 rotation_degrees = Vector3(0, 561.49866, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_a4yik"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(12.0202875, 0.1364, 122.95955)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(12.0202875, 0.26661593, 122.95955)
 rotation_degrees = Vector3(0, 611.8986, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_6pw0l"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(12.475648, 0.0992, 120.4137)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(12.475648, 0.34207714, 120.4137)
 rotation_degrees = Vector3(0, 662.29865, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_cided"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(15.037612, 0.1612, 120.06006)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(15.037612, 0.1717149, 120.06006)
 rotation_degrees = Vector3(0, 712.69867, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_5oxth"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(16.16563, 0.1178, 122.38735)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(16.16563, 0.26099363, 122.38735)
 rotation_degrees = Vector3(0, 763.09863, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_st253"]
 script = ExtResource("1_q2sv5")
@@ -12401,35 +12402,35 @@ color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_37mll"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-23, 0.34, 142)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-23, 0.38994133, 142)
 rotation_degrees = Vector3(0, 84, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_cmgpu"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-22.84, 1.01, 141.86)
-rotation_degrees = Vector3(0, 95, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(-22.84, 1.0899533, 141.86)
+rotation_degrees = Vector3(0, 108, 0)
 
 [sub_resource type="Resource" id="Resource_8jd2y"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(-24.02, 0.34, 142.38)
-rotation_degrees = Vector3(0, 106, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(-24.02, 0.45840508, 142.38)
+rotation_degrees = Vector3(0, 69, 0)
 
 [sub_resource type="Resource" id="Resource_omhlk"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(-23.96, 0.9, 142.34)
-rotation_degrees = Vector3(0, 58, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(-23.96, 0.24, 143.1)
+rotation_degrees = Vector3(0, 136, 0)
 
 [sub_resource type="Resource" id="Resource_c71a6"]
 script = ExtResource("1_q2sv5")
@@ -13495,43 +13496,43 @@ color = Color(0.6, 0.53, 0.44, 1)
 
 [sub_resource type="Resource" id="Resource_jrxv2"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(33.520824, 0.1922, 25.290932)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(33.520824, 0.14981093, 25.290932)
 rotation_degrees = Vector3(0, 1251.3397, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_xit01"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(32.401325, 0.1364, 27.849924)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(32.401325, 0.26661593, 27.849924)
 rotation_degrees = Vector3(0, 1301.7397, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ktfva"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(29.621634, 0.0992, 27.575989)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(29.621634, 0.34207714, 27.575989)
 rotation_degrees = Vector3(0, 1352.1398, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_fik6u"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(29.02319, 0.1612, 24.847696)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(29.02319, 0.1717149, 24.847696)
 rotation_degrees = Vector3(0, 1402.5398, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_spvbj"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(31.433022, 0.1178, 23.435453)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(31.433022, 0.26099363, 23.435453)
 rotation_degrees = Vector3(0, 1452.9398, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_m7po0"]
 script = ExtResource("1_q2sv5")
@@ -13543,43 +13544,43 @@ color = Color(0.44, 0.37, 0.31, 1)
 
 [sub_resource type="Resource" id="Resource_1q7sn"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(25.811394, 0.1922, 59.12052)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(25.811394, 0.14981093, 59.12052)
 rotation_degrees = Vector3(0, 1118.9867, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_yvlq0"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(26.474224, 0.1364, 56.56717)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(26.474224, 0.26661593, 56.56717)
 rotation_degrees = Vector3(0, 1169.3866, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_8eyl3"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(29.10743, 0.0992, 56.40853)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(29.10743, 0.34207714, 56.40853)
 rotation_degrees = Vector3(0, 1219.7866, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_wrx6o"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(30.07201, 0.1612, 58.863834)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(30.07201, 0.1717149, 58.863834)
 rotation_degrees = Vector3(0, 1270.1866, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_44w2q"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(28.034948, 0.1178, 60.53994)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(28.034948, 0.26099363, 60.53994)
 rotation_degrees = Vector3(0, 1320.5867, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_pd2or"]
 script = ExtResource("1_q2sv5")
@@ -13591,43 +13592,43 @@ color = Color(0.44, 0.37, 0.31, 1)
 
 [sub_resource type="Resource" id="Resource_dmdpu"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(33.2686, 0.1922, 63.193527)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(33.2686, 0.14981093, 63.193527)
 rotation_degrees = Vector3(0, 1275.404, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_y0qrj"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(31.689346, 0.1364, 64.18013)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(31.689346, 0.26661593, 64.18013)
 rotation_degrees = Vector3(0, 1325.8041, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_g76ay"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(30.263014, 0.0992, 62.983047)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(30.263014, 0.34207714, 62.983047)
 rotation_degrees = Vector3(0, 1376.2041, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ejd46"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(30.960747, 0.1612, 61.256603)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(30.960747, 0.1717149, 61.256603)
 rotation_degrees = Vector3(0, 1426.6041, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_yln8h"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(32.818302, 0.1178, 61.38669)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(32.818302, 0.26099363, 61.38669)
 rotation_degrees = Vector3(0, 1477.0042, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_5ourc"]
 script = ExtResource("1_q2sv5")
@@ -13639,43 +13640,43 @@ color = Color(0.94, 0.95, 0.97, 1)
 
 [sub_resource type="Resource" id="Resource_ttyx7"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(28.740812, 0.1922, 90.78833)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(28.740812, 0.14981093, 90.78833)
 rotation_degrees = Vector3(0, 1183.1578, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_rwnat"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(31.27372, 0.1364, 91.52543)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(31.27372, 0.26661593, 91.52543)
 rotation_degrees = Vector3(0, 1233.5579, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ynpwf"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(31.355408, 0.0992, 94.16214)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(31.355408, 0.34207714, 94.16214)
 rotation_degrees = Vector3(0, 1283.9579, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ucxfa"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(28.872986, 0.1612, 95.05462)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(28.872986, 0.1717149, 95.05462)
 rotation_degrees = Vector3(0, 1334.3578, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_102yk"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(27.257076, 0.1178, 92.96949)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(27.257076, 0.26099363, 92.96949)
 rotation_degrees = Vector3(0, 1384.7578, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_cdjuk"]
 script = ExtResource("1_q2sv5")
@@ -14457,43 +14458,43 @@ color = Color(0.6, 0.53, 0.44, 1)
 
 [sub_resource type="Resource" id="Resource_cmx0q"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.62, 0.3844, 0.5332)
-offset = Vector3(27.965069, 0.1922, 69.27347)
+shape = 8
+size = Vector3(29.332281, 29.332281, 29.332281)
+mesh_path = "res://models/kit/donjon/Rock1.glb"
+offset = Vector3(27.965069, 0.14981093, 69.27347)
 rotation_degrees = Vector3(0, 998.6654, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_pwudw"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.44, 0.2728, 0.3784)
-offset = Vector3(26.538134, 0.1364, 72.690544)
+shape = 8
+size = Vector3(46.90369, 46.90369, 46.90369)
+mesh_path = "res://models/kit/donjon/Rock2.glb"
+offset = Vector3(26.538134, 0.26661593, 72.690544)
 rotation_degrees = Vector3(0, 1049.0654, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_suwwk"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.32, 0.1984, 0.2752)
-offset = Vector3(22.847353, 0.0992, 72.38938)
+shape = 8
+size = Vector3(61.918465, 61.918465, 61.918465)
+mesh_path = "res://models/kit/donjon/Rock3.glb"
+offset = Vector3(22.847353, 0.34207714, 72.38938)
 rotation_degrees = Vector3(0, 1099.4655, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_punnw"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.52, 0.3224, 0.4472)
-offset = Vector3(21.99326, 0.1612, 68.78618)
+shape = 8
+size = Vector3(41.3153, 41.3153, 41.3153)
+mesh_path = "res://models/kit/donjon/Rock4.glb"
+offset = Vector3(21.99326, 0.1717149, 68.78618)
 rotation_degrees = Vector3(0, 1149.8655, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_ok518"]
 script = ExtResource("1_q2sv5")
-surface = 1
-size = Vector3(0.38, 0.2356, 0.3268)
-offset = Vector3(25.156181, 0.1178, 66.860435)
+shape = 8
+size = Vector3(95.23963, 95.23963, 95.23963)
+mesh_path = "res://models/kit/donjon/Rock5.glb"
+offset = Vector3(25.156181, 0.26099363, 66.860435)
 rotation_degrees = Vector3(0, 1200.2654, 0)
-color = Color(0.66, 0.68, 0.76, 1)
 
 [sub_resource type="Resource" id="Resource_8ljf7"]
 script = ExtResource("1_q2sv5")
@@ -14572,67 +14573,67 @@ color = Color(0.19, 0.19, 0.23, 1)
 
 [sub_resource type="Resource" id="Resource_ais3j"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(32, 0.34, 19)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(32, 0.38994133, 19)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5wyh6"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(32.16, 1.01, 18.86)
-rotation_degrees = Vector3(0, -79, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(32.16, 1.0899533, 18.86)
+rotation_degrees = Vector3(0, -66, 0)
 
 [sub_resource type="Resource" id="Resource_idhuy"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(30.98, 0.34, 19.38)
-rotation_degrees = Vector3(0, -68, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(30.98, 0.45840508, 19.38)
+rotation_degrees = Vector3(0, -105, 0)
 
 [sub_resource type="Resource" id="Resource_bgagl"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(31.04, 0.9, 19.34)
-rotation_degrees = Vector3(0, -116, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(31.04, 0.24, 20.1)
+rotation_degrees = Vector3(0, -38, 0)
 
 [sub_resource type="Resource" id="Resource_u6ev3"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(31.9, 0.34, 72)
+shape = 8
+size = Vector3(486.75745, 486.75745, 486.75745)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(31.9, 0.38994133, 72)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vpkdx"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(32.06, 1.01, 71.86)
-rotation_degrees = Vector3(0, -79, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(386.90976, 386.90976, 386.90976)
+mesh_path = "res://models/kit/village/Crate.glb"
+offset = Vector3(32.06, 1.0899533, 71.86)
+rotation_degrees = Vector3(0, -66, 0)
 
 [sub_resource type="Resource" id="Resource_72jx6"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(1.05, 0.68, 0.86)
-offset = Vector3(30.88, 0.34, 72.38)
-rotation_degrees = Vector3(0, -68, 0)
-color = Color(0.38, 0.28, 0.2, 1)
+shape = 8
+size = Vector3(586.62756, 586.62756, 586.62756)
+mesh_path = "res://models/kit/village/Barrel.glb"
+offset = Vector3(30.88, 0.45840508, 72.38)
+rotation_degrees = Vector3(0, -105, 0)
 
 [sub_resource type="Resource" id="Resource_ayqgf"]
 script = ExtResource("1_q2sv5")
-surface = 2
-size = Vector3(0.62, 0.44, 0.54)
-offset = Vector3(30.94, 0.9, 72.34)
-rotation_degrees = Vector3(0, -116, 0)
-color = Color(0.41760004, 0.35960004, 0.24360001, 1)
+shape = 8
+size = Vector3(260.1207, 260.1207, 260.1207)
+mesh_path = "res://models/kit/village/Package_1.glb"
+offset = Vector3(30.94, 0.24, 73.1)
+rotation_degrees = Vector3(0, -38, 0)
 
 [sub_resource type="Resource" id="Resource_5a1to"]
 script = ExtResource("1_q2sv5")

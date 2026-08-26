@@ -388,8 +388,11 @@ func _build_decor(level: LevelData) -> void:
 	for part: SkinPart in decor.parts:
 		var tone: Color = PrimitiveFactory.color_for(part, COLOR_STONE)
 		_add_light(root, part, tone, level)
-		var key: String = "%d|%s|%d|%s|%d" % [part.shape, part.size, part.surface,
-			tone.to_html(), 1 if part.unshaded else 0]
+		# `mesh_path` FAIT PARTIE DE LA CLÉ : sans lui, un tonneau et un banc
+		# importés partageraient un lot et sortiraient tous deux en tonneau.
+		var key: String = "%d|%s|%d|%s|%d|%s" % [part.shape, part.size,
+			part.surface, tone.to_html(), 1 if part.unshaded else 0,
+			part.mesh_path]
 		if not groups.has(key):
 			groups[key] = []
 		groups[key].append(part)
@@ -420,15 +423,22 @@ func _build_decor(level: LevelData) -> void:
 			# L'ELLIPSOÏDE porte ses proportions dans son échelle, pas dans son
 			# maillage : sans cela une tête et un torse partageraient le même
 			# lot et sortiraient tous deux sphériques.
-			if part.shape == SkinPart.Shape.ELLIPSOID:
+			if part.shape == SkinPart.Shape.ELLIPSOID \
+					or part.shape == SkinPart.Shape.MESH:
 				basis = basis.scaled(part.size)
 			multimesh.set_instance_transform(index,
 				Transform3D(basis, part.offset))
 		var batch: MultiMeshInstance3D = MultiMeshInstance3D.new()
 		batch.multimesh = multimesh
-		batch.material_override = PrimitiveFactory.material_for(
-			tone, first.unshaded, first.surface,
-			0.0 if first.light_range <= 0.0 else 1.15 + first.light_range * 0.13)
+		# Un maillage importé garde ses propres matières — voir
+		# `PrimitiveFactory.instance_for`. Un `material_override` les
+		# écraserait toutes d'un aplat, et deux cents tonneaux redeviendraient
+		# deux cents blocs de la couleur du décor.
+		if first.shape != SkinPart.Shape.MESH:
+			batch.material_override = PrimitiveFactory.material_for(
+				tone, first.unshaded, first.surface,
+				0.0 if first.light_range <= 0.0
+				else 1.15 + first.light_range * 0.13)
 		if first.surface == SkinPart.Surface.GLOW or first.unshaded:
 			batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(batch)
