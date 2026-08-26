@@ -12,13 +12,13 @@ extends Node
 const DOSSIER: String = "/home/user/shots/film"
 ## Ou se teleporter, et sous quel nom garder l'image.
 const ZONES: Dictionary[int, Vector2] = {
-	160: Vector2(0.0, -22.0), 176: Vector2(0.0, 6.0),
-	192: Vector2(0.0, 20.0), 208: Vector2(-8.0, 74.0),
-	224: Vector2(0.0, 128.0),
+	180: Vector2(0.0, -22.0), 196: Vector2(0.0, 6.0),
+	212: Vector2(0.0, 20.0), 228: Vector2(-8.0, 74.0),
+	244: Vector2(0.0, 128.0),
 }
 const NOMS: Dictionary[int, String] = {
-	168: "zone1_halle", 184: "zone2_bassin", 200: "zone3_parvis",
-	216: "zone4_tables", 232: "zone5_arene",
+	188: "zone1_halle", 204: "zone2_bassin", 220: "zone3_parvis",
+	236: "zone4_tables", 252: "zone5_arene",
 }
 var _frame: int = 0
 var _boot: NetBootstrap = null
@@ -53,33 +53,28 @@ func _process(_delta: float) -> void:
 	if me == null:
 		return
 	if _frame == 20:
-		# Devant le mannequin d'entrainement, a portee de rabot.
-		me.position = Vector2(6.0, -23.4)
+		# Face au premier cristallise du parvis.
+		me.position = Vector2(-9.0, 15.0)
 		me.facing = Vector2(0.0, 1.0)
-	# 24 -> 68 : course en avant, une image sur deux gardee
-	if _frame >= 22 and _frame < 62:
-		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(1.0, 0.35)})
-	if _frame >= 30 and _frame < 70 and _frame % 4 == 0:
-		await _prise("course_%02d" % _frame)
-	# 72 : roulade
-	if _frame == 66:
-		me.position = Vector2(6.0, -23.4)
-		me.facing = Vector2(0.0, 1.0)
-	if _frame == 72:
-		_boot.submit_command(Command.Type.DODGE, {"d": Vector2(0.0, 1.0)})
-	if _frame >= 73 and _frame < 97 and _frame % 2 == 0:
-		await _prise("roulade_%02d" % _frame)
-	# 104 : attaque
-	if _frame == 100:
-		me.position = Vector2(6.0, -22.9)
-		me.facing = Vector2(0.0, 1.0)
-	if _frame == 104:
+	# 22 -> 118 : on marche sur lui et on frappe trois fois. Le combat entier
+	# doit tenir dans la pellicule : approche, coup, encaissement, chute.
+	if _frame >= 24 and _frame < 40:
+		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(0.0, 1.0)})
+	if _frame == 46 or _frame == 78 or _frame == 110:
 		_boot.submit_command(Command.Type.ATTACK,
 			{"i": 0, "d": Vector2(0.0, 1.0)})
-	if _frame >= 105 and _frame < 141 and _frame % 2 == 0:
-		await _prise("coup_%02d" % _frame)
+	if _frame >= 24 and _frame < 136 and _frame % 4 == 0:
+		await _prise("combat_%03d" % _frame)
+	if _frame == 140:
+		me.position = Vector2(0.0, -26.0)
+		me.facing = Vector2(0.0, 1.0)
+	if _frame == 144:
+		_boot.submit_command(Command.Type.DODGE, {"d": Vector2(0.0, 1.0)})
+	if _frame >= 145 and _frame < 169 and _frame % 2 == 0:
+		await _prise("roulade_%03d" % _frame)
+
 	# Tour des cinq zones : on se pose, on laisse une image passer, on garde.
-	if _frame >= 150:
+	if _frame >= 172:
 		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(0.0, 0.12)})
 	if ZONES.has(_frame):
 		me.position = ZONES[_frame]
@@ -88,7 +83,7 @@ func _process(_delta: float) -> void:
 		await _prise(NOMS[_frame])
 	# Vue d'ensemble : une camera a nous, tres haut, pour voir la silhouette du
 	# niveau entier et reperer ce qui flotte.
-	if _frame == 250:
+	if _frame == 262:
 		var oeil: Camera3D = Camera3D.new()
 		add_child(oeil)
 		oeil.fov = 55.0
@@ -96,19 +91,19 @@ func _process(_delta: float) -> void:
 		oeil.look_at(Vector3(0.0, 0.0, 58.0))
 		oeil.current = true
 		_oeil = oeil
-	if _frame == 256:
+	if _frame == 268:
 		await _prise("vue_densemble")
-	if _frame == 260 and _oeil != null:
+	if _frame == 272 and _oeil != null:
 		_oeil.position = Vector3(-96.0, 40.0, 60.0)
 		_oeil.look_at(Vector3(0.0, 8.0, 70.0))
-	if _frame == 266:
+	if _frame == 278:
 		await _prise("vue_ouest")
-	if _frame == 270 and _oeil != null:
+	if _frame == 282 and _oeil != null:
 		_oeil.position = Vector3(-4.0, 14.0, 88.0)
 		_oeil.look_at(Vector3(20.0, 14.0, 112.0))
-	if _frame == 276:
+	if _frame == 288:
 		await _prise("vue_arene")
-	if _frame > 282:
+	if _frame > 294:
 		get_tree().quit(0)
 
 func _prise(nom: String) -> void:

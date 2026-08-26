@@ -9,7 +9,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.567324, 5.2316666, -30)
 rotation_degrees = Vector3(0, 0, -85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6ywxe"]
 script = ExtResource("1_q2sv5")
@@ -17,7 +17,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.307121, 6.8745213, -30)
 rotation_degrees = Vector3(0, 0, -76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_fbs7k"]
 script = ExtResource("1_q2sv5")
@@ -25,7 +25,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.793123, 8.456444, -30)
 rotation_degrees = Vector3(0, 0, -67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_2e13n"]
 script = ExtResource("1_q2sv5")
@@ -33,7 +33,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.037986, 9.938484, -30)
 rotation_degrees = Vector3(0, 0, -58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1kr8c"]
 script = ExtResource("1_q2sv5")
@@ -41,7 +41,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(8.060304, 11.284149, -30)
 rotation_degrees = Vector3(0, 0, -49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_udorj"]
 script = ExtResource("1_q2sv5")
@@ -49,7 +49,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(6.884149, 12.460304, -30)
 rotation_degrees = Vector3(0, 0, -40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7f0ft"]
 script = ExtResource("1_q2sv5")
@@ -57,7 +57,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(5.5384846, 13.437986, -30)
 rotation_degrees = Vector3(0, 0, -31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_u3hop"]
 script = ExtResource("1_q2sv5")
@@ -65,7 +65,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(4.056444, 14.193123, -30)
 rotation_degrees = Vector3(0, 0, -22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ehpno"]
 script = ExtResource("1_q2sv5")
@@ -73,7 +73,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(2.474521, 14.707121, -30)
 rotation_degrees = Vector3(0, 0, -13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_i57gh"]
 script = ExtResource("1_q2sv5")
@@ -81,7 +81,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(0.8316664, 14.967323, -30)
 rotation_degrees = Vector3(0, 0, -4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_33vsw"]
 script = ExtResource("1_q2sv5")
@@ -89,7 +89,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-0.8316664, 14.967323, -30)
 rotation_degrees = Vector3(0, 0, 4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_o8lil"]
 script = ExtResource("1_q2sv5")
@@ -97,7 +97,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-2.474521, 14.707121, -30)
 rotation_degrees = Vector3(0, 0, 13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_o01yh"]
 script = ExtResource("1_q2sv5")
@@ -105,7 +105,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-4.056444, 14.193123, -30)
 rotation_degrees = Vector3(0, 0, 22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_af7kr"]
 script = ExtResource("1_q2sv5")
@@ -113,7 +113,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-5.5384846, 13.437986, -30)
 rotation_degrees = Vector3(0, 0, 31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ku25y"]
 script = ExtResource("1_q2sv5")
@@ -121,7 +121,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-6.884149, 12.460304, -30)
 rotation_degrees = Vector3(0, 0, 40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_3ue4w"]
 script = ExtResource("1_q2sv5")
@@ -129,7 +129,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-8.060304, 11.284149, -30)
 rotation_degrees = Vector3(0, 0, 49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_8prot"]
 script = ExtResource("1_q2sv5")
@@ -137,7 +137,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.037986, 9.938484, -30)
 rotation_degrees = Vector3(0, 0, 58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nhffe"]
 script = ExtResource("1_q2sv5")
@@ -145,7 +145,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.793123, 8.456444, -30)
 rotation_degrees = Vector3(0, 0, 67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_g0on0"]
 script = ExtResource("1_q2sv5")
@@ -153,7 +153,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.307121, 6.8745213, -30)
 rotation_degrees = Vector3(0, 0, 76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5wphq"]
 script = ExtResource("1_q2sv5")
@@ -161,7 +161,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.567324, 5.2316666, -30)
 rotation_degrees = Vector3(0, 0, 85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_m4qif"]
 script = ExtResource("1_q2sv5")
@@ -169,7 +169,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.567324, 5.2316666, -25)
 rotation_degrees = Vector3(0, 0, -85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0aux6"]
 script = ExtResource("1_q2sv5")
@@ -177,7 +177,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.307121, 6.8745213, -25)
 rotation_degrees = Vector3(0, 0, -76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_wu4fe"]
 script = ExtResource("1_q2sv5")
@@ -185,7 +185,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.793123, 8.456444, -25)
 rotation_degrees = Vector3(0, 0, -67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_38neg"]
 script = ExtResource("1_q2sv5")
@@ -193,7 +193,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.037986, 9.938484, -25)
 rotation_degrees = Vector3(0, 0, -58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gquy0"]
 script = ExtResource("1_q2sv5")
@@ -201,7 +201,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(8.060304, 11.284149, -25)
 rotation_degrees = Vector3(0, 0, -49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5j7hq"]
 script = ExtResource("1_q2sv5")
@@ -209,7 +209,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(6.884149, 12.460304, -25)
 rotation_degrees = Vector3(0, 0, -40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_kwpsw"]
 script = ExtResource("1_q2sv5")
@@ -217,7 +217,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(5.5384846, 13.437986, -25)
 rotation_degrees = Vector3(0, 0, -31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0koo1"]
 script = ExtResource("1_q2sv5")
@@ -225,7 +225,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(4.056444, 14.193123, -25)
 rotation_degrees = Vector3(0, 0, -22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ft2eu"]
 script = ExtResource("1_q2sv5")
@@ -233,7 +233,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(2.474521, 14.707121, -25)
 rotation_degrees = Vector3(0, 0, -13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6x1ra"]
 script = ExtResource("1_q2sv5")
@@ -241,7 +241,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(0.8316664, 14.967323, -25)
 rotation_degrees = Vector3(0, 0, -4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mjpar"]
 script = ExtResource("1_q2sv5")
@@ -249,7 +249,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-0.8316664, 14.967323, -25)
 rotation_degrees = Vector3(0, 0, 4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7enfq"]
 script = ExtResource("1_q2sv5")
@@ -257,7 +257,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-2.474521, 14.707121, -25)
 rotation_degrees = Vector3(0, 0, 13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_l2tgk"]
 script = ExtResource("1_q2sv5")
@@ -265,7 +265,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-4.056444, 14.193123, -25)
 rotation_degrees = Vector3(0, 0, 22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5ju3o"]
 script = ExtResource("1_q2sv5")
@@ -273,7 +273,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-5.5384846, 13.437986, -25)
 rotation_degrees = Vector3(0, 0, 31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6gu8v"]
 script = ExtResource("1_q2sv5")
@@ -281,7 +281,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-6.884149, 12.460304, -25)
 rotation_degrees = Vector3(0, 0, 40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_dgvap"]
 script = ExtResource("1_q2sv5")
@@ -289,7 +289,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-8.060304, 11.284149, -25)
 rotation_degrees = Vector3(0, 0, 49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_pm0lu"]
 script = ExtResource("1_q2sv5")
@@ -297,7 +297,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.037986, 9.938484, -25)
 rotation_degrees = Vector3(0, 0, 58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_lqs5i"]
 script = ExtResource("1_q2sv5")
@@ -305,7 +305,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.793123, 8.456444, -25)
 rotation_degrees = Vector3(0, 0, 67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ty5ym"]
 script = ExtResource("1_q2sv5")
@@ -313,7 +313,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.307121, 6.8745213, -25)
 rotation_degrees = Vector3(0, 0, 76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0td4l"]
 script = ExtResource("1_q2sv5")
@@ -321,7 +321,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.567324, 5.2316666, -25)
 rotation_degrees = Vector3(0, 0, 85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7xnbp"]
 script = ExtResource("1_q2sv5")
@@ -329,7 +329,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.567324, 5.2316666, -20)
 rotation_degrees = Vector3(0, 0, -85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_edpfc"]
 script = ExtResource("1_q2sv5")
@@ -337,7 +337,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.307121, 6.8745213, -20)
 rotation_degrees = Vector3(0, 0, -76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ct5nb"]
 script = ExtResource("1_q2sv5")
@@ -345,7 +345,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.793123, 8.456444, -20)
 rotation_degrees = Vector3(0, 0, -67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_v626r"]
 script = ExtResource("1_q2sv5")
@@ -353,7 +353,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.037986, 9.938484, -20)
 rotation_degrees = Vector3(0, 0, -58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_o24n3"]
 script = ExtResource("1_q2sv5")
@@ -361,7 +361,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(8.060304, 11.284149, -20)
 rotation_degrees = Vector3(0, 0, -49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_qjleg"]
 script = ExtResource("1_q2sv5")
@@ -369,7 +369,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(6.884149, 12.460304, -20)
 rotation_degrees = Vector3(0, 0, -40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_2x004"]
 script = ExtResource("1_q2sv5")
@@ -377,7 +377,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(5.5384846, 13.437986, -20)
 rotation_degrees = Vector3(0, 0, -31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_htgvs"]
 script = ExtResource("1_q2sv5")
@@ -385,7 +385,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(4.056444, 14.193123, -20)
 rotation_degrees = Vector3(0, 0, -22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5fnik"]
 script = ExtResource("1_q2sv5")
@@ -393,7 +393,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(2.474521, 14.707121, -20)
 rotation_degrees = Vector3(0, 0, -13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nrgx5"]
 script = ExtResource("1_q2sv5")
@@ -401,7 +401,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(0.8316664, 14.967323, -20)
 rotation_degrees = Vector3(0, 0, -4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ybg8e"]
 script = ExtResource("1_q2sv5")
@@ -409,7 +409,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-0.8316664, 14.967323, -20)
 rotation_degrees = Vector3(0, 0, 4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ctt5s"]
 script = ExtResource("1_q2sv5")
@@ -417,7 +417,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-2.474521, 14.707121, -20)
 rotation_degrees = Vector3(0, 0, 13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_42ih6"]
 script = ExtResource("1_q2sv5")
@@ -425,7 +425,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-4.056444, 14.193123, -20)
 rotation_degrees = Vector3(0, 0, 22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_pwfac"]
 script = ExtResource("1_q2sv5")
@@ -433,7 +433,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-5.5384846, 13.437986, -20)
 rotation_degrees = Vector3(0, 0, 31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_dpqaa"]
 script = ExtResource("1_q2sv5")
@@ -441,7 +441,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-6.884149, 12.460304, -20)
 rotation_degrees = Vector3(0, 0, 40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mjrm8"]
 script = ExtResource("1_q2sv5")
@@ -449,7 +449,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-8.060304, 11.284149, -20)
 rotation_degrees = Vector3(0, 0, 49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_scobf"]
 script = ExtResource("1_q2sv5")
@@ -457,7 +457,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.037986, 9.938484, -20)
 rotation_degrees = Vector3(0, 0, 58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_odspe"]
 script = ExtResource("1_q2sv5")
@@ -465,7 +465,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.793123, 8.456444, -20)
 rotation_degrees = Vector3(0, 0, 67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4o8ni"]
 script = ExtResource("1_q2sv5")
@@ -473,7 +473,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.307121, 6.8745213, -20)
 rotation_degrees = Vector3(0, 0, 76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7h2uv"]
 script = ExtResource("1_q2sv5")
@@ -481,7 +481,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.567324, 5.2316666, -20)
 rotation_degrees = Vector3(0, 0, 85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_w5k0m"]
 script = ExtResource("1_q2sv5")
@@ -489,7 +489,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.567324, 5.2316666, -15)
 rotation_degrees = Vector3(0, 0, -85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nqma4"]
 script = ExtResource("1_q2sv5")
@@ -497,7 +497,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.307121, 6.8745213, -15)
 rotation_degrees = Vector3(0, 0, -76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_efr74"]
 script = ExtResource("1_q2sv5")
@@ -505,7 +505,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.793123, 8.456444, -15)
 rotation_degrees = Vector3(0, 0, -67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mnkys"]
 script = ExtResource("1_q2sv5")
@@ -513,7 +513,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.037986, 9.938484, -15)
 rotation_degrees = Vector3(0, 0, -58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mi5bm"]
 script = ExtResource("1_q2sv5")
@@ -521,7 +521,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(8.060304, 11.284149, -15)
 rotation_degrees = Vector3(0, 0, -49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_3dr2k"]
 script = ExtResource("1_q2sv5")
@@ -529,7 +529,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(6.884149, 12.460304, -15)
 rotation_degrees = Vector3(0, 0, -40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gyvq4"]
 script = ExtResource("1_q2sv5")
@@ -537,7 +537,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(5.5384846, 13.437986, -15)
 rotation_degrees = Vector3(0, 0, -31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gxheo"]
 script = ExtResource("1_q2sv5")
@@ -545,7 +545,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(4.056444, 14.193123, -15)
 rotation_degrees = Vector3(0, 0, -22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_lr5v2"]
 script = ExtResource("1_q2sv5")
@@ -553,7 +553,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(2.474521, 14.707121, -15)
 rotation_degrees = Vector3(0, 0, -13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gw8to"]
 script = ExtResource("1_q2sv5")
@@ -561,7 +561,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(0.8316664, 14.967323, -15)
 rotation_degrees = Vector3(0, 0, -4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_n01kd"]
 script = ExtResource("1_q2sv5")
@@ -569,7 +569,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-0.8316664, 14.967323, -15)
 rotation_degrees = Vector3(0, 0, 4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_3da7v"]
 script = ExtResource("1_q2sv5")
@@ -577,7 +577,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-2.474521, 14.707121, -15)
 rotation_degrees = Vector3(0, 0, 13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_cht0o"]
 script = ExtResource("1_q2sv5")
@@ -585,7 +585,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-4.056444, 14.193123, -15)
 rotation_degrees = Vector3(0, 0, 22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_trsb7"]
 script = ExtResource("1_q2sv5")
@@ -593,7 +593,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-5.5384846, 13.437986, -15)
 rotation_degrees = Vector3(0, 0, 31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_f765s"]
 script = ExtResource("1_q2sv5")
@@ -601,7 +601,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-6.884149, 12.460304, -15)
 rotation_degrees = Vector3(0, 0, 40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_co3ys"]
 script = ExtResource("1_q2sv5")
@@ -609,7 +609,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-8.060304, 11.284149, -15)
 rotation_degrees = Vector3(0, 0, 49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_dv6r1"]
 script = ExtResource("1_q2sv5")
@@ -617,7 +617,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.037986, 9.938484, -15)
 rotation_degrees = Vector3(0, 0, 58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_lvhjc"]
 script = ExtResource("1_q2sv5")
@@ -625,7 +625,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.793123, 8.456444, -15)
 rotation_degrees = Vector3(0, 0, 67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_i1lfn"]
 script = ExtResource("1_q2sv5")
@@ -633,7 +633,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.307121, 6.8745213, -15)
 rotation_degrees = Vector3(0, 0, 76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_qau44"]
 script = ExtResource("1_q2sv5")
@@ -641,7 +641,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.567324, 5.2316666, -15)
 rotation_degrees = Vector3(0, 0, 85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vl0rp"]
 script = ExtResource("1_q2sv5")
@@ -649,7 +649,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.567324, 5.2316666, -10)
 rotation_degrees = Vector3(0, 0, -85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7kst5"]
 script = ExtResource("1_q2sv5")
@@ -657,7 +657,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.307121, 6.8745213, -10)
 rotation_degrees = Vector3(0, 0, -76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4i21y"]
 script = ExtResource("1_q2sv5")
@@ -665,7 +665,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.793123, 8.456444, -10)
 rotation_degrees = Vector3(0, 0, -67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4ge6c"]
 script = ExtResource("1_q2sv5")
@@ -673,7 +673,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.037986, 9.938484, -10)
 rotation_degrees = Vector3(0, 0, -58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_aapri"]
 script = ExtResource("1_q2sv5")
@@ -681,7 +681,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(8.060304, 11.284149, -10)
 rotation_degrees = Vector3(0, 0, -49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nx7tq"]
 script = ExtResource("1_q2sv5")
@@ -689,7 +689,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(6.884149, 12.460304, -10)
 rotation_degrees = Vector3(0, 0, -40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6n21f"]
 script = ExtResource("1_q2sv5")
@@ -697,7 +697,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(5.5384846, 13.437986, -10)
 rotation_degrees = Vector3(0, 0, -31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_d24lj"]
 script = ExtResource("1_q2sv5")
@@ -705,7 +705,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(4.056444, 14.193123, -10)
 rotation_degrees = Vector3(0, 0, -22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_poi8n"]
 script = ExtResource("1_q2sv5")
@@ -713,7 +713,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(2.474521, 14.707121, -10)
 rotation_degrees = Vector3(0, 0, -13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_w7qrm"]
 script = ExtResource("1_q2sv5")
@@ -721,7 +721,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(0.8316664, 14.967323, -10)
 rotation_degrees = Vector3(0, 0, -4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6u1mx"]
 script = ExtResource("1_q2sv5")
@@ -729,7 +729,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-0.8316664, 14.967323, -10)
 rotation_degrees = Vector3(0, 0, 4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6rhw2"]
 script = ExtResource("1_q2sv5")
@@ -737,7 +737,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-2.474521, 14.707121, -10)
 rotation_degrees = Vector3(0, 0, 13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mw1cx"]
 script = ExtResource("1_q2sv5")
@@ -745,7 +745,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-4.056444, 14.193123, -10)
 rotation_degrees = Vector3(0, 0, 22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_yam0p"]
 script = ExtResource("1_q2sv5")
@@ -753,7 +753,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-5.5384846, 13.437986, -10)
 rotation_degrees = Vector3(0, 0, 31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0cttt"]
 script = ExtResource("1_q2sv5")
@@ -761,7 +761,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-6.884149, 12.460304, -10)
 rotation_degrees = Vector3(0, 0, 40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_k0udi"]
 script = ExtResource("1_q2sv5")
@@ -769,7 +769,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-8.060304, 11.284149, -10)
 rotation_degrees = Vector3(0, 0, 49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_qbhnq"]
 script = ExtResource("1_q2sv5")
@@ -777,7 +777,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.037986, 9.938484, -10)
 rotation_degrees = Vector3(0, 0, 58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gy8cc"]
 script = ExtResource("1_q2sv5")
@@ -785,7 +785,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.793123, 8.456444, -10)
 rotation_degrees = Vector3(0, 0, 67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_qncu8"]
 script = ExtResource("1_q2sv5")
@@ -793,7 +793,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.307121, 6.8745213, -10)
 rotation_degrees = Vector3(0, 0, 76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ee8au"]
 script = ExtResource("1_q2sv5")
@@ -801,7 +801,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.567324, 5.2316666, -10)
 rotation_degrees = Vector3(0, 0, 85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7h3tc"]
 script = ExtResource("1_q2sv5")
@@ -809,7 +809,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.567324, 5.2316666, -5)
 rotation_degrees = Vector3(0, 0, -85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1kkf8"]
 script = ExtResource("1_q2sv5")
@@ -817,7 +817,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(10.307121, 6.8745213, -5)
 rotation_degrees = Vector3(0, 0, -76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xweg2"]
 script = ExtResource("1_q2sv5")
@@ -825,7 +825,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.793123, 8.456444, -5)
 rotation_degrees = Vector3(0, 0, -67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ufiq2"]
 script = ExtResource("1_q2sv5")
@@ -833,7 +833,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(9.037986, 9.938484, -5)
 rotation_degrees = Vector3(0, 0, -58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xacv8"]
 script = ExtResource("1_q2sv5")
@@ -841,7 +841,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(8.060304, 11.284149, -5)
 rotation_degrees = Vector3(0, 0, -49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_l0u1f"]
 script = ExtResource("1_q2sv5")
@@ -849,7 +849,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(6.884149, 12.460304, -5)
 rotation_degrees = Vector3(0, 0, -40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_hfa8y"]
 script = ExtResource("1_q2sv5")
@@ -857,7 +857,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(5.5384846, 13.437986, -5)
 rotation_degrees = Vector3(0, 0, -31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ve45a"]
 script = ExtResource("1_q2sv5")
@@ -865,7 +865,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(4.056444, 14.193123, -5)
 rotation_degrees = Vector3(0, 0, -22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_fw73f"]
 script = ExtResource("1_q2sv5")
@@ -873,7 +873,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(2.474521, 14.707121, -5)
 rotation_degrees = Vector3(0, 0, -13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mw3nb"]
 script = ExtResource("1_q2sv5")
@@ -881,7 +881,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(0.8316664, 14.967323, -5)
 rotation_degrees = Vector3(0, 0, -4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_uudya"]
 script = ExtResource("1_q2sv5")
@@ -889,7 +889,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-0.8316664, 14.967323, -5)
 rotation_degrees = Vector3(0, 0, 4.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_tf8bd"]
 script = ExtResource("1_q2sv5")
@@ -897,7 +897,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-2.474521, 14.707121, -5)
 rotation_degrees = Vector3(0, 0, 13.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_dvrqw"]
 script = ExtResource("1_q2sv5")
@@ -905,7 +905,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-4.056444, 14.193123, -5)
 rotation_degrees = Vector3(0, 0, 22.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ufn0h"]
 script = ExtResource("1_q2sv5")
@@ -913,7 +913,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-5.5384846, 13.437986, -5)
 rotation_degrees = Vector3(0, 0, 31.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_sttfu"]
 script = ExtResource("1_q2sv5")
@@ -921,7 +921,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-6.884149, 12.460304, -5)
 rotation_degrees = Vector3(0, 0, 40.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ys37o"]
 script = ExtResource("1_q2sv5")
@@ -929,7 +929,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-8.060304, 11.284149, -5)
 rotation_degrees = Vector3(0, 0, 49.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_x3c71"]
 script = ExtResource("1_q2sv5")
@@ -937,7 +937,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.037986, 9.938484, -5)
 rotation_degrees = Vector3(0, 0, 58.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_qw11e"]
 script = ExtResource("1_q2sv5")
@@ -945,7 +945,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-9.793123, 8.456444, -5)
 rotation_degrees = Vector3(0, 0, 67.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_cny64"]
 script = ExtResource("1_q2sv5")
@@ -953,7 +953,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.307121, 6.8745213, -5)
 rotation_degrees = Vector3(0, 0, 76.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ooj02"]
 script = ExtResource("1_q2sv5")
@@ -961,7 +961,7 @@ surface = 2
 size = Vector3(0.55, 1.8981503, 0.75)
 offset = Vector3(-10.567324, 5.2316666, -5)
 rotation_degrees = Vector3(0, 0, 85.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ny7rd"]
 script = ExtResource("1_q2sv5")
@@ -976,7 +976,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(-10.5, 4.45, -30)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_yo1jn"]
 script = ExtResource("1_q2sv5")
@@ -991,7 +991,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(-10.5, 4.45, -25)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ndhil"]
 script = ExtResource("1_q2sv5")
@@ -1006,7 +1006,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(-10.5, 4.45, -20)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_cvhvq"]
 script = ExtResource("1_q2sv5")
@@ -1021,7 +1021,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(-10.5, 4.45, -15)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_u3jbv"]
 script = ExtResource("1_q2sv5")
@@ -1036,7 +1036,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(-10.5, 4.45, -10)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_m60w2"]
 script = ExtResource("1_q2sv5")
@@ -1051,7 +1051,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(-10.5, 4.45, -5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_weowb"]
 script = ExtResource("1_q2sv5")
@@ -1066,7 +1066,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(10.5, 4.45, -30)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_iw5xw"]
 script = ExtResource("1_q2sv5")
@@ -1081,7 +1081,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(10.5, 4.45, -25)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4uqac"]
 script = ExtResource("1_q2sv5")
@@ -1096,7 +1096,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(10.5, 4.45, -20)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_c3d2i"]
 script = ExtResource("1_q2sv5")
@@ -1111,7 +1111,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(10.5, 4.45, -15)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ximk7"]
 script = ExtResource("1_q2sv5")
@@ -1126,7 +1126,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(10.5, 4.45, -10)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_sucxs"]
 script = ExtResource("1_q2sv5")
@@ -1141,7 +1141,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(1.5, 0.34, 1.3)
 offset = Vector3(10.5, 4.45, -5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_wvf5t"]
 script = ExtResource("1_q2sv5")
@@ -1827,7 +1827,7 @@ shape = 3
 surface = 2
 size = Vector3(1.15, 1.3, 1.219)
 offset = Vector3(-12.5, 0.65, -28)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_w0yl7"]
 script = ExtResource("1_q2sv5")
@@ -1859,7 +1859,7 @@ shape = 3
 surface = 2
 size = Vector3(1.15, 1.3, 1.219)
 offset = Vector3(-12.5, 0.65, -24)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ghc8m"]
 script = ExtResource("1_q2sv5")
@@ -1891,7 +1891,7 @@ shape = 3
 surface = 2
 size = Vector3(1.15, 1.3, 1.219)
 offset = Vector3(12.5, 0.65, -12)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_r21pg"]
 script = ExtResource("1_q2sv5")
@@ -1923,7 +1923,7 @@ shape = 3
 surface = 2
 size = Vector3(1.15, 1.3, 1.219)
 offset = Vector3(12.5, 0.65, -8)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6m0wc"]
 script = ExtResource("1_q2sv5")
@@ -1955,7 +1955,7 @@ shape = 3
 surface = 2
 size = Vector3(1.15, 1.3, 1.219)
 offset = Vector3(-12.8, 0.65, -6)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vxmwn"]
 script = ExtResource("1_q2sv5")
@@ -1987,7 +1987,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-8, 1.05, -31.55)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_47ndq"]
 script = ExtResource("1_q2sv5")
@@ -1995,7 +1995,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-5, 1.05, -31.55)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_k47jm"]
 script = ExtResource("1_q2sv5")
@@ -2003,7 +2003,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-8, 1.05, -30.45)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_lensf"]
 script = ExtResource("1_q2sv5")
@@ -2011,14 +2011,14 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-5, 1.05, -30.45)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5ia37"]
 script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-6.5, 1.05, -31)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_r6od5"]
 script = ExtResource("1_q2sv5")
@@ -2032,7 +2032,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-6.5, 1.47, -31)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_pat47"]
 script = ExtResource("1_q2sv5")
@@ -2046,7 +2046,7 @@ script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-6.5, 1.89, -31)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nmslg"]
 script = ExtResource("1_q2sv5")
@@ -2061,7 +2061,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(5.64713, 1.05, -30.849848)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_oeokv"]
 script = ExtResource("1_q2sv5")
@@ -2069,7 +2069,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(8.581573, 1.05, -30.226114)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_8skx1"]
 script = ExtResource("1_q2sv5")
@@ -2077,7 +2077,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(5.418427, 1.05, -29.773886)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_2hp6a"]
 script = ExtResource("1_q2sv5")
@@ -2085,7 +2085,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(8.35287, 1.05, -29.150152)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_es132"]
 script = ExtResource("1_q2sv5")
@@ -2093,7 +2093,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(7, 1.05, -30)
 rotation_degrees = Vector3(0, 12, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gmut3"]
 script = ExtResource("1_q2sv5")
@@ -2109,7 +2109,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(7, 1.47, -30)
 rotation_degrees = Vector3(0, 12, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_u2aj6"]
 script = ExtResource("1_q2sv5")
@@ -2125,7 +2125,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(7, 1.89, -30)
 rotation_degrees = Vector3(0, 12, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_pgjud"]
 script = ExtResource("1_q2sv5")
@@ -2141,7 +2141,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-6.95, 1.05, -5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_y8clu"]
 script = ExtResource("1_q2sv5")
@@ -2149,7 +2149,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-6.95, 1.05, -2)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_tmy0r"]
 script = ExtResource("1_q2sv5")
@@ -2157,7 +2157,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-8.05, 1.05, -5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_dnifr"]
 script = ExtResource("1_q2sv5")
@@ -2165,7 +2165,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-8.05, 1.05, -2)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ng8fp"]
 script = ExtResource("1_q2sv5")
@@ -2173,7 +2173,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-7.5, 1.05, -3.5)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xhd54"]
 script = ExtResource("1_q2sv5")
@@ -2189,7 +2189,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-7.5, 1.47, -3.5)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_iuiag"]
 script = ExtResource("1_q2sv5")
@@ -2205,7 +2205,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-7.5, 1.89, -3.5)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_il3xk"]
 script = ExtResource("1_q2sv5")
@@ -2363,7 +2363,7 @@ shape = 3
 surface = 2
 size = Vector3(1.15, 1.3, 1.219)
 offset = Vector3(7.2, 0.65, 5.4)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_eiife"]
 script = ExtResource("1_q2sv5")
@@ -2395,7 +2395,7 @@ shape = 3
 surface = 2
 size = Vector3(1.15, 1.3, 1.219)
 offset = Vector3(8.4, 0.65, 7.6)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6o4k2"]
 script = ExtResource("1_q2sv5")
@@ -2576,7 +2576,7 @@ surface = 2
 size = Vector3(0.26, 6.4, 0.34)
 offset = Vector3(-22, 3.2, 20)
 rotation_degrees = Vector3(0, 0, 5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_kef4g"]
 script = ExtResource("1_q2sv5")
@@ -2584,7 +2584,7 @@ surface = 2
 size = Vector3(5.6, 0.3, 0.34)
 offset = Vector3(-20.11595, 5.9, 21.319225)
 rotation_degrees = Vector3(0, 35, -14)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_cc0di"]
 script = ExtResource("1_q2sv5")
@@ -2609,7 +2609,7 @@ surface = 2
 size = Vector3(0.26, 6.4, 0.34)
 offset = Vector3(21, 3.2, 32)
 rotation_degrees = Vector3(0, 0, 5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_n5wb5"]
 script = ExtResource("1_q2sv5")
@@ -2617,7 +2617,7 @@ surface = 2
 size = Vector3(5.6, 0.3, 0.34)
 offset = Vector3(18.838707, 5.9, 31.213354)
 rotation_degrees = Vector3(0, 200, -14)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gelrr"]
 script = ExtResource("1_q2sv5")
@@ -2641,7 +2641,7 @@ surface = 2
 size = Vector3(11, 0.45, 0.55)
 offset = Vector3(-14, 0.3, 12.5)
 rotation_degrees = Vector3(0, 18, 4)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_30ten"]
 script = ExtResource("1_q2sv5")
@@ -2649,7 +2649,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(-19.23081, 0.4, 10.800406)
 rotation_degrees = Vector3(0, 18, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_jtmsw"]
 script = ExtResource("1_q2sv5")
@@ -2657,7 +2657,7 @@ surface = 2
 size = Vector3(0.22, 1.7333333, 0.34)
 offset = Vector3(-17.487207, 1.0666667, 11.366938)
 rotation_degrees = Vector3(0, 18, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_d51mo"]
 script = ExtResource("1_q2sv5")
@@ -2665,7 +2665,7 @@ surface = 2
 size = Vector3(0.22, 2.5333333, 0.34)
 offset = Vector3(-15.743604, 1.4666667, 11.933469)
 rotation_degrees = Vector3(0, 18, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_usw2m"]
 script = ExtResource("1_q2sv5")
@@ -2673,7 +2673,7 @@ surface = 2
 size = Vector3(0.22, 2.8, 0.34)
 offset = Vector3(-14, 1.6, 12.5)
 rotation_degrees = Vector3(0, 18, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_8vtx2"]
 script = ExtResource("1_q2sv5")
@@ -2681,7 +2681,7 @@ surface = 2
 size = Vector3(0.22, 2.5333333, 0.34)
 offset = Vector3(-12.256396, 1.4666667, 13.066531)
 rotation_degrees = Vector3(0, 18, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_s1674"]
 script = ExtResource("1_q2sv5")
@@ -2689,7 +2689,7 @@ surface = 2
 size = Vector3(0.22, 1.7333333, 0.34)
 offset = Vector3(-10.512793, 1.0666667, 13.633062)
 rotation_degrees = Vector3(0, 18, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_bnb8n"]
 script = ExtResource("1_q2sv5")
@@ -2697,7 +2697,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(-8.76919, 0.4, 14.199594)
 rotation_degrees = Vector3(0, 18, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_j0767"]
 script = ExtResource("1_q2sv5")
@@ -2705,7 +2705,7 @@ surface = 2
 size = Vector3(8, 0.45, 0.55)
 offset = Vector3(17, 0.3, 20)
 rotation_degrees = Vector3(0, 108, 4)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_d6hyv"]
 script = ExtResource("1_q2sv5")
@@ -2713,7 +2713,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(18.236069, 0.4, 16.195774)
 rotation_degrees = Vector3(0, 108, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5lmnp"]
 script = ExtResource("1_q2sv5")
@@ -2721,7 +2721,7 @@ surface = 2
 size = Vector3(0.22, 2.2, 0.34)
 offset = Vector3(17.618034, 1.3, 18.097887)
 rotation_degrees = Vector3(0, 108, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_8wq83"]
 script = ExtResource("1_q2sv5")
@@ -2729,7 +2729,7 @@ surface = 2
 size = Vector3(0.22, 2.8, 0.34)
 offset = Vector3(17, 1.6, 20)
 rotation_degrees = Vector3(0, 108, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_wieqp"]
 script = ExtResource("1_q2sv5")
@@ -2737,7 +2737,7 @@ surface = 2
 size = Vector3(0.22, 2.2, 0.34)
 offset = Vector3(16.381966, 1.3, 21.902113)
 rotation_degrees = Vector3(0, 108, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_fn55u"]
 script = ExtResource("1_q2sv5")
@@ -2745,7 +2745,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(15.763932, 0.4, 23.804226)
 rotation_degrees = Vector3(0, 108, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nihxr"]
 script = ExtResource("1_q2sv5")
@@ -3050,7 +3050,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-15.884762, 1.05, 20.406507)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_d1psk"]
 script = ExtResource("1_q2sv5")
@@ -3058,7 +3058,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-15.05785, 1.05, 23.290293)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xx0t1"]
 script = ExtResource("1_q2sv5")
@@ -3066,7 +3066,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-16.94215, 1.05, 20.709707)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_qbanl"]
 script = ExtResource("1_q2sv5")
@@ -3074,7 +3074,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-16.115238, 1.05, 23.593493)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_my68h"]
 script = ExtResource("1_q2sv5")
@@ -3082,7 +3082,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-16, 1.05, 22)
 rotation_degrees = Vector3(0, 74, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4kp2i"]
 script = ExtResource("1_q2sv5")
@@ -3098,7 +3098,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-16, 1.47, 22)
 rotation_degrees = Vector3(0, 74, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5x4fh"]
 script = ExtResource("1_q2sv5")
@@ -3114,7 +3114,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-16, 1.89, 22)
 rotation_degrees = Vector3(0, 74, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_3unqw"]
 script = ExtResource("1_q2sv5")
@@ -3130,7 +3130,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(12.802116, 1.05, 23.618296)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_jqkov"]
 script = ExtResource("1_q2sv5")
@@ -3138,7 +3138,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(12.281172, 1.05, 26.572718)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_160ot"]
 script = ExtResource("1_q2sv5")
@@ -3146,7 +3146,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(11.718828, 1.05, 23.427282)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_e3d23"]
 script = ExtResource("1_q2sv5")
@@ -3154,7 +3154,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(11.197884, 1.05, 26.381704)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_je5ve"]
 script = ExtResource("1_q2sv5")
@@ -3162,7 +3162,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(12, 1.05, 25)
 rotation_degrees = Vector3(0, 100, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1hdgl"]
 script = ExtResource("1_q2sv5")
@@ -3178,7 +3178,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(12, 1.47, 25)
 rotation_degrees = Vector3(0, 100, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_kskee"]
 script = ExtResource("1_q2sv5")
@@ -3194,7 +3194,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(12, 1.89, 25)
 rotation_degrees = Vector3(0, 100, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ch0ed"]
 script = ExtResource("1_q2sv5")
@@ -3290,7 +3290,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 37)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_kra0y"]
 script = ExtResource("1_q2sv5")
@@ -3305,7 +3305,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 37)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_8ugdj"]
 script = ExtResource("1_q2sv5")
@@ -3320,7 +3320,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 40)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_u5ybt"]
 script = ExtResource("1_q2sv5")
@@ -3335,7 +3335,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 40)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_2btl0"]
 script = ExtResource("1_q2sv5")
@@ -3350,7 +3350,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 43)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vabln"]
 script = ExtResource("1_q2sv5")
@@ -3365,7 +3365,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 43)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_8gsdw"]
 script = ExtResource("1_q2sv5")
@@ -3380,7 +3380,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 46)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_v4tgf"]
 script = ExtResource("1_q2sv5")
@@ -3395,7 +3395,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 46)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_851u5"]
 script = ExtResource("1_q2sv5")
@@ -3410,7 +3410,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 49)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_b8xtg"]
 script = ExtResource("1_q2sv5")
@@ -3425,7 +3425,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 49)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_h8v24"]
 script = ExtResource("1_q2sv5")
@@ -3440,7 +3440,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 52)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_tlgpr"]
 script = ExtResource("1_q2sv5")
@@ -3455,7 +3455,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 52)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_b4dwn"]
 script = ExtResource("1_q2sv5")
@@ -3470,7 +3470,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 55)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xa5ii"]
 script = ExtResource("1_q2sv5")
@@ -3485,7 +3485,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 55)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vclth"]
 script = ExtResource("1_q2sv5")
@@ -3500,7 +3500,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 58)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ryg0t"]
 script = ExtResource("1_q2sv5")
@@ -3515,7 +3515,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 58)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ec3go"]
 script = ExtResource("1_q2sv5")
@@ -3530,7 +3530,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-6.4, 0.95, 61)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7u6hh"]
 script = ExtResource("1_q2sv5")
@@ -3545,7 +3545,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(6.4, 0.95, 61)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_m1or8"]
 script = ExtResource("1_q2sv5")
@@ -3560,7 +3560,7 @@ shape = 3
 surface = 2
 size = Vector3(0.16, 3.2, 0.18)
 offset = Vector3(-6, 1.6, 41)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_m73x0"]
 script = ExtResource("1_q2sv5")
@@ -3577,7 +3577,7 @@ shape = 3
 surface = 2
 size = Vector3(0.16, 3.2, 0.18)
 offset = Vector3(-6, 1.6, 51)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_icijq"]
 script = ExtResource("1_q2sv5")
@@ -3594,7 +3594,7 @@ shape = 3
 surface = 2
 size = Vector3(0.16, 3.2, 0.18)
 offset = Vector3(-6, 1.6, 59)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_gs11k"]
 script = ExtResource("1_q2sv5")
@@ -3698,7 +3698,7 @@ surface = 2
 size = Vector3(6, 0.45, 0.55)
 offset = Vector3(0, 0.3, 61)
 rotation_degrees = Vector3(0, 84, 4)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_tvgj0"]
 script = ExtResource("1_q2sv5")
@@ -3706,7 +3706,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(-0.3135854, 0.4, 58.016434)
 rotation_degrees = Vector3(0, 84, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_r540v"]
 script = ExtResource("1_q2sv5")
@@ -3714,7 +3714,7 @@ surface = 2
 size = Vector3(0.22, 2.5333333, 0.34)
 offset = Vector3(-0.104528464, 1.4666667, 60.005478)
 rotation_degrees = Vector3(0, 84, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_dsmkq"]
 script = ExtResource("1_q2sv5")
@@ -3722,7 +3722,7 @@ surface = 2
 size = Vector3(0.22, 2.5333333, 0.34)
 offset = Vector3(0.104528464, 1.4666667, 61.994522)
 rotation_degrees = Vector3(0, 84, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ewgsi"]
 script = ExtResource("1_q2sv5")
@@ -3730,7 +3730,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(0.3135854, 0.4, 63.983566)
 rotation_degrees = Vector3(0, 84, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_66u0o"]
 script = ExtResource("1_q2sv5")
@@ -4144,7 +4144,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-14.37141, 1.05, 73.819595)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1yuea"]
 script = ExtResource("1_q2sv5")
@@ -4152,7 +4152,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-12.48345, 1.05, 71.48815)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_i86h1"]
 script = ExtResource("1_q2sv5")
@@ -4160,7 +4160,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-13.51655, 1.05, 74.51185)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_hiayp"]
 script = ExtResource("1_q2sv5")
@@ -4168,7 +4168,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-11.62859, 1.05, 72.180405)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_2aylu"]
 script = ExtResource("1_q2sv5")
@@ -4176,7 +4176,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-13, 1.05, 73)
 rotation_degrees = Vector3(0, -51, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_5y0q8"]
 script = ExtResource("1_q2sv5")
@@ -4192,7 +4192,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-13, 1.47, 73)
 rotation_degrees = Vector3(0, -51, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4ov8h"]
 script = ExtResource("1_q2sv5")
@@ -4208,7 +4208,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-13, 1.89, 73)
 rotation_degrees = Vector3(0, -51, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vynor"]
 script = ExtResource("1_q2sv5")
@@ -4224,7 +4224,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(12.17104, 1.05, 77.913185)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nbhgt"]
 script = ExtResource("1_q2sv5")
@@ -4232,7 +4232,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(10.809068, 1.05, 80.586205)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_uicly"]
 script = ExtResource("1_q2sv5")
@@ -4240,7 +4240,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(11.190932, 1.05, 77.413795)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xyte6"]
 script = ExtResource("1_q2sv5")
@@ -4248,7 +4248,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(9.82896, 1.05, 80.086815)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mbhpg"]
 script = ExtResource("1_q2sv5")
@@ -4256,7 +4256,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(11, 1.05, 79)
 rotation_degrees = Vector3(0, 117, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_e6pji"]
 script = ExtResource("1_q2sv5")
@@ -4272,7 +4272,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(11, 1.47, 79)
 rotation_degrees = Vector3(0, 117, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_tasc5"]
 script = ExtResource("1_q2sv5")
@@ -4288,7 +4288,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(11, 1.89, 79)
 rotation_degrees = Vector3(0, 117, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_321vq"]
 script = ExtResource("1_q2sv5")
@@ -4304,7 +4304,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-24.328249, 1.05, 94.44957)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1u7x2"]
 script = ExtResource("1_q2sv5")
@@ -4312,7 +4312,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-26.44957, 1.05, 92.32825)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vhi4y"]
 script = ExtResource("1_q2sv5")
@@ -4320,7 +4320,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-23.55043, 1.05, 93.67175)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_lum0f"]
 script = ExtResource("1_q2sv5")
@@ -4328,7 +4328,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-25.671751, 1.05, 91.55043)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0qqyt"]
 script = ExtResource("1_q2sv5")
@@ -4336,7 +4336,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-25, 1.05, 93)
 rotation_degrees = Vector3(0, -135, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4vuhp"]
 script = ExtResource("1_q2sv5")
@@ -4352,7 +4352,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-25, 1.47, 93)
 rotation_degrees = Vector3(0, -135, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_g3oyi"]
 script = ExtResource("1_q2sv5")
@@ -4368,7 +4368,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-25, 1.89, 93)
 rotation_degrees = Vector3(0, -135, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4pimm"]
 script = ExtResource("1_q2sv5")
@@ -4384,7 +4384,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(0.379247, 1.05, 99.52787)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vbtk6"]
 script = ExtResource("1_q2sv5")
@@ -4392,7 +4392,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(2.425242, 1.05, 101.72193)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0l3rx"]
 script = ExtResource("1_q2sv5")
@@ -4400,7 +4400,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-0.42524207, 1.05, 100.27807)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_2xben"]
 script = ExtResource("1_q2sv5")
@@ -4408,7 +4408,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(1.620753, 1.05, 102.47213)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7d5di"]
 script = ExtResource("1_q2sv5")
@@ -4416,7 +4416,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(1, 1.05, 101)
 rotation_degrees = Vector3(0, 47, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_72iwq"]
 script = ExtResource("1_q2sv5")
@@ -4432,7 +4432,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(1, 1.47, 101)
 rotation_degrees = Vector3(0, 47, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_4udme"]
 script = ExtResource("1_q2sv5")
@@ -4448,7 +4448,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(1, 1.89, 101)
 rotation_degrees = Vector3(0, 47, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_khcyv"]
 script = ExtResource("1_q2sv5")
@@ -4464,7 +4464,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-29, 0.95, 76)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1pnk6"]
 script = ExtResource("1_q2sv5")
@@ -4479,7 +4479,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-18.5, 0.95, 84)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_a6pjm"]
 script = ExtResource("1_q2sv5")
@@ -4494,7 +4494,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(9.5, 0.95, 90)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_871u4"]
 script = ExtResource("1_q2sv5")
@@ -4509,7 +4509,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(22, 0.95, 66)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nfd6s"]
 script = ExtResource("1_q2sv5")
@@ -4524,7 +4524,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1.9, 0.1)
 offset = Vector3(-4.5, 0.95, 96)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0wkoo"]
 script = ExtResource("1_q2sv5")
@@ -5351,7 +5351,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-22.45, 1.05, 119.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_i0pwd"]
 script = ExtResource("1_q2sv5")
@@ -5359,7 +5359,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-22.45, 1.05, 122.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_i6u57"]
 script = ExtResource("1_q2sv5")
@@ -5367,7 +5367,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-23.55, 1.05, 119.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_dfhw7"]
 script = ExtResource("1_q2sv5")
@@ -5375,7 +5375,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-23.55, 1.05, 122.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_e4iwv"]
 script = ExtResource("1_q2sv5")
@@ -5383,7 +5383,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-23, 1.05, 121)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_0f035"]
 script = ExtResource("1_q2sv5")
@@ -5399,7 +5399,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-23, 1.47, 121)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_iltcs"]
 script = ExtResource("1_q2sv5")
@@ -5415,7 +5415,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-23, 1.89, 121)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mtie6"]
 script = ExtResource("1_q2sv5")
@@ -5431,7 +5431,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-22.45, 1.05, 135.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_qvl0k"]
 script = ExtResource("1_q2sv5")
@@ -5439,7 +5439,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-22.45, 1.05, 138.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_hy0py"]
 script = ExtResource("1_q2sv5")
@@ -5447,7 +5447,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-23.55, 1.05, 135.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_wtao6"]
 script = ExtResource("1_q2sv5")
@@ -5455,7 +5455,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(-23.55, 1.05, 138.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_bvdsd"]
 script = ExtResource("1_q2sv5")
@@ -5463,7 +5463,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-23, 1.05, 137)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_mxmee"]
 script = ExtResource("1_q2sv5")
@@ -5479,7 +5479,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-23, 1.47, 137)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ksemj"]
 script = ExtResource("1_q2sv5")
@@ -5495,7 +5495,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(-23, 1.89, 137)
 rotation_degrees = Vector3(0, 90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_pr7n0"]
 script = ExtResource("1_q2sv5")
@@ -5511,7 +5511,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(22.45, 1.05, 122.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_bc23t"]
 script = ExtResource("1_q2sv5")
@@ -5519,7 +5519,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(22.45, 1.05, 119.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_tosob"]
 script = ExtResource("1_q2sv5")
@@ -5527,7 +5527,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(23.55, 1.05, 122.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_r5q8d"]
 script = ExtResource("1_q2sv5")
@@ -5535,7 +5535,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(23.55, 1.05, 119.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_g875x"]
 script = ExtResource("1_q2sv5")
@@ -5543,7 +5543,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(23, 1.05, 121)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_bo0ds"]
 script = ExtResource("1_q2sv5")
@@ -5559,7 +5559,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(23, 1.47, 121)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ltyco"]
 script = ExtResource("1_q2sv5")
@@ -5575,7 +5575,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(23, 1.89, 121)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_iywvn"]
 script = ExtResource("1_q2sv5")
@@ -5591,7 +5591,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(22.45, 1.05, 138.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vo704"]
 script = ExtResource("1_q2sv5")
@@ -5599,7 +5599,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(22.45, 1.05, 135.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_88xbl"]
 script = ExtResource("1_q2sv5")
@@ -5607,7 +5607,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(23.55, 1.05, 138.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_sw7eb"]
 script = ExtResource("1_q2sv5")
@@ -5615,7 +5615,7 @@ shape = 3
 surface = 2
 size = Vector3(0.075, 2.1, 0.085)
 offset = Vector3(23.55, 1.05, 135.5)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_7wxuh"]
 script = ExtResource("1_q2sv5")
@@ -5623,7 +5623,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(23, 1.05, 137)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_nuqc2"]
 script = ExtResource("1_q2sv5")
@@ -5639,7 +5639,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(23, 1.47, 137)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_w366e"]
 script = ExtResource("1_q2sv5")
@@ -5655,7 +5655,7 @@ surface = 2
 size = Vector3(3.4, 0.07, 0.3)
 offset = Vector3(23, 1.89, 137)
 rotation_degrees = Vector3(0, -90, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_wrgk1"]
 script = ExtResource("1_q2sv5")
@@ -5671,7 +5671,7 @@ shape = 3
 surface = 2
 size = Vector3(1.3, 1.5, 1.378)
 offset = Vector3(-22, 0.75, 128)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_6xoj8"]
 script = ExtResource("1_q2sv5")
@@ -5703,7 +5703,7 @@ shape = 3
 surface = 2
 size = Vector3(1.3, 1.5, 1.378)
 offset = Vector3(22, 0.75, 128)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_rufxl"]
 script = ExtResource("1_q2sv5")
@@ -5735,7 +5735,7 @@ shape = 3
 surface = 2
 size = Vector3(1.3, 1.5, 1.378)
 offset = Vector3(-21, 0.75, 146)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_h4tgi"]
 script = ExtResource("1_q2sv5")
@@ -5767,7 +5767,7 @@ surface = 2
 size = Vector3(9, 0.45, 0.55)
 offset = Vector3(-12, 0.3, 148)
 rotation_degrees = Vector3(0, 20, 4)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_x1535"]
 script = ExtResource("1_q2sv5")
@@ -5775,7 +5775,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(-16.228617, 0.4, 146.4609)
 rotation_degrees = Vector3(0, 20, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_3r6ex"]
 script = ExtResource("1_q2sv5")
@@ -5783,7 +5783,7 @@ surface = 2
 size = Vector3(0.22, 1.936, 0.34)
 offset = Vector3(-14.53717, 1.168, 147.07654)
 rotation_degrees = Vector3(0, 20, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_50hvm"]
 script = ExtResource("1_q2sv5")
@@ -5791,7 +5791,7 @@ surface = 2
 size = Vector3(0.22, 2.704, 0.34)
 offset = Vector3(-12.845723, 1.552, 147.69218)
 rotation_degrees = Vector3(0, 20, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_s0b6n"]
 script = ExtResource("1_q2sv5")
@@ -5799,7 +5799,7 @@ surface = 2
 size = Vector3(0.22, 2.704, 0.34)
 offset = Vector3(-11.154277, 1.552, 148.30782)
 rotation_degrees = Vector3(0, 20, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_hbwuc"]
 script = ExtResource("1_q2sv5")
@@ -5807,7 +5807,7 @@ surface = 2
 size = Vector3(0.22, 1.936, 0.34)
 offset = Vector3(-9.46283, 1.168, 148.92346)
 rotation_degrees = Vector3(0, 20, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_blxlj"]
 script = ExtResource("1_q2sv5")
@@ -5815,7 +5815,7 @@ surface = 2
 size = Vector3(0.22, 0.4, 0.34)
 offset = Vector3(-7.7713833, 0.4, 149.5391)
 rotation_degrees = Vector3(0, 20, 22)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_8o2ks"]
 script = ExtResource("1_q2sv5")
@@ -6222,7 +6222,7 @@ surface = 2
 size = Vector3(17.014112, 0.34, 38.4)
 offset = Vector3(-8.1, 18.1, -16)
 rotation_degrees = Vector3(0, 0, 17.795988)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_whu7f"]
 script = ExtResource("1_q2sv5")
@@ -6230,14 +6230,14 @@ surface = 2
 size = Vector3(17.014112, 0.34, 38.4)
 offset = Vector3(8.1, 18.1, -16)
 rotation_degrees = Vector3(0, 0, -17.795988)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_xu58s"]
 script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(0.55, 0.42, 38.6)
 offset = Vector3(0, 20.82, -16)
-color = Color(0.1625, 0.1105, 0.077999994, 1)
+color = Color(0.247, 0.182, 0.13, 1)
 
 [sub_resource type="Resource" id="Resource_dwd1f"]
 script = ExtResource("1_q2sv5")
@@ -6245,7 +6245,7 @@ shape = 6
 surface = 1
 size = Vector3(32.4, 5.2, 0.5)
 offset = Vector3(0, 18.1, -34.9)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [sub_resource type="Resource" id="Resource_ddyie"]
 script = ExtResource("1_q2sv5")
@@ -6253,7 +6253,7 @@ shape = 6
 surface = 1
 size = Vector3(32.4, 5.2, 0.5)
 offset = Vector3(0, 18.1, 2.9)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [sub_resource type="Resource" id="Resource_cyrs6"]
 script = ExtResource("1_q2sv5")
@@ -6448,7 +6448,7 @@ surface = 2
 size = Vector3(11.454257, 0.34, 9.4)
 offset = Vector3(-5.6, 8.2, 5.5)
 rotation_degrees = Vector3(0, 0, 12.094757)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_vscq0"]
 script = ExtResource("1_q2sv5")
@@ -6456,14 +6456,14 @@ surface = 2
 size = Vector3(11.454257, 0.34, 9.4)
 offset = Vector3(5.6, 8.2, 5.5)
 rotation_degrees = Vector3(0, 0, -12.094757)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_1dh1l"]
 script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(0.55, 0.42, 9.6)
 offset = Vector3(0, 9.52, 5.5)
-color = Color(0.1625, 0.1105, 0.077999994, 1)
+color = Color(0.247, 0.182, 0.13, 1)
 
 [sub_resource type="Resource" id="Resource_ruuiq"]
 script = ExtResource("1_q2sv5")
@@ -6471,7 +6471,7 @@ shape = 6
 surface = 1
 size = Vector3(22.4, 2.4, 0.5)
 offset = Vector3(0, 8.2, 1.1)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [sub_resource type="Resource" id="Resource_lkvsh"]
 script = ExtResource("1_q2sv5")
@@ -6479,7 +6479,7 @@ shape = 6
 surface = 1
 size = Vector3(22.4, 2.4, 0.5)
 offset = Vector3(0, 8.2, 9.9)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [sub_resource type="Resource" id="Resource_nn1l6"]
 script = ExtResource("1_q2sv5")
@@ -6670,7 +6670,7 @@ surface = 2
 size = Vector3(26.878244, 0.34, 40.4)
 offset = Vector3(-13.1, 15, 131)
 rotation_degrees = Vector3(0, 0, 12.898751)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_athd1"]
 script = ExtResource("1_q2sv5")
@@ -6678,14 +6678,14 @@ surface = 2
 size = Vector3(26.878244, 0.34, 40.4)
 offset = Vector3(13.1, 15, 131)
 rotation_degrees = Vector3(0, 0, -12.898751)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_3b8cl"]
 script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(0.55, 0.42, 40.6)
 offset = Vector3(0, 18.12, 131)
-color = Color(0.1625, 0.1105, 0.077999994, 1)
+color = Color(0.247, 0.182, 0.13, 1)
 
 [sub_resource type="Resource" id="Resource_mw3hk"]
 script = ExtResource("1_q2sv5")
@@ -6693,7 +6693,7 @@ shape = 6
 surface = 1
 size = Vector3(52.4, 6, 0.5)
 offset = Vector3(0, 15, 111.1)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [sub_resource type="Resource" id="Resource_ehtbj"]
 script = ExtResource("1_q2sv5")
@@ -6701,7 +6701,7 @@ shape = 6
 surface = 1
 size = Vector3(52.4, 6, 0.5)
 offset = Vector3(0, 15, 150.9)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [sub_resource type="Resource" id="Resource_h2d5y"]
 script = ExtResource("1_q2sv5")
@@ -6843,7 +6843,7 @@ surface = 2
 size = Vector3(9.3744335, 0.34, 10.4)
 offset = Vector3(-4.6, 6.9, 108)
 rotation_degrees = Vector3(0, 0, 11.070203)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_odafu"]
 script = ExtResource("1_q2sv5")
@@ -6851,14 +6851,14 @@ surface = 2
 size = Vector3(9.3744335, 0.34, 10.4)
 offset = Vector3(4.6, 6.9, 108)
 rotation_degrees = Vector3(0, 0, -11.070203)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_ul1e3"]
 script = ExtResource("1_q2sv5")
 surface = 2
 size = Vector3(0.55, 0.42, 10.6)
 offset = Vector3(0, 7.92, 108)
-color = Color(0.1625, 0.1105, 0.077999994, 1)
+color = Color(0.247, 0.182, 0.13, 1)
 
 [sub_resource type="Resource" id="Resource_ixuxd"]
 script = ExtResource("1_q2sv5")
@@ -6866,7 +6866,7 @@ shape = 6
 surface = 1
 size = Vector3(18.4, 1.8, 0.5)
 offset = Vector3(0, 6.9, 103.1)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [sub_resource type="Resource" id="Resource_q3emr"]
 script = ExtResource("1_q2sv5")
@@ -6874,7 +6874,7 @@ shape = 6
 surface = 1
 size = Vector3(18.4, 1.8, 0.5)
 offset = Vector3(0, 6.9, 112.9)
-color = Color(0.205, 0.1394, 0.0984, 1)
+color = Color(0.3116, 0.2296, 0.164, 1)
 
 [resource]
 script = ExtResource("2_6rpr7")

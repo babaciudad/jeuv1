@@ -38,7 +38,7 @@ enum Kind {
 
 const DURATIONS: Dictionary[Kind, float] = {
 	Kind.IMPACT: 0.32,
-	Kind.HIT: 0.45,
+	Kind.HIT: 0.34,
 	Kind.HEAL: 0.75,
 	Kind.CAST: 0.42,
 	Kind.SHATTER: 0.40,
@@ -75,8 +75,16 @@ func _build(kind: Kind, color: Color) -> void:
 			_add_ring(0.18, 0.34, color, 0.0)
 			_burst(7, color, 3.4, 0.075)
 		Kind.HIT:
-			_add_ring(0.30, 0.52, color, 1.0)
-			_burst(9, color, 2.6, 0.085)
+			# L'anneau était posé un mètre AU-DESSUS du point d'apparition,
+			# parce que l'effet naissait aux pieds et devait remonter au buste.
+			# Il naît maintenant directement au point touché : le mètre en trop
+			# le mettait au-dessus de la tête.
+			_add_ring(0.34, 0.62, color, 0.0)
+			_burst(14, color, 3.4, 0.095)
+			# Un éclair court. C'est ce qui manquait le plus : sans lumière,
+			# une gerbe rouge sur un sol de sel blanc ne se voit pas, et le
+			# seul signe qu'un coup a porté était la barre de vie.
+			_flash(color, 4.2, 2.6)
 		Kind.HEAL:
 			_add_ring(0.34, 0.52, color, 0.05)
 			_add_ring(0.20, 0.34, color, 0.55)

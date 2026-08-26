@@ -17,7 +17,7 @@ shape = 3
 surface = 2
 size = Vector3(0.09, 1, 0.11)
 offset = Vector3(0, 0.58, 0)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_jik31"]
 script = ExtResource("1_iwfbt")
@@ -50,7 +50,7 @@ surface = 2
 size = Vector3(0.055, 1.3, 0.055)
 offset = Vector3(0, 1.42, 0)
 rotation_degrees = Vector3(0, 0, 90)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 
 [sub_resource type="Resource" id="Resource_df7ko"]
 script = ExtResource("1_iwfbt")

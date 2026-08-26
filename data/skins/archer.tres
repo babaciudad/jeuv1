@@ -550,7 +550,7 @@ surface = 2
 size = Vector3(0.3, 0, 0.355)
 offset = Vector3(0, -0.4, -0.13)
 rotation_degrees = Vector3(0, 0, 90)
-color = Color(0.25, 0.17, 0.12, 1)
+color = Color(0.38, 0.28, 0.2, 1)
 is_weapon = true
 
 [sub_resource type="Resource" id="Resource_7wa3b"]

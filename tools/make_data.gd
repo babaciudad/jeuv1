@@ -53,7 +53,11 @@ const STEEL: Color = Color(0.62, 0.64, 0.68)
 const GOLD: Color = Color(0.78, 0.62, 0.28)
 const LEATHER: Color = Color(0.28, 0.20, 0.14)
 const SKIN_TONE: Color = Color(0.76, 0.60, 0.48)
-const WOOD: Color = Color(0.25, 0.17, 0.12)
+## Bois. Il valait 0,25 : dehors, sur un sol de sel a 0,44 sous un ciel clair,
+## toute piece en bois se lisait comme une decoupe NOIRE — un mat de grue, une
+## fleche, un sechoir devenaient des rectangles suspendus qu'on prenait pour un
+## bug de decor. Une charpente doit rester sombre, pas devenir une silhouette.
+const WOOD: Color = Color(0.38, 0.28, 0.20)
 ## Palette du bassin. Le sel est la seule chose franchement claire, la saumure
 ## la seule couleur froide saturee, et la flamme la seule chaleur.
 const SALT: Color = Color(0.86, 0.88, 0.85)
