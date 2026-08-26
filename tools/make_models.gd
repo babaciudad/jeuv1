@@ -52,7 +52,12 @@ const CAST: Array[Dictionary] = [
 	{
 		"id": "soigneur",
 		"repos": "Idle_A", "marche": "Walk_Formal",
-		"course": "plus/Run_Anime",
+		# PAS « Run_Anime » : ce clip court plié en deux, tête à 1,21 m, alors
+		# que l'attente et la marche du soigneur se tiennent à 1,53. Le
+		# personnage se redressait et se cassait en deux selon son allure. Un
+		# écart de posture de trente centimètres entre deux clips d'un même
+		# personnage se lit comme deux personnages différents.
+		"course": "Jog",
 		"chute": "plus/Death_B", "chute_bis": "plus/Death_C",
 		"gestes": {
 			"soigneur_lame": "Sword_Regular_A",
@@ -65,6 +70,24 @@ const CAST: Array[Dictionary] = [
 		# au premier coup d'œil, de loin, sans lire une barre de vie.
 		"id": "gobelin",
 		"repos": "Zombie_Idle", "marche": "Zombie_Walk",
+		# « Run_Female » N'EST PAS un choix de posture, c'est un choix de
+		# PIEDS, et il a été payé cher. Le cristallisé attend et marche voûté —
+		# tête à 1,23 m et 1,28 — puis se redresse à 1,49 pour courir : il
+		# court comme un vivant, ce qui est exactement ce qui ne devrait pas le
+		# faire. Sauf que les trois seules façons de le plier en courant
+		# patinent, toutes mesurées en jeu, à 3,40 m/s :
+		#
+		#   Zombie_Walk + Run_Stealth (8,46 m/s, tête 1,19)   pied 1,11  −67 %
+		#   Zombie_Walk + Run_Anime   (4,89 m/s, tête 1,21)   pied 5,10  +50 %
+		#   Walk_Stealth + Run_Anime  (0,86 et 4,89)          pied 5,40  +59 %
+		#   Zombie_Walk + Run_Female  (4,01 m/s, tête 1,49)   pied 3,37   −1 %
+		#
+		# La bibliothèque ne contient QU'UNE course voûtée, « Run_Anime », et
+		# elle ne partage sa phase avec aucun pas de zombie : les jambes se
+		# compensent au lieu de s'ajouter. Des pieds qui glissent de moitié se
+		# voient de partout ; une posture qui se redresse en courant se
+		# remarque moins. On garde donc les pieds justes, et la voûte se joue à
+		# l'attente et à la marche — c'est là qu'on regarde une créature.
 		"course": "plus/Run_Female",
 		"chute": "Death_D", "chute_bis": "plus/Death_C",
 		"gestes": {

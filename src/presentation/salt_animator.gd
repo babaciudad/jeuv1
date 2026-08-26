@@ -39,6 +39,46 @@ const DEATH_FADE: float = 0.14
 ## réseau d'un centimètre ne déclenche pas un pas.
 const STILL: float = 0.22
 
+## DEMI-TOUR SUR PLACE.
+##
+## Demi-largeur d'appui, en mètres : la distance entre l'axe du corps et le
+## pied qui balaie le sol. Un corps qui pivote ne translate pas, mais ses
+## appuis, eux, parcourent du chemin — `ω × 0,18` mètre par seconde — et c'est
+## exactement la grandeur que le mélange de sol attend sur son axe latéral. Les
+## pas chassés, déjà posés à leur vitesse mesurée, deviennent alors un pivot
+## sans qu'on ajoute ni clip ni point de mélange.
+const TURN_STANCE: float = 0.18
+## En dessous de ce régime, en radians par seconde, on ne pivote pas : c'est
+## une correction de cap, pas un demi-tour. Un tour délibéré tourne à 12,6 rad/s
+## (720 °/s), et 20 rad/s verrouillé — le seuil est donc très bas devant lui.
+const TURN_MIN: float = 1.0
+## Constante de lissage du régime de rotation, en secondes.
+##
+## `facing` avance par TICK, à 60 Hz, alors que ceci est piloté par IMAGE. Aux
+## fréquences qui ne tombent pas juste, une image sur deux voit un cap immobile
+## et la dérivée brute clignote entre zéro et le double. L'intégrateur à fuite
+## rend la moyenne, quelle que soit la fréquence d'affichage.
+const TURN_TAU: float = 0.09
+
+## ARRÊT FRANC.
+##
+## Au-dessus de cette vitesse, en mètres par seconde, un arrêt se PLANTE au
+## lieu de se fondre. En dessous, on s'arrêtait déjà de marcher : il n'y a rien
+## à marquer.
+const STOP_MIN: float = 1.8
+## Temps d'arrêt proprement dit : la foulée se fige sur son dernier appui.
+const STOP_PLANT: float = 0.10
+## Puis le mélange retombe vers l'attente, sur cette durée.
+const STOP_FALL: float = 0.15
+## Décroissance du souvenir de vitesse, en mètres par seconde carrée.
+##
+## La simulation freine entre 25 et 60 m/s² : la vitesse ne saute pas de la
+## course à zéro, elle TRAVERSE le seuil d'arrêt. Lire la vitesse de l'image
+## précédente ne verrait donc jamais qu'un 0,2 m/s poussif et l'arrêt franc ne
+## partirait jamais. On garde un maximum qui s'oublie, et c'est lui qui dit à
+## quelle allure on courait il y a un dixième de seconde.
+const STOP_MEMORY: float = 20.0
+
 var _tree: AnimationTree = null
 var _model: ModelData = null
 var _player: AnimationPlayer = null
@@ -65,6 +105,41 @@ var _walk: float = 0.7
 var _run: float = 4.8
 var _back: float = 0.9
 var _strafe: float = 0.7
+
+## Durée de la dernière image, recopiée depuis `tick_freeze`.
+##
+## `drive` ne la reçoit pas, et sa signature est utilisée ailleurs. Or
+## `tick_freeze` est appelé juste avant lui, à chaque image, avec le delta :
+## on le retient au passage. Un appelant qui piloterait `_drive_ground` sans
+## passer par `tick_freeze` — le banc de mesure des pas le fait — laisse ce
+## delta à zéro, et ni le pivot ni l'arrêt franc ne s'arment. C'est voulu :
+## ces deux-là mesurent une allure constante et n'ont rien à marquer.
+var _delta: float = 0.0
+## Cap de l'image précédente, pour en tirer le régime de rotation.
+var _last_facing: Vector2 = Vector2.ZERO
+## Régime de rotation lissé, en radians par seconde, signe déjà corrigé pour
+## l'axe latéral du mélange : positif quand le personnage pivote vers sa droite.
+var _turn_rate: float = 0.0
+## Souvenir décroissant de la vitesse : à quelle allure courait-on juste avant
+## de s'arrêter.
+var _peak_speed: float = 0.0
+## Temps restant de l'arrêt franc, en secondes.
+var _stop_left: float = 0.0
+## Mélange de sol au moment où l'arrêt s'est déclenché : c'est la foulée qu'on
+## fige, et non une pose moyenne.
+var _stop_blend: Vector2 = Vector2.ZERO
+## Identité de l'attaque en cours, pour distinguer un ENCHAÎNEMENT d'une
+## continuation. Voir `_drive_attack`.
+var _attack_id: StringName = &""
+var _attack_ticks: int = -1
+## Dernier mélange de sol posé, et sa cadence. Voir `ground_blend`.
+var _ground_blend: Vector2 = Vector2.ZERO
+var _ground_scale: float = 1.0
+## Nombre de gestes d'attaque déclenchés depuis le montage. Une combo de trois
+## coups doit en compter trois : c'est par là que les tests distinguent un
+## enchaînement d'une continuation, y compris quand les deux coups partagent le
+## même clip et que le nom du geste ne bouge donc pas.
+var _attack_fires: int = 0
 
 func ready() -> bool:
 	return _tree != null
@@ -102,14 +177,20 @@ func _graft(model: ModelData) -> void:
 	var extra: Node = model.extra_animations.instantiate()
 	var source: AnimationPlayer = SaltAnimator._find_player(extra)
 	if source == null:
-		extra.queue_free()
+		extra.free()
 		return
 	for name_: StringName in source.get_animation_library_list():
 		var library: AnimationLibrary = source.get_animation_library(name_)
 		if library == null or _player.has_animation_library(model.extra_prefix):
 			continue
 		_player.add_animation_library(model.extra_prefix, library)
-	extra.queue_free()
+	# `free` et non `queue_free` : cet exemplaire n'est JAMAIS entré dans
+	# l'arbre, il n'a donc pas à attendre la fin de l'image pour disparaître.
+	# Les bibliothèques qu'on lui a prises sont des ressources, elles survivent
+	# très bien à sa destruction. En file d'attente, il restait un orphelin
+	# jusqu'à l'image suivante — et dans un test, qui n'en joue aucune, il le
+	# restait pour de bon.
+	extra.free()
 
 static func _find_player(node: Node) -> AnimationPlayer:
 	if node is AnimationPlayer:
@@ -294,17 +375,111 @@ func drive(actor: Actor, travel: Vector2, facing: Vector2,
 	_drive_hurt(actor)
 
 ## Mélange de sol. Le repère est celui du PERSONNAGE : Y devant, X à droite.
+##
+## Trois régimes, et non un seul :
+##
+##   — on se DÉPLACE : le mélange est posé à la vitesse réellement observée,
+##     comme avant ;
+##   — on vient de S'ARRÊTER après avoir couru : la foulée se fige sur son
+##     dernier appui, puis retombe vers l'attente — c'est l'arrêt franc ;
+##   — on est immobile mais on TOURNE : les pas chassés deviennent un pivot.
 func _drive_ground(travel: Vector2, facing: Vector2) -> void:
 	var speed: float = travel.length()
 	var blend: Vector2 = Vector2.ZERO
 	var scale: float = 1.0
+	_suivre_cap(facing)
 	if speed > STILL and not facing.is_zero_approx():
 		var forward: Vector2 = facing.normalized()
 		var right: Vector2 = Vector2(forward.y, -forward.x)
 		blend = Vector2(travel.dot(right), travel.dot(forward))
 		scale = clampf(speed / _capacite(blend), 1.0, 2.4)
+		_stop_left = 0.0
+		_stop_blend = blend
+	elif _stop_left > 0.0 or _peak_speed > STOP_MIN:
+		blend = _arret_franc()
+		# Pendant le temps d'arrêt la cadence tombe presque à zéro : les
+		# jambes tiennent leur dernier appui au lieu de continuer à pédaler.
+		scale = 0.05 if _stop_left > STOP_FALL else 1.0
+	else:
+		blend = Vector2(_pivot(), 0.0)
+		if absf(blend.x) > 0.001:
+			scale = clampf(absf(blend.x) / _strafe, 1.0, 2.4)
+			blend.x = clampf(blend.x, -_strafe, _strafe)
+	_peak_speed = maxf(speed, _peak_speed - _delta * STOP_MEMORY)
+	_ground_blend = blend
+	_ground_scale = scale
 	_tree.set(&"parameters/sol/blend_position", blend)
 	_tree.set(&"parameters/cadence/scale", scale)
+
+## Dernier mélange de sol appliqué, en mètres par seconde, et sa cadence.
+##
+## Relire le paramètre sur l'arbre rendrait un Variant, que le typage strict de
+## ce projet refuse. On garde donc la valeur telle qu'elle a été posée : c'est
+## par là que les tests vérifient le demi-tour et l'arrêt franc.
+func ground_blend() -> Vector2:
+	return _ground_blend
+
+func ground_scale() -> float:
+	return _ground_scale
+
+## Clip d'attaque actuellement monté sur le geste. Sert à vérifier qu'un
+## enchaînement change bien de geste.
+func attack_clip() -> StringName:
+	if _attack == null:
+		return &""
+	return _attack.animation
+
+## Nombre de gestes d'attaque déclenchés depuis le montage.
+func attack_fires() -> int:
+	return _attack_fires
+
+## Met à jour le régime de rotation à partir du cap.
+##
+## L'angle est SIGNÉ — le produit vectoriel en donne le sens — et son signe est
+## retourné une fois pour toutes ici : l'axe latéral du mélange est positif
+## vers la DROITE, alors qu'un angle positif tourne vers la gauche.
+func _suivre_cap(facing: Vector2) -> void:
+	if facing.is_zero_approx():
+		return
+	var cap: Vector2 = facing.normalized()
+	if _last_facing.is_zero_approx() or _delta <= 0.0:
+		_last_facing = cap
+		return
+	var angle: float = atan2(_last_facing.cross(cap), _last_facing.dot(cap))
+	var brut: float = -angle / _delta
+	_turn_rate += (brut - _turn_rate) * (1.0 - exp(-_delta / TURN_TAU))
+	_last_facing = cap
+
+## Vitesse latérale VIRTUELLE d'un demi-tour sur place, en mètres par seconde.
+##
+## Sans ça, un personnage verrouillé qui fait face à sa cible pivotait les deux
+## pieds soudés au sol : le corps tournait, la pose ne bougeait pas. C'est le
+## défaut qu'on remarque en premier dans un souls-like, parce qu'on y passe son
+## temps à se replacer autour d'un boss sans avancer d'un mètre.
+func _pivot() -> float:
+	if absf(_turn_rate) < TURN_MIN:
+		return 0.0
+	return _turn_rate * TURN_STANCE
+
+## Mélange de sol pendant l'arrêt franc, et décompte de celui-ci.
+##
+## Le passage de la course à l'attente était un simple retour du mélange à
+## l'origine : la pose sautait de la foulée à l'attente en une image. Dans un
+## souls-like on POSE le pied, on tient une fraction de seconde, puis on se
+## redresse — c'est ce temps d'arrêt qui donne du poids à une course.
+func _arret_franc() -> Vector2:
+	if _stop_left <= 0.0:
+		_stop_left = STOP_PLANT + STOP_FALL
+	_stop_left = maxf(0.0, _stop_left - _delta)
+	if _stop_left > STOP_FALL:
+		# Temps d'arrêt : on tient la foulée là où elle s'est arrêtée.
+		return _stop_blend
+	if _stop_left <= 0.0:
+		# Fini : plus rien à marquer avant la prochaine course.
+		_peak_speed = 0.0
+		return Vector2.ZERO
+	# Puis on retombe vers l'attente, sans claquer.
+	return _stop_blend * (_stop_left / STOP_FALL)
 
 ## Vitesse maximale que le mélange de sol sait fabriquer DANS UNE DIRECTION
 ## donnée, en mètres par seconde.
@@ -371,14 +546,38 @@ func _drive_attack(actor: Actor) -> void:
 	var runner: AttackRunner = actor.runner
 	var striking: bool = runner != null and not runner.finished \
 		and runner.attack != null
-	if striking == _attacking:
-		return
-	_attacking = striking
 	if not striking:
+		_attacking = false
+		_attack_id = &""
+		_attack_ticks = -1
 		return
-	var wanted: StringName = _model.attack_clips.get(runner.attack.id, _model.attack)
+	# UN ENCHAÎNEMENT N'EST PAS UNE CONTINUATION.
+	#
+	# Le geste ne se déclenchait que sur le front « ne frappait pas » ->
+	# « frappe ». Or une fenêtre d'annulation laisse le deuxième coup partir
+	# AVANT que le premier ait fini : le dérouleur ne repasse jamais par
+	# `finished`, le front n'existe pas, et le deuxième coup continuait de
+	# montrer l'animation du premier — au tempo du premier, donc avec un
+	# contact aligné sur la mauvaise hitbox. Toute une combo ne jouait qu'un
+	# seul geste, celui d'ouverture.
+	#
+	# On compare donc l'IDENTITÉ de l'attaque et son AVANCEMENT. L'identifiant
+	# attrape l'enchaînement vers un autre coup ; le compte de ticks, qui
+	# repart à zéro à chaque `start`, attrape le même coup relancé deux fois de
+	# suite — que l'identifiant, lui, ne distingue pas.
+	var id: StringName = runner.attack.id
+	var ticks: int = runner.elapsed_ticks
+	var nouveau: bool = not _attacking or id != _attack_id \
+		or ticks < _attack_ticks
+	_attacking = true
+	_attack_id = id
+	_attack_ticks = ticks
+	if not nouveau:
+		return
+	var wanted: StringName = _model.attack_clips.get(id, _model.attack)
 	_attack.animation = _clip(wanted, _model.attack)
 	_tree.set(&"parameters/tempo/scale", _tempo(runner.attack))
+	_attack_fires += 1
 	_fire(&"coup")
 
 ## Vitesse de lecture qui fait tomber le contact du clip sur l'ouverture de la
@@ -447,9 +646,14 @@ func freeze() -> void:
 	_freeze_left = FREEZE_SECONDS
 
 ## À appeler chaque image. Rend la main au temps normal quand le gel est fini.
+##
+## C'est aussi ici qu'on retient la durée de l'image : `drive` ne la reçoit pas,
+## et le demi-tour comme l'arrêt franc en ont besoin. Les deux sont appelés
+## dans la même passe, celui-ci en premier.
 func tick_freeze(delta: float) -> void:
 	if _tree == null:
 		return
+	_delta = delta
 	if _freeze_left <= 0.0:
 		return
 	_freeze_left -= delta
