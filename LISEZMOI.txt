@@ -1,0 +1,90 @@
+souls-like — build Windows (3e version)
+=======================================
+
+Decompresser, puis double-cliquer sur souls-like.exe. Tout est dedans.
+Windows dira « editeur inconnu » : le binaire n'est pas signe.
+« Informations complementaires » puis « Executer quand meme ».
+
+Au lancement : choisir une classe, laisser « Heberger », puis Jouer.
+Pour jouer a plusieurs, l'un heberge et donne son IP, les autres
+choisissent « Rejoindre » et la collent.
+
+
+CE QUI A CHANGE DEPUIS LA VERSION PRECEDENTE
+--------------------------------------------
+
+1. LA DIRECTION ARTISTIQUE
+
+Le monde a un sujet : une mer interieure evaporee en une saison, un bassin
+de sel de trois cents kilometres, et des gens qui vivent dedans. Qui meurt
+dans le bassin ne pourrit pas, il cristallise.
+
+Concretement a l'ecran : le fond est passe au FROID — sel blanc bleute,
+saumure vert-gris — et toute la chaleur du jeu est reservee au feu, aux
+lampes et au sang. Avant, l'image etait chaude partout, donc rien ne
+ressortait. Maintenant une flamme est un evenement.
+
+2. LES PERSONNAGES
+
+Ils sont entierement refaits. Le squelette anime vient d'une bibliotheque
+de mouvements sous licence libre, mais TOUS SES MAILLAGES SONT CACHES : le
+corps visible est reconstruit piece par piece — toile huilee enroulee,
+chapeau de saunier, lunettes de verre, croute de sel asymetrique, bottes,
+redingote, sac de sel dans le dos. Rien de ce qui s'affiche ne vient d'un
+pack achete.
+
+Les proportions ont ete corrigees : le rig d'origine etait chibi, jambes
+deux fois trop courtes. Hanches a 46 % de la hauteur, epaules a 82 %,
+personnage de 1,78 m.
+
+3. LES ROULADES
+
+Elles etaient a vitesse constante puis arret net — c'etait la sensation de
+patinage. Maintenant : impulsion vive, freinage progressif, et on sort en
+marchant au lieu de se figer. Le corps fait un vrai tour complet, pivote a
+hauteur de hanche, avec un ramasse au milieu et de la poussiere de sel au
+depart.
+
+4. LES SORTS
+
+Un sort en vol est un eclat de verre qui tourne sur son axe, avec un halo,
+une trainee d'escarbilles et une VRAIE lumiere : il eclaire les murs au
+passage. Gerbe de verre brise a l'impact. Le soin devient un rincage —
+des gouttes qui tombent, un anneau qui descend.
+
+5. LES ANIMATIONS
+
+Le lecteur d'animation a ete remplace par un vrai melangeur. Marche vers
+course est maintenant une transition et non une coupure ; la cadence des
+pas suit la vitesse reellement parcourue, donc les pieds ne patinent plus ;
+le geste d'attaque est choisi par attaque, puis etire pour tomber
+exactement sur la fenetre de degats.
+
+Le corps se penche dans le sens de l'acceleration. Un coup encaisse fait
+reculer le corps et trembler la camera.
+
+
+CE QUE JE N'AI PAS PU VERIFIER
+------------------------------
+
+Je developpe sous Linux en rendu logiciel a trois images par seconde. Je
+peux garantir que le code s'execute, que les 76 tests passent et que le
+paquet demarre. Je ne peux PAS garantir la fluidite reelle, le plein
+ecran, la manette, ni le rendu sur une vraie carte graphique.
+
+C'est exactement ce que ce build sert a savoir. Ce qui m'interesse :
+
+  — est-ce que ca saccade ?
+  — est-ce que la camera part en vrille quelque part ?
+  — est-ce qu'un coup part quand tu cliques, a chaque fois ?
+  — est-ce que le personnage se bloque ou traverse un mur ?
+
+Une carte graphique compatible Vulkan est necessaire.
+
+
+CE QUI N'EXISTE PAS ENCORE
+--------------------------
+
+Pas de son. Pas de sauvegarde. Pas de manette. Pas de verrouillage de
+cible — c'est le prochain morceau, et c'est lui qui rendra utiles le recul
+et les pas chasses qui sont deja animes mais jamais joues.
