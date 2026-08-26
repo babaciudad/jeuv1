@@ -15,6 +15,11 @@
 // dans `ink.tres` — le code les garde pour qu'on puisse les remonter d'un cran
 // si on veut, mais leur place par défaut est à zéro.
 //
+// Ce qui a été AJOUTÉ depuis : le trait n'a plus une épaisseur unique. Il
+// s'ouvre dans l'ombre et se referme en pleine lumière (voir `ink_width_lit`
+// et `ink_width_shade`). C'est la moitié du travail d'un dessinateur, et ça
+// coûte trois lignes.
+//
 // Le reste de l'image est le rendu PBR tel quel. C'est l'ÉCLAIRAGE qui doit
 // faire le travail, pas un filtre posé par-dessus.
 //
@@ -42,6 +47,25 @@ uniform vec4 ink_color : source_color = vec4(0.06, 0.05, 0.09, 1.0);
 // devient une pelote de traits.
 uniform float ink_fade_start = 22.0;
 uniform float ink_fade_end = 44.0;
+// LE TRAIT S'ÉPAISSIT DANS L'OMBRE.
+//
+// Un trait d'épaisseur constante, c'est du détourage automatique : il dit
+// « voici un bord » et rien d'autre. Un dessinateur ne fait jamais ça — il
+// appuie là où la forme s'enfonce dans l'ombre et il allège là où la lumière
+// frappe, et c'est ce seul écart qui fait qu'un dessin a du volume au lieu
+// d'être un patron découpé.
+//
+// Ces deux nombres sont des FACTEURS sur `ink_width` : l'un pour ce qui est en
+// pleine lumière, l'autre pour ce qui est au fond de l'ombre.
+uniform float ink_width_lit : hint_range(0.2, 1.5) = 0.68;
+uniform float ink_width_shade : hint_range(0.5, 4.0) = 2.10;
+// Entre ces deux luminances se fait le passage du trait épais au trait fin.
+uniform float ink_shade_low : hint_range(0.0, 1.0) = 0.10;
+uniform float ink_shade_high : hint_range(0.0, 1.0) = 0.46;
+// Et il n'appuie pas seulement plus large : il appuie plus NOIR. Un trait fin
+// et dense se lit comme un trait de plume, un trait large et pâle comme une
+// ombre — l'inverse de ce qu'on veut.
+uniform float ink_shade_bite : hint_range(0.0, 1.0) = 0.35;
 
 group_uniforms aplats;
 // Nombre de valeurs. Trois à cinq : au-delà on retombe dans le dégradé, en
@@ -119,7 +143,6 @@ float hash(vec2 p) {
 
 void fragment() {
 	vec2 uv = SCREEN_UV;
-	vec2 step_uv = ink_width / VIEWPORT_SIZE;
 	// Le tampon d'écran est en LINÉAIRE HDR, pas en valeurs d'affichage : une
 	// zone qui apparaît à 0,20 à l'écran vaut 0,035 ici. Étalonner sans faire
 	// la conversion revient à traiter toute la scène comme du noir — c'est ce
@@ -132,6 +155,17 @@ void fragment() {
 	// dans le champ. `white_point` est réglé en connaissance de cela.
 	vec3 base = pow(clamp(texture(screen_tex, uv).rgb, vec3(0.0), vec3(1.0)),
 		vec3(1.0 / 2.2));
+
+	// Combien ce pixel est dans l'ombre, de 0 (plein soleil) à 1 (fond noir).
+	// Lu sur l'image DÉJÀ ÉCLAIRÉE, donc le trait suit le soleil, les torches
+	// et les faisceaux de saumure sans qu'on ait rien à lui dire.
+	float raw_luma = dot(base, vec3(0.2126, 0.7152, 0.0722));
+	float shade_here = 1.0 - smoothstep(ink_shade_low, ink_shade_high, raw_luma);
+	float pen = mix(ink_width_lit, ink_width_shade, shade_here);
+	// La croix de Roberts s'ouvre d'autant : c'est l'écartement des quatre
+	// prises qui décide de la LARGEUR de la bande détectée, donc de
+	// l'épaisseur du trait. Rien d'autre à faire.
+	vec2 step_uv = ink_width * pen / VIEWPORT_SIZE;
 
 	// --- Contour -----------------------------------------------------------
 	// Croix de Roberts sur la profondeur ET sur la normale. La profondeur
@@ -155,13 +189,19 @@ void fragment() {
 	// alors qu'aucune lumière n'était en cause : un test à ambiante rouge vif
 	// laissait la bande parfaitement noire.
 	float facing = max(abs(n0.z), 0.10);
-	float slope = max(d0, 0.6) * 0.03 / facing;
+	// Le seuil suit l'ÉCARTEMENT de la croix. Sans ce facteur, ouvrir la croix
+	// dans l'ombre ne ferait pas un trait plus large : ça ferait un décroché
+	// mécaniquement plus grand partout, donc un seuil franchi partout, donc
+	// des pâtés noirs dans toutes les zones sombres. On veut que le trait
+	// change de largeur, pas que l'image change de sensibilité.
+	float slope = max(d0, 0.6) * 0.03 * pen / facing;
 	float depth_diff = (abs(d0 - d3) + abs(d1 - d2)) / slope;
 
 	vec3 n1 = view_normal(uv + vec2(step_uv.x, 0.0));
 	vec3 n2 = view_normal(uv + vec2(0.0, step_uv.y));
 	vec3 n3 = view_normal(uv + step_uv);
-	float normal_diff = (1.0 - dot(n0, n3)) + (1.0 - dot(n1, n2));
+	// Même correction pour le pli de normale, et pour la même raison.
+	float normal_diff = ((1.0 - dot(n0, n3)) + (1.0 - dot(n1, n2))) / pen;
 
 	float edge = max(depth_diff * depth_edge, normal_diff * 6.0 * normal_edge);
 	edge = smoothstep(0.55, 1.25, edge);
@@ -169,7 +209,6 @@ void fragment() {
 	edge *= 1.0 - smoothstep(ink_fade_start, ink_fade_end, d0);
 
 	// --- Aplats ---------------------------------------------------------
-	float raw_luma = dot(base, vec3(0.2126, 0.7152, 0.0722));
 	float luma = clamp((raw_luma - black_point)
 		/ max(white_point - black_point, 0.001), 0.0, 1.0);
 	float steps = float(bands);
@@ -229,8 +268,10 @@ void fragment() {
 	color *= 1.0 - smoothstep(0.34, 0.85, radius) * vignette;
 
 	// L'encre passe par-dessus tout, y compris le grain et la vignette : un
-	// trait délavé n'est plus un trait.
-	color = mix(color, ink_color.rgb, edge);
+	// trait délavé n'est plus un trait. Et elle mord plus fort dans l'ombre :
+	// même encre, plus de pression.
+	vec3 pressed = ink_color.rgb * (1.0 - shade_here * ink_shade_bite);
+	color = mix(color, pressed, edge);
 
 	ALBEDO = pow(clamp(color, vec3(0.0), vec3(1.0)), vec3(2.2));
 }

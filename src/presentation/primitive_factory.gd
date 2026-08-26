@@ -116,7 +116,7 @@ const FINISH: Dictionary[int, Vector2] = {
 	# couverte, un miroir parfait ne reflete rien du tout et les flaques
 	# devenaient des trous noirs a lisere blanc — des bouches d'egout. A 0,22
 	# le reflet s'etale assez pour attraper les torches.
-	SkinPart.Surface.LIQUID: Vector2(0.30, 0.0),
+	SkinPart.Surface.LIQUID: Vector2(0.20, 0.0),
 }
 
 static func _noise(surface: SkinPart.Surface, bumpy: bool) -> NoiseTexture2D:
@@ -190,6 +190,18 @@ static func material_for(color: Color, unshaded: bool,
 		material.rim_enabled = true
 		material.rim = 0.9
 		material.rim_tint = 0.1
+		# LUEUR PROPRE, très basse. Dehors elle ne pèse rien : le couchant
+		# renvoyé par la nappe est vingt fois plus vif, et c'est tant mieux —
+		# c'est la plus belle chose du niveau. Sous un toit, où il ne reste
+		# presque rien à réfléchir même avec une sonde, c'est elle qui empêche
+		# la flaque d'être un trou noir à liseré blanc.
+		#
+		# Et elle est FROIDE : une saumure qui phosphore est exactement le
+		# contre-pôle qu'il manquait au milieu d'une halle ambrée. Sous le
+		# seuil du halo, donc elle ne bave pas.
+		material.emission_enabled = true
+		material.emission = Color(0.10, 0.44, 0.42)
+		material.emission_energy_multiplier = 0.30
 		return material
 
 	if GRAIN.has(surface):
