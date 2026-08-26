@@ -12,6 +12,10 @@ extra_animations = ExtResource("1_x8j2u")
 yaw_degrees = 180.0
 attack = &"Sword_Regular_B"
 death = &"plus/Death_B"
+walk_clip_speed = 0.7386171209764816
+run_clip_speed = 6.565322949645836
+back_clip_speed = 0.9028102996488548
+strafe_clip_speed = 0.7288484546514598
 death_alt = &"Death_D"
 attack_clips = Dictionary[StringName, StringName]({
 &"archer_dague": &"Sword_Regular_B",

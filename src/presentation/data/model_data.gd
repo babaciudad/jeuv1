@@ -47,7 +47,7 @@ extends Resource
 ## réutilise l'animation de repos, ce qui est laid mais jamais bloquant.
 @export var idle: StringName = &"Idle_A"
 @export var walk: StringName = &"Walk"
-@export var run: StringName = &"Jog"
+@export var run: StringName = &"Sprint"
 @export var attack: StringName = &"Sword_Regular_A"
 @export var dodge: StringName = &"Roll"
 @export var hurt: StringName = &"Hit_Chest"
@@ -61,12 +61,32 @@ extends Resource
 @export var walk_back: StringName = &"plus/Walk_Backwards"
 @export var strafe_left: StringName = &"plus/Strafe_left"
 @export var strafe_right: StringName = &"plus/Strafe_right"
-## Vitesse, en mètres par seconde, à laquelle chaque clip a été ANIMÉ. Elle
-## sert à caler la cadence sur la distance réellement parcourue : c'est la
-## seule façon d'éviter le patinage, et elle change dès qu'on touche aux
-## proportions du squelette.
-@export var walk_clip_speed: float = 1.45
-@export var run_clip_speed: float = 3.70
+## Vitesse au sol de chaque clip, en mètres par seconde. **MESURÉE**, jamais
+## saisie à la main.
+##
+## Ces six nombres étaient devinés, et c'est ce qui rendait les pas
+## catastrophiques. `plus/Walk_Large` était déclaré à 1,45 m/s alors qu'il en
+## produit 0,68 ; les pas chassés étaient déclarés à 3,70 alors qu'ils en
+## produisent 0,72 — un facteur cinq. Le personnage était traîné au sol à
+## plusieurs fois la vitesse que ses pieds fabriquaient.
+##
+## `make_models` les mesure maintenant sur le clip lui-même : pendant la phase
+## d'APPUI seulement — le pied qui touche — il intègre le déplacement
+## horizontal de ce pied dans le repère du bassin. Un cycle de marche sur place
+## fait reculer son pied d'appui exactement à la vitesse à laquelle le
+## personnage est censé avancer. Aucune constante à tenir à jour, et changer un
+## clip remet automatiquement le bon nombre.
+##
+## Il n'y a que DEUX allures en avant, une marche et une course, et c'est
+## délibéré. Mélanger deux clips de COURSE différents détruit la démarche :
+## leurs phases ne coïncident pas, les jambes se compensent, et la mesure en
+## jeu tombe à −92 % de recul du pied — le personnage vole. Mélanger une marche
+## et une course, en revanche, tient à quelques pour cent près. Une allure
+## intermédiaire n'aurait de sens qu'avec des clips animés ensemble, en phase.
+@export var walk_clip_speed: float = 0.73
+@export var run_clip_speed: float = 4.83
+@export var back_clip_speed: float = 0.90
+@export var strafe_clip_speed: float = 0.72
 
 @export_group("Réactions")
 ## Deuxième encaissement et deuxième chute. Alternés d'une fois sur l'autre :

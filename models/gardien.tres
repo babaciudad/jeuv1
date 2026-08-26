@@ -12,7 +12,12 @@ extra_animations = ExtResource("1_w85pm")
 yaw_degrees = 180.0
 idle = &"Idle_Sword"
 walk = &"plus/Walk_Large"
+run = &"Jog"
 attack = &"Sword_Regular_C"
+walk_clip_speed = 0.6915102157783922
+run_clip_speed = 4.829859967880257
+back_clip_speed = 0.9028102996488548
+strafe_clip_speed = 0.7288484546514598
 death_alt = &"plus/Death_A"
 attack_clips = Dictionary[StringName, StringName]({
 &"gardien_lourd": &"Sword_Regular_C",

@@ -53,6 +53,14 @@ var _dodging: bool = false
 var _dead: bool = false
 ## Alterne les variantes d'encaissement et de chute.
 var _flip: bool = false
+## Vitesses au sol retenues pour les points de mélange, en mètres par seconde.
+## Recopiées du modèle mais forcées strictement croissantes : deux points de
+## mélange au même endroit rendent le mélange indéfini, et un mannequin dont
+## tous les clips valent zéro suffit à provoquer le cas.
+var _walk: float = 0.7
+var _run: float = 4.8
+var _back: float = 0.9
+var _strafe: float = 0.7
 
 func ready() -> bool:
 	return _tree != null
@@ -113,33 +121,60 @@ func _clip(name_: StringName, fallback: StringName) -> StringName:
 		return name_
 	return fallback
 
+## Force un clip à boucler, et renvoie son nom.
+##
+## TOUS les clips du rig arrivent en `LOOP_NONE` : c'est ce que produit
+## l'importateur glb par défaut, et rien ne le signale. Conséquence, en jeu :
+## le personnage jouait UN pas, puis se figeait debout et traversait la salle
+## en glissant sans bouger une jambe. Idem pour l'attente, qui tenait deux
+## secondes puis restait plantée sur sa dernière image.
+##
+## Seule la locomotion et l'attente bouclent. Un coup, une esquive, un
+## encaissement et une chute doivent finir — les faire boucler serait le défaut
+## symétrique, et bien pire.
+func _loop(name_: StringName, fallback: StringName) -> StringName:
+	var chosen: StringName = _clip(name_, fallback)
+	if not _player.has_animation(chosen):
+		return chosen
+	var clip: Animation = _player.get_animation(chosen)
+	if clip != null and clip.loop_mode == Animation.LOOP_NONE:
+		clip.loop_mode = Animation.LOOP_LINEAR
+	return chosen
+
 func _animation(name_: StringName) -> AnimationNodeAnimation:
 	var node: AnimationNodeAnimation = AnimationNodeAnimation.new()
 	node.animation = name_
 	return node
 
 func _assemble(rig: Node3D) -> void:
-	var idle: StringName = _clip(_model.idle, &"Idle")
+	var idle: StringName = _loop(_model.idle, &"Idle")
 	var tree_root: AnimationNodeBlendTree = AnimationNodeBlendTree.new()
 
 	var ground: AnimationNodeBlendSpace2D = AnimationNodeBlendSpace2D.new()
-	ground.min_space = Vector2(-4.5, -4.5)
-	ground.max_space = Vector2(4.5, 6.0)
 	ground.blend_mode = AnimationNodeBlendSpace2D.BLEND_MODE_INTERPOLATED
-	# Les points sont posés en MÈTRES PAR SECONDE, pas en fractions : c'est ce
-	# qui permet d'y jeter directement la vitesse mesurée sans table de
-	# conversion, et de relire le réglage sans le décoder.
+	# Les points sont posés en MÈTRES PAR SECONDE, à la vitesse MESURÉE de
+	# chaque clip. C'est tout l'intérêt : quand la vitesse réelle vaut celle
+	# d'un point, ce point est joué seul à sa cadence d'origine, et le pied ne
+	# glisse pas d'un millimètre. Un nombre faux ici — et ils l'étaient tous,
+	# jusqu'à un facteur cinq sur les pas chassés — traîne le personnage au sol
+	# à une vitesse que ses jambes ne fabriquent pas.
+	_walk = maxf(_model.walk_clip_speed, 0.25)
+	_run = maxf(_model.run_clip_speed, _walk + 0.35)
+	_back = maxf(_model.back_clip_speed, 0.25)
+	_strafe = maxf(_model.strafe_clip_speed, 0.25)
+	ground.min_space = Vector2(-_strafe * 1.2, -_back * 1.2)
+	ground.max_space = Vector2(_strafe * 1.2, _run * 1.2)
 	ground.add_blend_point(_animation(idle), Vector2.ZERO, -1, &"arret")
-	ground.add_blend_point(_animation(_clip(_model.walk, idle)),
-		Vector2(0.0, _model.walk_clip_speed), -1, &"marche")
-	ground.add_blend_point(_animation(_clip(_model.run, idle)),
-		Vector2(0.0, _model.run_clip_speed), -1, &"course")
-	ground.add_blend_point(_animation(_clip(_model.walk_back, idle)),
-		Vector2(0.0, -_model.walk_clip_speed), -1, &"recul")
-	ground.add_blend_point(_animation(_clip(_model.strafe_left, idle)),
-		Vector2(-_model.run_clip_speed, 0.0), -1, &"gauche")
-	ground.add_blend_point(_animation(_clip(_model.strafe_right, idle)),
-		Vector2(_model.run_clip_speed, 0.0), -1, &"droite")
+	ground.add_blend_point(_animation(_loop(_model.walk, idle)),
+		Vector2(0.0, _walk), -1, &"marche")
+	ground.add_blend_point(_animation(_loop(_model.run, idle)),
+		Vector2(0.0, _run), -1, &"course")
+	ground.add_blend_point(_animation(_loop(_model.walk_back, idle)),
+		Vector2(0.0, -_back), -1, &"recul")
+	ground.add_blend_point(_animation(_loop(_model.strafe_left, idle)),
+		Vector2(-_strafe, 0.0), -1, &"gauche")
+	ground.add_blend_point(_animation(_loop(_model.strafe_right, idle)),
+		Vector2(_strafe, 0.0), -1, &"droite")
 	tree_root.add_node(&"sol", ground, Vector2(0.0, 0.0))
 
 	var cadence: AnimationNodeTimeScale = AnimationNodeTimeScale.new()
@@ -237,14 +272,34 @@ func _drive_ground(travel: Vector2, facing: Vector2) -> void:
 		var forward: Vector2 = facing.normalized()
 		var right: Vector2 = Vector2(forward.y, -forward.x)
 		blend = Vector2(travel.dot(right), travel.dot(forward))
-		# Cadence : le clip est joué à la vitesse pour laquelle il a été animé,
-		# donc le rapport des deux annule le patinage. Bornée — un personnage
-		# projeté ne doit pas pédaler à quatre fois la vitesse.
-		var reference: float = maxf(0.4, minf(_model.run_clip_speed,
-			maxf(_model.walk_clip_speed, speed)))
-		scale = clampf(speed / reference, 0.55, 1.85)
+		scale = clampf(speed / _capacite(blend), 1.0, 2.4)
 	_tree.set(&"parameters/sol/blend_position", blend)
 	_tree.set(&"parameters/cadence/scale", scale)
+
+## Vitesse maximale que le mélange de sol sait fabriquer DANS UNE DIRECTION
+## donnée, en mètres par seconde.
+##
+## En dessous, la cadence reste à 1 : les points étant posés aux vitesses
+## mesurées, le mélange produit déjà la bonne allure et la retoucher ne ferait
+## que la casser. Au-dessus, il n'y a plus de clip assez rapide et il faut bien
+## accélérer le film — c'est le cas normal, puisque les classes courent entre
+## 4,2 et 5,3 m/s.
+##
+## Les trois plafonds — avant, arrière, côté — décrivent une ellipse, et la
+## capacité dans une direction est son rayon dans cette direction. Prendre
+## simplement le plafond avant ferait pédaler un personnage qui tourne autour
+## d'un boss à sept fois la cadence de son pas chassé.
+func _capacite(blend: Vector2) -> float:
+	var direction: Vector2 = blend.normalized()
+	if direction.is_zero_approx():
+		return _run
+	var avant: float = _run if direction.y >= 0.0 else _back
+	var cote: float = _strafe
+	var terme: float = pow(direction.x / cote, 2.0) \
+		+ pow(direction.y / avant, 2.0)
+	if terme <= 0.0001:
+		return _run
+	return 1.0 / sqrt(terme)
 
 func _drive_dodge(actor: Actor) -> void:
 	var rolling: bool = actor.state == Actor.State.DODGING

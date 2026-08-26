@@ -12,8 +12,13 @@ extra_animations = ExtResource("1_dhs5f")
 yaw_degrees = 180.0
 idle = &"plus/Fighting Idle"
 walk = &"plus/Walk_Large"
+run = &"plus/Run_Female"
 attack = &"Sword_Regular_C"
 death = &"plus/Death_A"
+walk_clip_speed = 0.6915102157783922
+run_clip_speed = 4.009786339337498
+back_clip_speed = 0.9028102996488548
+strafe_clip_speed = 0.7288484546514598
 death_alt = &"Death_D"
 attack_clips = Dictionary[StringName, StringName]({
 &"boss_slam": &"plus/Attack_Ground_Pound",

@@ -15,18 +15,14 @@ extends SceneTree
 const CORPS: String = "res://models/humain/gestes_base.glb"
 const GESTES_PLUS: String = "res://models/humain/gestes_plus.glb"
 
-## Vitesses, en mètres par seconde, auxquelles la marche et la course ont été
-## animées. Le mélangeur s'en sert pour caler la cadence sur la distance
-## réellement parcourue.
-const MARCHE: float = 1.45
-const COURSE: float = 3.70
 
 ## Un personnage : identifiant, repos, marche, course, esquive, encaissement,
 ## chute, et le geste de chaque attaque.
 const CAST: Array[Dictionary] = [
 	{
 		"id": "gardien",
-		"repos": "Idle_Sword", "marche": "plus/Walk_Large", "course": "Jog",
+		"repos": "Idle_Sword", "marche": "plus/Walk_Large",
+		"course": "Jog",
 		"chute": "Death_D", "chute_bis": "plus/Death_A",
 		"gestes": {
 			"gardien_lourd": "Sword_Regular_C",
@@ -35,7 +31,8 @@ const CAST: Array[Dictionary] = [
 	},
 	{
 		"id": "archer",
-		"repos": "Idle_A", "marche": "Walk", "course": "Jog",
+		"repos": "Idle_A", "marche": "Walk",
+		"course": "Sprint",
 		"chute": "plus/Death_B", "chute_bis": "Death_D",
 		"gestes": {
 			"archer_dague": "Sword_Regular_B",
@@ -44,7 +41,8 @@ const CAST: Array[Dictionary] = [
 	},
 	{
 		"id": "mage",
-		"repos": "Spell_Simple_Idle", "marche": "Walk", "course": "Jog",
+		"repos": "Spell_Simple_Idle", "marche": "Walk",
+		"course": "Jog",
 		"chute": "plus/Death_C", "chute_bis": "plus/Death_B",
 		"gestes": {
 			"mage_baton": "Sword_Regular_B",
@@ -53,7 +51,8 @@ const CAST: Array[Dictionary] = [
 	},
 	{
 		"id": "soigneur",
-		"repos": "Idle_A", "marche": "Walk_Formal", "course": "Jog",
+		"repos": "Idle_A", "marche": "Walk_Formal",
+		"course": "plus/Run_Anime",
 		"chute": "plus/Death_B", "chute_bis": "plus/Death_C",
 		"gestes": {
 			"soigneur_lame": "Sword_Regular_A",
@@ -66,7 +65,7 @@ const CAST: Array[Dictionary] = [
 		# au premier coup d'œil, de loin, sans lire une barre de vie.
 		"id": "gobelin",
 		"repos": "Zombie_Idle", "marche": "Zombie_Walk",
-		"course": "plus/Zombie_Walk_2",
+		"course": "plus/Run_Female",
 		"chute": "Death_D", "chute_bis": "plus/Death_C",
 		"gestes": {
 			"gobelin_coup": "Zombie_Scratch",
@@ -83,7 +82,8 @@ const CAST: Array[Dictionary] = [
 	},
 	{
 		"id": "warden",
-		"repos": "plus/Fighting Idle", "marche": "plus/Walk_Large", "course": "Jog",
+		"repos": "plus/Fighting Idle", "marche": "plus/Walk_Large",
+		"course": "plus/Run_Female",
 		"chute": "plus/Death_A", "chute_bis": "Death_D",
 		"gestes": {
 			"boss_swing": "Sword_Regular_C",
@@ -106,6 +106,118 @@ const CAST: Array[Dictionary] = [
 ## Désormais un nom inconnu arrête la génération.
 var _connus: Dictionary[StringName, bool] = {}
 
+# ---------------------------------------------------------------------------
+# Mesure de la vitesse au sol d'un clip
+# ---------------------------------------------------------------------------
+#
+# Un clip de locomotion est animé SUR PLACE : le personnage ne bouge pas, mais
+# son pied d'appui recule sous lui. La vitesse à laquelle il recule est
+# exactement celle à laquelle le personnage est censé avancer. On la mesure
+# donc directement sur le clip, au lieu de la saisir à la main — ce qui donnait
+# des erreurs d'un facteur cinq et rendait les pas catastrophiques.
+#
+# On n'utilise pas l'AnimationPlayer pour poser le squelette : hors boucle de
+# rendu il ne pose rien du tout, et toutes les mesures sortent égales à la pose
+# de repos, sans le moindre signe que quelque chose cloche. On compose donc la
+# chaîne d'os à la main, à partir des pistes du clip.
+
+var _os: Skeleton3D = null
+var _chemin: String = ""
+var _bassin: int = -1
+var _pieds: Array[int] = []
+
+func _squelette(node: Node) -> Skeleton3D:
+	if node is Skeleton3D:
+		return node as Skeleton3D
+	for child: Node in node.get_children():
+		var found: Skeleton3D = _squelette(child)
+		if found != null:
+			return found
+	return null
+
+## Transformées globales de tous les os, pour un clip à un instant donné.
+func _poses(anim: Animation, temps: float) -> Array[Transform3D]:
+	var out: Array[Transform3D] = []
+	out.resize(_os.get_bone_count())
+	for index: int in _os.get_bone_count():
+		var repos: Transform3D = _os.get_bone_rest(index)
+		var voie: NodePath = NodePath(
+			_chemin + ":" + _os.get_bone_name(index))
+		var position: Vector3 = repos.origin
+		var rotation: Quaternion = repos.basis.get_rotation_quaternion()
+		var echelle: Vector3 = repos.basis.get_scale()
+		var tp: int = anim.find_track(voie, Animation.TYPE_POSITION_3D)
+		var tr: int = anim.find_track(voie, Animation.TYPE_ROTATION_3D)
+		var te: int = anim.find_track(voie, Animation.TYPE_SCALE_3D)
+		if tp >= 0:
+			position = anim.position_track_interpolate(tp, temps)
+		if tr >= 0:
+			rotation = anim.rotation_track_interpolate(tr, temps)
+		if te >= 0:
+			echelle = anim.scale_track_interpolate(te, temps)
+		var locale: Transform3D = Transform3D(
+			Basis(rotation).scaled(echelle), position)
+		var parent: int = _os.get_bone_parent(index)
+		out[index] = locale if parent < 0 else out[parent] * locale
+	return out
+
+## Vitesse au sol d'un clip, en mètres par seconde. Zéro si le clip est absent
+## ou n'a pas de pied d'appui identifiable.
+func _vitesse(lecteur: AnimationPlayer, nom: String) -> float:
+	if _os == null or _bassin < 0 or not lecteur.has_animation(nom):
+		return 0.0
+	var anim: Animation = lecteur.get_animation(nom)
+	var duree: float = anim.length
+	if duree <= 0.01:
+		return 0.0
+	const PAS: int = 192
+	# Premier passage : où est le sol dans ce clip. On ne peut pas le supposer
+	# à zéro — un cycle de course fait descendre le bassin, et la hauteur du
+	# pied posé varie d'un clip à l'autre.
+	var sol: float = 1e9
+	var bas: Array[Vector3] = []
+	var hauts: Array[Vector3] = []
+	var bassins: Array[Vector3] = []
+	bas.resize(PAS + 1)
+	hauts.resize(PAS + 1)
+	bassins.resize(PAS + 1)
+	var appuis: Array[int] = []
+	appuis.resize(PAS + 1)
+	for index: int in PAS + 1:
+		var poses: Array[Transform3D] = _poses(
+			anim, duree * float(index) / float(PAS))
+		var gauche: Vector3 = poses[_pieds[0]].origin
+		var droite: Vector3 = poses[_pieds[1]].origin
+		var porte: int = 0 if gauche.y <= droite.y else 1
+		appuis[index] = porte
+		bas[index] = gauche if porte == 0 else droite
+		hauts[index] = droite if porte == 0 else gauche
+		bassins[index] = poses[_bassin].origin
+		sol = minf(sol, bas[index].y)
+	# Second passage : on n'intègre QUE pendant l'appui.
+	#
+	# Sans ce filtre, la mesure est fausse d'un bon quart : pendant l'envol
+	# d'une foulée de course, le pied « le plus bas » est en train de revenir
+	# vers l'avant, et son déplacement se soustrait de ce qu'on veut mesurer.
+	# La première version de cette fonction annonçait 5,01 m/s pour un clip qui
+	# en produit 8,7 au sol.
+	const MARGE: float = 0.05
+	var total: float = 0.0
+	var duree_appui: float = 0.0
+	var pas: float = duree / float(PAS)
+	for index: int in range(1, PAS + 1):
+		if appuis[index] != appuis[index - 1]:
+			continue
+		if bas[index].y > sol + MARGE or bas[index - 1].y > sol + MARGE:
+			continue
+		var a: Vector3 = bas[index - 1] - bassins[index - 1]
+		var b: Vector3 = bas[index] - bassins[index]
+		total += Vector2(b.x - a.x, b.z - a.z).length()
+		duree_appui += pas
+	if duree_appui <= 0.0001:
+		return 0.0
+	return total / duree_appui
+
 func _lecteur(node: Node) -> AnimationPlayer:
 	if node is AnimationPlayer:
 		return node as AnimationPlayer
@@ -123,6 +235,32 @@ func _recenser(scene: PackedScene, prefix: String) -> void:
 		for nom: String in lecteur.get_animation_list():
 			_connus[StringName(prefix + nom)] = true
 	node.queue_free()
+
+## Monte un exemplaire du corps, greffe la bibliothèque d'appoint dessus, et
+## renvoie son lecteur : c'est sur lui qu'on mesure toutes les vitesses.
+func _banc(corps: PackedScene, plus: PackedScene) -> AnimationPlayer:
+	var node: Node = corps.instantiate()
+	get_root().add_child(node)
+	var lecteur: AnimationPlayer = _lecteur(node)
+	if lecteur == null:
+		return null
+	var appoint: Node = plus.instantiate()
+	var source: AnimationPlayer = _lecteur(appoint)
+	if source != null:
+		for nom: StringName in source.get_animation_library_list():
+			lecteur.add_animation_library(&"plus",
+				source.get_animation_library(nom))
+			break
+	_os = _squelette(node)
+	if _os == null:
+		return lecteur
+	var racine: Node = lecteur.get_node(lecteur.root_node)
+	_chemin = String(racine.get_path_to(_os))
+	_bassin = _os.find_bone("pelvis")
+	_pieds = [_os.find_bone("ball_l"), _os.find_bone("ball_r")]
+	if _pieds[0] < 0 or _pieds[1] < 0:
+		_pieds = [_os.find_bone("foot_l"), _os.find_bone("foot_r")]
+	return lecteur
 
 ## Vérifie un nom et le renvoie. `quoi` sert au message d'erreur.
 func _clip(nom: String, id: String, quoi: String) -> StringName:
@@ -143,6 +281,11 @@ func _init() -> void:
 	_recenser(corps, "")
 	_recenser(plus, "plus/")
 	print("clips disponibles : %d" % _connus.size())
+	var banc: AnimationPlayer = _banc(corps, plus)
+	if banc == null or _bassin < 0:
+		printerr("banc de mesure indisponible : squelette ou lecteur absent")
+		quit(1)
+		return
 	for entry: Dictionary in CAST:
 		var id: String = entry["id"]
 		var model: ModelData = ModelData.new()
@@ -165,8 +308,13 @@ func _init() -> void:
 		model.walk_back = _clip("plus/Walk_Backwards", id, "recul")
 		model.strafe_left = _clip("plus/Strafe_left", id, "pas gauche")
 		model.strafe_right = _clip("plus/Strafe_right", id, "pas droit")
-		model.walk_clip_speed = MARCHE
-		model.run_clip_speed = COURSE
+		# Mesurées sur les clips eux-mêmes, jamais saisies.
+		model.walk_clip_speed = _vitesse(banc, marche)
+		model.run_clip_speed = _vitesse(banc, course)
+		model.back_clip_speed = _vitesse(banc, "plus/Walk_Backwards")
+		model.strafe_clip_speed = 0.5 * (
+			_vitesse(banc, "plus/Strafe_left")
+			+ _vitesse(banc, "plus/Strafe_right"))
 		model.dodge = _clip("Roll", id, "esquive")
 		model.hurt = _clip("Hit_Chest", id, "encaissement")
 		model.hurt_alt = _clip("Hit_Head", id, "encaissement bis")
@@ -185,7 +333,9 @@ func _init() -> void:
 		model.run_speed = 3.0
 		model.blend_time = 0.16
 		var code: int = ResourceSaver.save(model, "res://models/%s.tres" % id)
-		print("%s : %d" % [id, code])
+		print("%-10s marche %.2f  course %.2f  recul %.2f  chasse %.2f  (%d)"
+			% [id, model.walk_clip_speed, model.run_clip_speed,
+				model.back_clip_speed, model.strafe_clip_speed, code])
 	if _faute:
 		printerr("des clips manquent : modeles NON valides")
 		quit(1)

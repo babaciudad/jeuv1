@@ -11,7 +11,12 @@ scene = ExtResource("2_yuic8")
 extra_animations = ExtResource("1_3wxa0")
 yaw_degrees = 180.0
 walk = &"Walk_Formal"
+run = &"plus/Run_Anime"
 death = &"plus/Death_B"
+walk_clip_speed = 0.7340097611310442
+run_clip_speed = 4.891635980762419
+back_clip_speed = 0.9028102996488548
+strafe_clip_speed = 0.7288484546514598
 death_alt = &"plus/Death_C"
 attack_clips = Dictionary[StringName, StringName]({
 &"soigneur_lame": &"Sword_Regular_A",

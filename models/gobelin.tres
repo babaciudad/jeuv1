@@ -12,8 +12,12 @@ extra_animations = ExtResource("1_kc5td")
 yaw_degrees = 180.0
 idle = &"Zombie_Idle"
 walk = &"Zombie_Walk"
-run = &"plus/Zombie_Walk_2"
+run = &"plus/Run_Female"
 attack = &"Zombie_Scratch"
+walk_clip_speed = 0.9316123230470877
+run_clip_speed = 4.009786339337498
+back_clip_speed = 0.9028102996488548
+strafe_clip_speed = 0.7288484546514598
 death_alt = &"plus/Death_C"
 attack_clips = Dictionary[StringName, StringName]({
 &"gobelin_coup": &"Zombie_Scratch"

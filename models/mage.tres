@@ -11,8 +11,13 @@ scene = ExtResource("2_4qfac")
 extra_animations = ExtResource("1_7nbkl")
 yaw_degrees = 180.0
 idle = &"Spell_Simple_Idle"
+run = &"Jog"
 attack = &"Sword_Regular_B"
 death = &"plus/Death_C"
+walk_clip_speed = 0.7386171209764816
+run_clip_speed = 4.829859967880257
+back_clip_speed = 0.9028102996488548
+strafe_clip_speed = 0.7288484546514598
 attack_clips = Dictionary[StringName, StringName]({
 &"mage_baton": &"Sword_Regular_B",
 &"mage_trait": &"Spell_Simple_Shoot"
