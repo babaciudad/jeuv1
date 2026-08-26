@@ -1173,7 +1173,11 @@ func chaine(out: Array[SkinPart], at: Vector3, longueur: float,
 ## miroir.
 func flaque(out: Array[SkinPart], at: Vector3, rayon: float,
 		miroir: bool = true) -> void:
-	var teinte: Color = BRINE_WET if miroir else BRINE_WET.lightened(0.18)
+	# La flaque miroir etait peinte de la couleur propre de la saumure, presque
+	# noire, en comptant sur le reflet pour l'eclairer. A trente pour cent de
+	# rugosite le reflet est flou : elle rendait un trou noir sur le parvis.
+	var teinte: Color = BRINE_WET.lightened(0.38) if miroir \
+		else BRINE_WET.lightened(0.18)
 	var matiere: int = SkinPart.Surface.LIQUID if miroir else M_STONE
 	out.append(D(CY, Vector3(rayon, 0.03, rayon),
 		at + Vector3(0.0, 0.016, 0.0), teinte, matiere))
