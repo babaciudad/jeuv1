@@ -71,14 +71,34 @@ tone = Color(0.42, 0.74, 1, 1)
 [sub_resource type="Resource" id="Resource_bepjp"]
 script = ExtResource("2_emq2c")
 id = &"couloir"
-position = Vector2(0, 13.5)
-radius = 4.6
+position = Vector2(0, 12.4)
+radius = 4.4
 line = "Au-delà, plus rien ne pardonne."
-hint = "Trois gobelins dans le boyau. Attire-les un par un ; à deux, tu meurs."
+hint = "Ils sont six sur les salines. Attire-les un par un ; à deux, tu meurs."
 read_seconds = 5.0
 tone = Color(1, 0.36, 0.3, 1)
 
 [sub_resource type="Resource" id="Resource_8t374"]
+script = ExtResource("2_emq2c")
+id = &"verrou"
+position = Vector2(0, 15.6)
+radius = 3.8
+line = "Tab, ou le bouton du milieu : accroche-toi à lui."
+hint = "Verrouillé, tu lui restes de face. Tu recules, tu tournes autour, tu ne le perds plus."
+read_seconds = 5.5
+tone = Color(0.42, 0.74, 1, 1)
+
+[sub_resource type="Resource" id="Resource_jpdsi"]
+script = ExtResource("2_emq2c")
+id = &"pas"
+position = Vector2(0, 18.2)
+radius = 3.8
+line = "Esquive sans toucher au déplacement : tu sautes en arrière."
+hint = "Moins d'endurance, moins loin, et tu ne lui tournes jamais le dos. C'est le pas qui sauve à bout portant."
+read_seconds = 5.5
+tone = Color(0.42, 0.74, 1, 1)
+
+[sub_resource type="Resource" id="Resource_d736p"]
 script = ExtResource("2_emq2c")
 id = &"tuer"
 position = Vector2(0, 24)
@@ -88,7 +108,7 @@ hint = "Frapper en premier, c'est mourir en premier."
 condition = 8
 tone = Color(1, 0.36, 0.3, 1)
 
-[sub_resource type="Resource" id="Resource_jpdsi"]
+[sub_resource type="Resource" id="Resource_2o171"]
 script = ExtResource("2_emq2c")
 id = &"endurance"
 position = Vector2(0, 40)
@@ -98,7 +118,7 @@ hint = "À zéro, plus de roulade. C'est comme ça qu'on meurt, pas par manque d
 read_seconds = 5.0
 tone = Color(0.42, 0.74, 1, 1)
 
-[sub_resource type="Resource" id="Resource_d736p"]
+[sub_resource type="Resource" id="Resource_ufhxi"]
 script = ExtResource("2_emq2c")
 id = &"raccourci"
 position = Vector2(19, 117)
@@ -110,5 +130,5 @@ tone = Color(0.42, 0.74, 1, 1)
 
 [resource]
 script = ExtResource("1_xn0gs")
-id = &"chapelle"
-signs = Array[ExtResource("2_emq2c")]([SubResource("Resource_l8l1v"), SubResource("Resource_xprqm"), SubResource("Resource_bdgjb"), SubResource("Resource_15yh0"), SubResource("Resource_kdjja"), SubResource("Resource_j8mlp"), SubResource("Resource_f25xp"), SubResource("Resource_bepjp"), SubResource("Resource_8t374"), SubResource("Resource_jpdsi"), SubResource("Resource_d736p")])
+id = &"salines"
+signs = Array[ExtResource("2_emq2c")]([SubResource("Resource_l8l1v"), SubResource("Resource_xprqm"), SubResource("Resource_bdgjb"), SubResource("Resource_15yh0"), SubResource("Resource_kdjja"), SubResource("Resource_j8mlp"), SubResource("Resource_f25xp"), SubResource("Resource_bepjp"), SubResource("Resource_8t374"), SubResource("Resource_jpdsi"), SubResource("Resource_d736p"), SubResource("Resource_2o171"), SubResource("Resource_ufhxi")])
