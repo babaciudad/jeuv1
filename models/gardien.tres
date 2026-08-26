@@ -15,4 +15,10 @@ attack = &"1H_Melee_Attack_Chop"
 dodge = &"Dodge_Forward"
 hurt = &"Hit_A"
 death = &"Death_A"
+walk_clip_speed = 2.0
+run_clip_speed = 5.0
+attack_clips = Dictionary[StringName, StringName]({
+&"gardien_lourd": &"2H_Melee_Attack_Chop",
+&"gardien_rapide": &"1H_Melee_Attack_Slice_Horizontal"
+})
 blend_time = 0.16

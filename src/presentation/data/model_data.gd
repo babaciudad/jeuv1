@@ -44,6 +44,35 @@ extends Resource
 @export var hurt: StringName = &"hurt"
 @export var death: StringName = &"death"
 
+@export_group("Locomotion dirigée")
+## Marche et course de dos, et pas chassés. Un souls-like passe la moitié de
+## son temps à reculer devant un boss ou à tourner autour : sans ces clips, le
+## personnage recule en marchant en avant, ce qui est le défaut d'animation le
+## plus visible du genre.
+@export var walk_back: StringName = &"Walking_Backwards"
+@export var strafe_left: StringName = &"Running_Strafe_Left"
+@export var strafe_right: StringName = &"Running_Strafe_Right"
+## Vitesse, en mètres par seconde, à laquelle chaque clip a été ANIMÉ. Elle
+## sert à caler la cadence sur la distance réellement parcourue : c'est la
+## seule façon d'éviter le patinage, et elle change dès qu'on touche aux
+## proportions du squelette.
+@export var walk_clip_speed: float = 1.35
+@export var run_clip_speed: float = 3.60
+
+@export_group("Réactions")
+## Deuxième encaissement et deuxième chute. Alternés d'une fois sur l'autre :
+## un ennemi qui reçoit six coups et joue six fois la même secousse cesse
+## d'avoir l'air vivant.
+@export var hurt_alt: StringName = &"Hit_B"
+@export var death_alt: StringName = &"Death_B"
+
+@export_group("Gestes d'attaque")
+## Clip par identifiant d'attaque. Un gardien qui abat une lame lourde et un
+## gardien qui tranche vite ne font pas le même geste, et c'est ce qui rend
+## une attaque lisible AVANT l'impact. Une attaque absente de la table retombe
+## sur `attack`.
+@export var attack_clips: Dictionary[StringName, StringName] = {}
+
 @export_group("Réglages")
 ## Vitesse, en mètres par seconde, au-delà de laquelle on passe de la marche
 ## à la course.

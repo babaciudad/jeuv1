@@ -17,6 +17,9 @@ extends Node3D
 @export var pitch_min_degrees: float = -60.0
 @export var pitch_max_degrees: float = 20.0
 
+var _shake: float = 0.0
+var _shake_clock: float = 0.0
+
 ## Nombre de positions testées entre le personnage et la caméra pour trouver
 ## la plus reculée qui reste dégagée.
 const OCCLUSION_STEPS: int = 14
@@ -37,6 +40,12 @@ const ACTOR_CLEARANCE: float = 0.6
 ## mais avec un mètre de dalle plein cadre. Elle rentre maintenant.
 const CEILING_CLEARANCE: float = 1.05
 const FLOOR_CLEARANCE: float = 0.35
+
+## Amplitude maximale de secousse, en radians, et vitesse d'extinction. Une
+## secousse qui dure est un mal de mer ; celle-ci est finie en un tiers de
+## seconde.
+const SHAKE_MAX: float = 0.035
+const SHAKE_DECAY: float = 0.11
 
 var _camera: Camera3D
 var _game_view: GameView
@@ -80,8 +89,24 @@ func planar_right() -> Vector2:
 	var flat: Vector2 = Vector2(right.x, right.z)
 	return flat.normalized() if flat.length() > 0.001 else Vector2(1.0, 0.0)
 
-func _process(_delta: float) -> void:
+## Secoue la caméra. Appelé quand le personnage local encaisse : c'est la
+## moitié de ce qui fait qu'un coup se SENT, l'autre étant l'arrêt sur image
+## du corps touché.
+func shake(force: float) -> void:
+	_shake = minf(_shake + force, SHAKE_MAX)
+
+func _process(delta: float) -> void:
 	rotation = Vector3(_pitch, _yaw, 0.0)
+	if _shake > 0.0:
+		_shake = maxf(0.0, _shake - delta * SHAKE_DECAY)
+		# Deux sinusoïdes de fréquences premières entre elles : ça ne boucle
+		# pas visiblement, et ça ne demande aucun tirage aléatoire — deux
+		# joueurs qui prennent le même coup voient la même secousse.
+		_shake_clock += delta
+		rotation += Vector3(
+			sin(_shake_clock * 61.0) * _shake,
+			sin(_shake_clock * 43.0) * _shake * 0.8,
+			sin(_shake_clock * 79.0) * _shake * 0.5)
 	if _game_view == null:
 		return
 	var found: Array[Vector3] = []

@@ -63,6 +63,14 @@ const ARM_HEAL_DEGREES: float = -150.0
 const ROLL_PIVOT_HEIGHT: float = 0.58
 ## Écrasement vertical au milieu de la roulade. Le corps se ramasse.
 const ROLL_TUCK: float = 0.26
+## Radians d'inclinaison par mètre par seconde carré d'accélération, et butée.
+const LEAN_PER_ACCEL: float = 0.019
+const LEAN_MAX: float = 0.21
+## Recul à l'impact : distance en mètres, et durée en secondes. Court, sec, et
+## il ne déplace RIEN dans la simulation — c'est le porte-pièces qui bouge,
+## pas l'acteur.
+const RECOIL_METRES: float = 0.26
+const RECOIL_SECONDS: float = 0.16
 
 ## Nœud portant tout le corps. La pose d'ensemble — chute, chancellement,
 ## roulade — s'applique à lui seul, jamais aux pièces une par une.
@@ -84,11 +92,20 @@ var _gait: float = 0.0
 ## exactement ensemble ont l'air d'un seul objet.
 var _clock: float = 0.0
 var _last_position: Vector2 = Vector2.ZERO
+## Déplacement observé, en mètres par seconde et en coordonnées du monde.
+## C'est lui qui pilote le mélange de sol : la vitesse simulée d'un acteur
+## distant est interpolée et ne veut rien dire ici.
+var _travel: Vector2 = Vector2.ZERO
+## Accélération observée, en mètres par seconde carrée. Pilote l'inclinaison.
+var _push: Vector2 = Vector2.ZERO
+## Recul en cours : temps restant, et direction dans le repère du personnage.
+var _recoil: float = 0.0
+var _recoil_from: Vector2 = Vector2.ZERO
 ## Non nul quand la vue est bâtie sur un modèle importé. Dans ce cas le
 ## squelette de pivots n'existe pas et l'animation procédurale est court-
 ## circuitée : c'est l'AnimationPlayer du modèle qui pose le personnage.
 var _model: ModelData = null
-var _model_player: AnimationPlayer = null
+var _animator: SaltAnimator = null
 var _has_last: bool = false
 var _speed: float = 0.0
 ## Angles courants, lissés vers leur cible à chaque image.
@@ -172,81 +189,12 @@ func _build_model(actor: Actor, model: ModelData, tint: Color) -> void:
 		body.scale = Vector3.ONE * maxf(0.001, model.scale)
 		body.rotation.y = deg_to_rad(model.yaw_degrees)
 		body.position.y = model.lift + salt.lift * maxf(0.001, model.scale)
-	_model_player = _find_player(instance)
-	if _model_player == null:
-		push_warning("Le modèle %s n'a pas d'AnimationPlayer : il sera figé."
-			% model.id)
-		return
-	# Invariant 8 : ce lecteur ne pilote QUE l'apparence. Il est ancré dans le
-	# modèle, il ne peut donc atteindre ni AttackRunner ni World, et une piste
-	# d'appel de méthode qu'un modèle importé apporterait ne trouverait rien à
-	# appeler. Ne PAS réassigner `root_node` pour s'en assurer : cela casse la
-	# résolution des pistes de squelette, et le personnage reste figé en T.
-	_model_player.callback_mode_method = \
-		AnimationMixer.ANIMATION_CALLBACK_MODE_METHOD_DEFERRED
+	# Ne PAS réassigner `root_node` de l'AnimationPlayer pour isoler le modèle :
+	# cela casse la résolution des pistes de squelette et le personnage reste
+	# figé en T. SaltAnimator s'en charge autrement.
+	if instance is Node3D:
+		_animator = SaltAnimator.build(instance as Node3D, model)
 	_stand_height = actor.radius * 2.0
-
-func _find_player(node: Node) -> AnimationPlayer:
-	if node is AnimationPlayer:
-		return node as AnimationPlayer
-	for child: Node in node.get_children():
-		var found: AnimationPlayer = _find_player(child)
-		if found != null:
-			return found
-	return null
-
-## Choisit l'animation qui correspond à l'état simulé, et l'enchaîne.
-##
-## L'attaque est ÉTIRÉE pour durer exactement le temps de l'attaque simulée :
-## c'est ce qui fait tomber le geste sur la fenêtre de hitbox, sans jamais que
-## l'animation ne décide de cette fenêtre.
-func _animate_model(actor: Actor, _delta: float) -> void:
-	if _model_player == null:
-		return
-	var wanted: StringName = _model.idle
-	var speed_scale: float = 1.0
-	var once: bool = false
-	match actor.state:
-		Actor.State.DEAD:
-			wanted = _model.death
-			once = true
-		Actor.State.STAGGERED:
-			wanted = _model.hurt
-			once = true
-		Actor.State.DODGING:
-			wanted = _model.dodge
-			once = true
-		_:
-			if actor.runner != null and not actor.runner.finished \
-					and actor.runner.attack != null:
-				wanted = _model.attack
-				once = true
-				var sim_length: float = actor.runner.attack.timeline.length \
-					if actor.runner.attack.timeline != null else 0.0
-				var clip: Animation = _clip(wanted)
-				if clip != null and sim_length > 0.01:
-					speed_scale = clip.length / sim_length
-			elif _speed >= _model.run_speed:
-				wanted = _model.run
-			elif _speed >= 0.25:
-				wanted = _model.walk
-
-	if not _model_player.has_animation(wanted):
-		wanted = _model.idle
-		speed_scale = 1.0
-	if not _model_player.has_animation(wanted):
-		return
-	if _model_player.current_animation != wanted:
-		_model_player.play(wanted, _model.blend_time, speed_scale)
-	else:
-		_model_player.speed_scale = speed_scale
-	if once:
-		_clip(wanted).loop_mode = Animation.LOOP_NONE
-
-func _clip(name_: StringName) -> Animation:
-	if _model_player == null or not _model_player.has_animation(name_):
-		return null
-	return _model_player.get_animation(name_)
 
 # ---------------------------------------------------------------------------
 # Construction
@@ -362,15 +310,26 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 		var forward: Vector3 = Vector3(actor.facing.x, 0.0, actor.facing.y)
 		look_at(position + forward, Vector3.UP)
 
+	_recoil = maxf(0.0, _recoil - delta)
 	_advance_gait(shown, delta)
-	if _model != null:
-		_animate_model(actor, delta)
-	else:
+	if _animator != null and _animator.ready():
+		_animator.drive(actor, _travel, actor.facing)
+	elif _model == null:
 		_animate(actor, delta)
 	_apply_pose(actor, dodge)
 	var open: bool = actor.runner != null and actor.runner.hitbox_open
 	_apply_colors(actor, open, _fade_alpha(camera_position, is_local, player_distance))
 	_apply_smear(open)
+
+## Un coup vient d'arriver sur cet acteur. `from` est la provenance en
+## coordonnées du monde ; le corps part dans l'autre sens.
+##
+## Purement visuel : la simulation a déjà décidé des dégâts et de la position.
+## Le porte-pièces recule et se ramasse, puis revient — le personnage, lui,
+## n'a pas bougé d'un centimètre.
+func impact(from: Vector2) -> void:
+	_recoil = RECOIL_SECONDS
+	_recoil_from = from
 
 ## Vrai si cette vue est bâtie sur un modèle importé.
 func uses_model() -> bool:
@@ -385,9 +344,18 @@ func _advance_gait(shown: Vector2, delta: float) -> void:
 		_last_position = shown
 		_has_last = true
 		return
-	var travelled: float = shown.distance_to(_last_position)
+	var step: Vector2 = shown - _last_position
+	var travelled: float = step.length()
 	_last_position = shown
 	if delta > 0.0:
+		# Lissé comme la vitesse scalaire, et pour la même raison : un paquet
+		# réseau en retard ferait un sprint d'une image.
+		var mesure: Vector2 = step / delta
+		# Accélération, lissée deux fois : une différence de vitesse brute est
+		# du bruit, et une inclinaison qui suit du bruit est un tremblement.
+		_push = _push.lerp((mesure - _travel) / delta,
+			clampf(delta * 6.0, 0.0, 1.0))
+		_travel = _travel.lerp(mesure, clampf(delta * 12.0, 0.0, 1.0))
 		# Lissage : un paquet réseau en retard fait un saut de position, et un
 		# saut de position ferait un sprint d'une image sans ce filtre.
 		_speed = lerpf(_speed, travelled / delta, clampf(delta * 12.0, 0.0, 1.0))
@@ -474,7 +442,7 @@ func _apply_pose(actor: Actor, dodge: float) -> void:
 		if actor.state == Actor.State.DODGING:
 			_apply_roll(dodge)
 		else:
-			_pose.transform = Transform3D.IDENTITY
+			_apply_lean(actor)
 		return
 	match actor.state:
 		Actor.State.DEAD:
@@ -489,6 +457,42 @@ func _apply_pose(actor: Actor, dodge: float) -> void:
 			_pose.position = Vector3(0.0, -_stand_height * 0.28, 0.0)
 		_:
 			_pose.rotation = Vector3.ZERO
+
+## Inclinaison du corps dans le sens de l'ACCÉLÉRATION : on se penche pour
+## partir, on se redresse pour s'arrêter, on s'incline dans un virage. Aucune
+## bibliothèque d'animation ne le fournit — un clip de course est droit — et
+## c'est pourtant ce qui fait la différence entre un personnage qui se déplace
+## et un personnage qui glisse.
+##
+## Le pivot est aux pieds, volontairement : c'est un corps qui bascule sur ses
+## appuis, pas une figurine qui tourne.
+func _apply_lean(actor: Actor) -> void:
+	var pitch: float = 0.0
+	var roll: float = 0.0
+	if actor.state != Actor.State.DEAD and actor.state != Actor.State.STAGGERED:
+		var forward: Vector2 = actor.facing.normalized() 			if not actor.facing.is_zero_approx() else Vector2(0.0, 1.0)
+		var right: Vector2 = Vector2(forward.y, -forward.x)
+		pitch = clampf(_push.dot(forward) * LEAN_PER_ACCEL,
+			-LEAN_MAX, LEAN_MAX)
+		roll = clampf(-_push.dot(right) * LEAN_PER_ACCEL,
+			-LEAN_MAX, LEAN_MAX)
+	# -X penche vers l'avant : `look_at` fait pointer le -Z du nœud vers la
+	# cible, donc l'avant du personnage est en -Z.
+	var basis: Basis = Basis.from_euler(Vector3(-pitch, 0.0, roll))
+	var offset: Vector3 = Vector3.ZERO
+	if _recoil > 0.0:
+		var part: float = _recoil / RECOIL_SECONDS
+		# Sortie brutale, retour lent : un corps encaisse d'un coup et se
+		# replace en titubant.
+		var amount: float = sin(part * PI * 0.5) * RECOIL_METRES
+		var away: Vector3 = (global_position
+			- Vector3(_recoil_from.x, 0.0, _recoil_from.y))
+		away.y = 0.0
+		if away.length() > 0.01:
+			offset = global_transform.basis.inverse() * away.normalized() * amount
+		basis = basis.scaled(Vector3(1.0 + part * 0.05, 1.0 - part * 0.09,
+			1.0 + part * 0.05))
+	_pose.transform = Transform3D(basis, offset)
 
 ## Roulade : un tour complet vers l'avant, pivoté à hauteur de HANCHE et non
 ## aux pieds. Tourner autour des pieds ferait décrire au personnage un arc de

@@ -258,10 +258,39 @@ func _watch_health(world: World) -> void:
 		if actor.health == previous:
 			continue
 		var at: Vector3 = Vector3(actor.position.x, 0.0, actor.position.y)
-		if actor.health < previous:
-			Vfx.spawn(_actors_root, Vfx.Kind.HIT, at, COLOR_HIT)
-		else:
+		if actor.health >= previous:
 			Vfx.spawn(_actors_root, Vfx.Kind.RINSE, at, COLOR_HEAL)
+			continue
+		Vfx.spawn(_actors_root, Vfx.Kind.HIT, at, COLOR_HIT)
+		var view: ActorView = _views.get(actor.id, null)
+		if view != null:
+			view.impact(_nearest_other(world, actor))
+		if actor.id != world.local_actor_id:
+			continue
+		# La caméra ne tremble QUE pour le personnage local : secouer l'écran
+		# parce qu'un allié à vingt mètres a pris un coup n'apprend rien et
+		# donne le mal de mer.
+		var rig: Node = get_viewport().get_camera_3d()
+		if rig != null and rig.get_parent() is CameraRig:
+			var force: float = clampf(
+				float(previous - actor.health) / 40.0, 0.25, 1.0)
+			(rig.get_parent() as CameraRig).shake(0.030 * force)
+
+## D'où vient le coup ? La simulation ne le dit pas — elle n'a pas à le dire,
+## puisque la vue n'en tire aucune conséquence de jeu. L'acteur le plus proche
+## est la meilleure approximation disponible, et elle est juste dans le cas
+## qui compte : un corps à corps.
+func _nearest_other(world: World, victim: Actor) -> Vector2:
+	var best: Vector2 = victim.position - victim.facing
+	var closest: float = INF
+	for other: Actor in world.actors.values():
+		if other.id == victim.id or not other.is_alive():
+			continue
+		var gap: float = other.position.distance_squared_to(victim.position)
+		if gap < closest:
+			closest = gap
+			best = other.position
+	return best
 
 ## Anneau au sol au premier tick d'un lancer. Compté en ticks écoulés et non
 ## par un signal : la simulation n'en émet aucun, et un client qui rejoue ses
