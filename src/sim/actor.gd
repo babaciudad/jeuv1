@@ -70,6 +70,15 @@ var dodge_heading: Vector2 = Vector2(0.0, 1.0)
 ## Vrai si l'esquive en cours est un pas arrière et non une roulade.
 var dodge_backstep: bool = false
 
+## Réservé aux ennemis : tick auquel il s'est mis en position de frapper, ou
+## -1 s'il ne l'est pas. C'est ce compteur qui fabrique le TELL : entre le
+## moment où l'ennemi pourrait frapper et celui où il frappe, il reste planté
+## face à sa cible, et c'est là que le joueur lit le coup.
+##
+## Hôte uniquement — les ennemis ne sont simulés que là (invariant 5), donc ce
+## champ n'a pas à voyager dans les instantanés.
+var wind_up_tick: int = -1
+
 ## Réservé aux ennemis : cible poursuivie, et tick de la dernière attaque.
 var target_id: int = 0
 var last_attack_tick: int = -10000

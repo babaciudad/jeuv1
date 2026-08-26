@@ -37,10 +37,15 @@ static func decide(enemy: Actor, data: EnemyData, players: Array[Actor], tick: i
 	var decision: Decision = Decision.new()
 	if not enemy.is_alive() or enemy.state == Actor.State.STAGGERED \
 			or enemy.state == Actor.State.ATTACKING:
+		# Encaisser interrompt la mise en garde : un ennemi frappé pendant son
+		# tell doit recommencer, sinon frapper en premier ne sert à rien.
+		if enemy.state == Actor.State.STAGGERED:
+			enemy.wind_up_tick = -1
 		return decision
 
 	decision.target_id = EnemyBrain.pick_target(enemy, players, data)
 	if decision.target_id == 0:
+		enemy.wind_up_tick = -1
 		# Sans cible, on rentre. Un ennemi qui reste où il a été attiré rend
 		# le couloir injouable à la deuxième tentative.
 		var to_home: Vector2 = enemy.home_position - enemy.position
@@ -70,8 +75,29 @@ static func decide(enemy: Actor, data: EnemyData, players: Array[Actor], tick: i
 		return decision
 
 	if distance <= data.attack_range and cooldown_ready and not data.attacks.is_empty():
+		# LE TELL. L'ennemi ne frappe pas à l'instant où il entre en portée :
+		# il se plante, cesse d'avancer, reste face à sa cible, et frappe
+		# seulement après `tell_ticks`. Entre les deux, le joueur voit le coup
+		# venir — assez tôt pour rouler, assez tard pour que ce soit un choix.
+		#
+		# Sans ce délai il n'y a pas de combat : l'ennemi touche dès qu'il
+		# touche, et le joueur ne peut que subir ou reculer indéfiniment.
+		if enemy.wind_up_tick < 0:
+			enemy.wind_up_tick = tick
+		var tell: int = maxi(0, data.tell_ticks)
+		if EnemyBrain.is_punishing(target, data):
+			# Sauf s'il punit : frapper quelqu'un qui frappe déjà, c'est la
+			# leçon qu'un souls-like enseigne au premier ennemi venu.
+			tell = int(float(tell) * float(data.punish_percent) * 0.01)
+		if tick - enemy.wind_up_tick < tell:
+			# Immobile et de face. C'est CE moment-là qu'on regarde.
+			return decision
+		enemy.wind_up_tick = -1
 		decision.attack_index = EnemyBrain.pick_attack(data, distance, tick)
 		return decision
+	# Hors de portée : on désarme. Un ennemi qu'on tient à distance ne doit pas
+	# accumuler son tell pour frapper à la première seconde où on approche.
+	enemy.wind_up_tick = -1
 
 	# À portée mais pas encore prêt : tourner autour plutôt que pousser. Trois
 	# ennemis qui foncent tous droit se superposent et n'attaquent jamais.
@@ -81,6 +107,13 @@ static func decide(enemy: Actor, data: EnemyData, players: Array[Actor], tick: i
 
 	decision.move_intent = towards
 	return decision
+
+## Vrai si la cible est en train de frapper ou de s'en remettre. Un ennemi
+## raccourcit alors sa mise en garde : c'est la punition du coup manqué.
+static func is_punishing(target: Actor, data: EnemyData) -> bool:
+	if data.punish_percent >= 100:
+		return false
+	return target.state == Actor.State.ATTACKING
 
 ## Sens de contournement, fixé par la parité de l'identifiant : deux ennemis
 ## voisins tournent en sens opposés et s'écartent au lieu de se gêner.

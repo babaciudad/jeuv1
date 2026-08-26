@@ -24,6 +24,15 @@ const COLOR_WEAPON_IDLE: Color = Color(0.62, 0.62, 0.66)
 ## Une hitbox ouverte doit se voir sans ambiguïté : c'est le seul repère de
 ## rythme du jeu, et le tutoriel l'enseigne explicitement.
 const COLOR_WEAPON_ACTIVE: Color = Color(1.0, 0.85, 0.35)
+## Teinte de l'arme d'un ennemi PENDANT SA MISE EN GARDE, avant que le coup ne
+## parte. C'est le seul avertissement que le joueur reçoit, et sans lui la
+## mise en garde ajoutée à la simulation reste invisible : l'ennemi s'arrête
+## une demi-seconde, ce qui ne se distingue pas d'un ennemi qui hésite.
+##
+## Rouge, et NON jaune : le jaune dit « ça touche maintenant », le rouge dit
+## « ça va toucher ». Deux messages différents ne peuvent pas partager une
+## couleur — c'est toute la lisibilité d'un combat.
+const COLOR_WEAPON_TELL: Color = Color(1.0, 0.26, 0.20)
 ## Anneau posé sous le personnage local. Les classes ayant chacune sa couleur,
 ## c'est le seul repère qui dise « c'est toi » sans la contredire.
 const COLOR_SELF_RING: Color = Color(0.95, 0.92, 0.70)
@@ -298,7 +307,7 @@ func _stub(role: SkinPart.Role, radius: float, drop: float) -> SkinPart:
 ## que la carte graphique s'ennuie.
 func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 		player_distance: float, delta: float, shown: Vector2,
-		dodge: float = 0.0) -> void:
+		dodge: float = 0.0, tell: float = 0.0) -> void:
 	position = Vector3(shown.x, 0.0, shown.y)
 	if not actor.facing.is_zero_approx():
 		var forward: Vector3 = Vector3(actor.facing.x, 0.0, actor.facing.y)
@@ -314,7 +323,8 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 		_animate(actor, delta)
 	_apply_pose(actor, dodge)
 	var open: bool = actor.runner != null and actor.runner.hitbox_open
-	_apply_colors(actor, open, _fade_alpha(camera_position, is_local, player_distance))
+	_apply_colors(actor, open,
+		_fade_alpha(camera_position, is_local, player_distance), tell)
 	_apply_smear(open)
 
 ## Un coup vient d'arriver sur cet acteur. `from` est la provenance en
@@ -503,7 +513,10 @@ func _fade_alpha(camera_position: Vector3, is_local: bool, player_distance: floa
 		inverse_lerp(FADE_MARGIN, FADE_FULL_AT, intrusion), 0.0, 1.0)
 	return maxf(FADE_FLOOR, 1.0 - hidden)
 
-func _apply_colors(actor: Actor, weapon_open: bool, alpha: float) -> void:
+## `tell` va de 0 à 1 pendant la mise en garde d'un ennemi, et vaut 0 le reste
+## du temps.
+func _apply_colors(actor: Actor, weapon_open: bool, alpha: float,
+		tell: float = 0.0) -> void:
 	var shift: float = 0.0
 	match actor.state:
 		Actor.State.DEAD:
@@ -522,6 +535,8 @@ func _apply_colors(actor: Actor, weapon_open: bool, alpha: float) -> void:
 		var base: Color = _base_colors[index]
 		if _weapon_flags[index]:
 			base = COLOR_WEAPON_ACTIVE if weapon_open else COLOR_WEAPON_IDLE
+			if not weapon_open and tell > 0.0:
+				base = base.lerp(COLOR_WEAPON_TELL, clampf(tell, 0.0, 1.0))
 		var tinted: Color = base
 		if shift > 0.0:
 			tinted = base.lightened(shift)

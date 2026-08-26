@@ -44,6 +44,18 @@ extends Resource
 ## Multiplicateur de la portée en deçà duquel l'ennemi tourne autour de sa
 ## cible au lieu de foncer dessus.
 @export var circle_band: float = 1.4
+## Ticks d'ARRÊT avant de frapper. L'ennemi se plante face au joueur, cesse
+## d'avancer, et frappe seulement après ce délai.
+##
+## C'est le tell, et sans lui il n'y a pas de combat : un ennemi qui frappe à
+## l'instant même où il entre en portée ne donne rien à lire, et le joueur ne
+## peut que subir. La marque d'un souls-like est qu'on VOIT le coup venir assez
+## tôt pour rouler, et assez tard pour que ce soit un choix.
+@export var tell_ticks: int = 22
+## Part du délai d'attaque qui saute quand la cible est en train de frapper.
+## Un ennemi doit punir un coup manqué : c'est ce qui apprend au joueur à ne
+## pas frapper au hasard.
+@export var punish_percent: int = 55
 @export var stagger_duration_ticks: int = 36
 @export var poise_recovery_ticks: int = 240
 

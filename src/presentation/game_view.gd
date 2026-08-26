@@ -143,7 +143,8 @@ func _process(delta: float) -> void:
 		if view == null:
 			view = _make_view(world, actor)
 		view.refresh(actor, eye, actor.id == world.local_actor_id, player_distance,
-			delta, _shown_position(actor), world.dodge_progress(actor))
+			delta, _shown_position(actor), world.dodge_progress(actor),
+			world.tell_progress(actor))
 		_watch_cast(actor)
 		_watch_dodge(actor)
 

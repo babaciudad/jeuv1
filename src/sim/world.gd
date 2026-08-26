@@ -719,6 +719,19 @@ func _resolve_enemy_hitbox(attacker: Actor, attack: AttackData, victim: Actor) -
 ## est la roulade pour la dessiner, et il vaut mieux qu'elle le demande à la
 ## simulation que de le recompter avec ses propres horloges — deux compteurs
 ## séparés finissent toujours par diverger.
+## Avancement de la MISE EN GARDE d'un ennemi, de 0 à 1, ou 0 s'il n'est pas
+## en garde. Lecture seule, offerte à la présentation : elle a besoin de savoir
+## qu'un coup se prépare pour le montrer, et il vaut mieux qu'elle le demande à
+## la simulation que de le recompter avec ses propres horloges.
+func tell_progress(actor: Actor) -> float:
+	if actor.kind != Actor.Kind.ENEMY or actor.wind_up_tick < 0:
+		return 0.0
+	var data: EnemyData = data_for(actor)
+	if data == null or data.tell_ticks <= 0:
+		return 0.0
+	return clampf(float(tick - actor.wind_up_tick)
+		/ float(data.tell_ticks), 0.0, 1.0)
+
 func dodge_progress(actor: Actor) -> float:
 	if actor.state != Actor.State.DODGING:
 		return 0.0
