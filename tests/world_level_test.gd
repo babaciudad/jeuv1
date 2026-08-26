@@ -44,17 +44,17 @@ func _push(world: World, actor_id: int, direction: Vector2, ticks: int) -> void:
 func test_le_joueur_ne_traverse_pas_les_murs() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var player: Actor = world.spawn_player(1, 0)
-	# z = -9 est la travee libre entre deux rangs de colonnes : le test doit
+	# z = -8 est la travee libre entre deux rangs de membrures : le test doit
 	# mesurer le mur, pas un pilier.
-	player.position = Vector2(0.0, -9.0)
+	player.position = Vector2(0.0, -8.0)
 
-	_push(world, 1, Vector2(1.0, 0.0), 240)
+	_push(world, 1, Vector2(1.0, 0.0), 400)
 
-	# La nef va de x = -9 a x = 9.
-	assert_float(player.position.x).is_less_equal(9.0 - player.radius + 0.01)
+	# La halle va de x = -15 a x = 15.
+	assert_float(player.position.x).is_less_equal(15.0 - player.radius + 0.01)
 	assert_float(player.position.x) \
-		.override_failure_message("Le joueur n'a pas traverse la nef.") \
-		.is_greater(7.0)
+		.override_failure_message("Le joueur n'a pas traverse la halle.") \
+		.is_greater(12.0)
 
 ## Les colonnes de la nef bloquent pour de vrai. Elles sont declarees dans la
 ## donnee de simulation, pas seulement dessinees : un pilier qu'on traverse
@@ -62,14 +62,14 @@ func test_le_joueur_ne_traverse_pas_les_murs() -> void:
 func test_les_colonnes_bloquent() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var player: Actor = world.spawn_player(1, 0)
-	# Face au pilier de droite du premier rang, qui occupe x = 5.9 a 7.1.
-	player.position = Vector2(2.0, -3.0)
+	# Face a la membrure de droite, qui occupe x = 9.8 a 11.2.
+	player.position = Vector2(2.0, -5.0)
 
 	_push(world, 1, Vector2(1.0, 0.0), 240)
 
 	assert_float(player.position.x) \
-		.override_failure_message("Le joueur a traverse une colonne.") \
-		.is_less(5.9)
+		.override_failure_message("Le joueur a traverse une membrure.") \
+		.is_less(9.8)
 	assert_float(player.position.x) \
 		.override_failure_message("Le joueur n'a pas avance : le test ne prouve rien.") \
 		.is_greater(3.0)
@@ -78,9 +78,16 @@ func test_les_colonnes_bloquent() -> void:
 ## ressemblent, et c'est tout le propos de l'endroit qui tombe.
 func test_les_salles_ont_des_hauteurs_distinctes() -> void:
 	var level: LevelData = load(LEVEL)
-	var nef: float = level.height_at(Vector2(0.0, -9.0))
-	var couloir: float = level.height_at(Vector2(3.0, 20.0))
-	assert_float(nef).is_greater(couloir + 2.0)
+	var halle: float = level.height_at(Vector2(0.0, -8.0))
+	var seuil: float = level.height_at(Vector2(0.0, 108.0))
+	assert_float(halle).is_greater(seuil + 2.0)
+	# Une zone a ciel ouvert rend un degagement franchement plus grand que
+	# n'importe quelle salle : c'est ce qui empeche la camera d'y chercher un
+	# plafond.
+	var parvis: float = level.height_at(Vector2(0.0, 20.0))
+	assert_float(parvis).is_greater(halle + 5.0)
+	assert_bool(level.is_open(Vector2(0.0, 20.0))).is_true()
+	assert_bool(level.is_open(Vector2(0.0, -8.0))).is_false()
 	# Un point hors du praticable retombe sur la hauteur par defaut plutot que
 	# sur zero : un plafond a zero collerait au sol.
 	assert_float(level.height_at(Vector2(500.0, 500.0))).is_greater(0.0)
@@ -88,29 +95,31 @@ func test_les_salles_ont_des_hauteurs_distinctes() -> void:
 func test_la_grille_bloque_le_raccourci_tant_qu_elle_est_fermee() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var player: Actor = world.spawn_player(1, 0)
-	# Le couloir du raccourci occupe x = -18 à x = -12.
-	player.position = Vector2(-15.0, 30.0)
+	# Le couloir du raccourci occupe x = 26 à x = 33.
+	player.position = Vector2(29.5, 100.0)
 
-	_push(world, 1, Vector2(0.0, 1.0), 240)
+	_push(world, 1, Vector2(0.0, 1.0), 400)
 
 	assert_bool(world.shortcut_open).is_false()
 	# Il doit avoir avancé — sinon le test passerait aussi bien avec un joueur
 	# coincé dans un mur, ce qui ne prouverait rien sur la grille.
 	assert_float(player.position.y) \
 		.override_failure_message("Le joueur n'a pas avance du tout : le test ne prouve rien.") \
-		.is_greater(32.0)
-	# La grille occupe z = 36 à z = 40.
-	assert_float(player.position.y).is_less(36.0)
+		.is_greater(104.0)
+	# Le raccourci s'arrete a z = 118, et la grille barre le passage vers
+	# l'arene.
+	assert_float(player.position.y).is_less(118.1)
 
 func test_le_raccourci_ouvert_laisse_passer() -> void:
 	var world: World = _make_world(World.Authority.HOST)
 	var player: Actor = world.spawn_player(1, 0)
-	player.position = Vector2(-15.0, 30.0)
+	player.position = Vector2(26.8, 114.5)
 	world.shortcut_open = true
 
-	_push(world, 1, Vector2(0.0, 1.0), 240)
+	_push(world, 1, Vector2(-1.0, 0.0), 240)
 
-	assert_float(player.position.y).is_greater(40.0)
+	# Grille ouverte, le passage laisse rejoindre l'arene, a l'ouest de x = 25.
+	assert_float(player.position.x).is_less(24.0)
 
 func test_l_interaction_ouvre_le_raccourci_depuis_l_arene() -> void:
 	var world: World = _make_world(World.Authority.HOST)
@@ -175,10 +184,10 @@ func test_un_ennemi_poursuit_un_joueur_a_portee_d_aggro() -> void:
 	var player: Actor = world.spawn_player(1, 0)
 	world.spawn_enemies()
 	var enemy: Actor = world.enemies()[0]
-	# Au milieu du couloir, qui va de x = 0 a x = 6 : pose sur le bord, un
-	# acteur chevauche le mur et ne peut plus bouger du tout.
-	player.position = Vector2(3.0, 10.0)
-	enemy.position = Vector2(3.0, 16.0)
+	# En plein parvis, loin de tout muret : pose sur un bord, un acteur
+	# chevauche le mur et ne peut plus bouger du tout.
+	player.position = Vector2(0.0, 14.0)
+	enemy.position = Vector2(0.0, 20.0)
 	var distance_before: float = enemy.position.distance_to(player.position)
 	# La distance doit etre STRICTEMENT sous le rayon d'aggro, sinon le test ne
 	# mesure que le hasard du premier pas.

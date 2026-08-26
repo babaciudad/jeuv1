@@ -18,6 +18,9 @@ extends Node3D
 const CELL: float = 1.0
 const SLAB_THICKNESS: float = 0.2
 const PROBE_MARGIN: float = 2.0
+## Hauteur d'un muret bordant une zone à ciel ouvert. À hauteur de poitrine :
+## il arrête, il ne cache pas.
+const RAMPART_HEIGHT: float = 1.15
 
 const COLOR_FLOOR: Color = Color(0.62, 0.63, 0.60)
 const COLOR_MORTAR: Color = Color(0.13, 0.16, 0.16)
@@ -83,13 +86,15 @@ func _build_shell(level: LevelData) -> void:
 			if SimMath.point_is_free(cell, level.walkable, no_blockers):
 				var height: float = level.height_at(cell)
 				floor_cells.append(Vector3(x, 0.0, z))
-				ceiling_cells.append(Vector3(x, height, z))
+				# Dehors, pas de dalle : c'est tout l'intérêt.
+				if not level.is_open(cell):
+					ceiling_cells.append(Vector3(x, height, z))
 				# Là où une salle basse touche une salle haute, il reste une
 				# bande de vide entre les deux plafonds. Sans ce pan, on voit
 				# à travers le décor : c'est le mur qu'aurait toute vraie
 				# maçonnerie au-dessus d'une arcade.
 				var above: float = _tallest_neighbour(cell, level)
-				if above > height + 0.05:
+				if above > height + 0.05 and not _borders_sky(cell, level):
 					spandrels.append(Vector3(x, height, z))
 					spandrel_tops.append(above)
 			else:
@@ -126,9 +131,27 @@ func _tallest_neighbour(cell: Vector2, level: LevelData) -> float:
 	var best: float = 0.0
 	for offset: Vector2 in offsets:
 		var probe: Vector2 = cell + offset
-		if SimMath.point_is_free(probe, level.walkable, no_blockers):
+		if not SimMath.point_is_free(probe, level.walkable, no_blockers):
+			continue
+		# Un muret borde le dehors, pas une muraille de vingt-quatre mètres.
+		# C'est ce qui fait qu'on VOIT le bassin depuis la digue.
+		if level.is_open(probe):
+			best = maxf(best, RAMPART_HEIGHT)
+		else:
 			best = maxf(best, level.height_at(probe))
 	return best
+
+## Vrai si l'une des cases voisines est à ciel ouvert. Sert à ne pas dresser
+## un pan de mur de vingt-quatre mètres au seuil d'une porte qui donne dehors.
+func _borders_sky(cell: Vector2, level: LevelData) -> bool:
+	var no_blockers: Array[Rect2] = []
+	for offset: Vector2 in [Vector2(CELL, 0.0), Vector2(-CELL, 0.0),
+			Vector2(0.0, CELL), Vector2(0.0, -CELL)]:
+		var probe: Vector2 = cell + offset
+		if SimMath.point_is_free(probe, level.walkable, no_blockers) \
+				and level.is_open(probe):
+			return true
+	return false
 
 ## Dalles toutes identiques : `at.y` porte la hauteur, la boîte ne change pas.
 func _add_slabs(slab_name: String, cells: Array[Vector3], lift: float,
@@ -532,9 +555,9 @@ func _build_atmosphere() -> void:
 	# ombres, et une scène sans ombre portée n'a pas de volume.
 	var moon: DirectionalLight3D = DirectionalLight3D.new()
 	moon.name = "Moon"
-	moon.rotation = Vector3(deg_to_rad(-58.0), deg_to_rad(-34.0), 0.0)
-	moon.light_energy = 1.06
-	moon.light_color = Color(0.74, 0.84, 1.0)
+	moon.rotation = Vector3(deg_to_rad(-46.0), deg_to_rad(-38.0), 0.0)
+	moon.light_energy = 2.55
+	moon.light_color = Color(0.94, 0.96, 1.0)
 	moon.shadow_enabled = true
 	moon.directional_shadow_max_distance = 60.0
 	moon.directional_shadow_blend_splits = true
@@ -550,13 +573,18 @@ func _build_atmosphere() -> void:
 
 func _environment() -> Environment:
 	var environment: Environment = Environment.new()
-	environment.background_mode = Environment.BG_COLOR
+	# Un CIEL, pas un aplat. C'est lui qui fait qu'on sort d'un bâtiment au
+	# lieu de passer d'une salle à une autre : au-dessus du bassin il n'y a
+	# rien, et ce rien doit être éblouissant.
+	environment.background_mode = Environment.BG_SKY
+	environment.sky = _sky()
 	environment.background_color = Color(0.026, 0.031, 0.034)
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	environment.ambient_light_sky_contribution = 0.34
 	# Ambiante très basse, et bleutée. Elle ne sert qu'à empêcher le noir
 	# absolu ; tout le reste vient des feux, des cierges et des vitraux.
-	environment.ambient_light_color = Color(0.34, 0.45, 0.52)
-	environment.ambient_light_energy = 0.52
+	environment.ambient_light_color = Color(0.32, 0.42, 0.48)
+	environment.ambient_light_energy = 0.55
 
 	# Halo : c'est lui qui fait qu'une flamme éblouit au lieu d'être un rond
 	# orange. Seuil au-dessus de 1 pour que seules les pièces émissives
@@ -588,17 +616,17 @@ func _environment() -> Environment:
 	# deviennent visibles DANS l'air. C'est ce qui donne sa profondeur à une
 	# scène sans texture, et ce qui masque le bout du couloir.
 	environment.volumetric_fog_enabled = true
-	environment.volumetric_fog_density = 0.021
+	environment.volumetric_fog_density = 0.016
 	environment.volumetric_fog_albedo = Color(0.74, 0.81, 0.85)
 	environment.volumetric_fog_emission = Color(0.024, 0.028, 0.032)
 	environment.volumetric_fog_gi_inject = 0.6
 	environment.volumetric_fog_anisotropy = 0.32
-	environment.volumetric_fog_length = 72.0
+	environment.volumetric_fog_length = 120.0
 	environment.volumetric_fog_ambient_inject = 0.8
 
 	environment.fog_enabled = true
-	environment.fog_light_color = Color(0.12, 0.15, 0.16)
-	environment.fog_density = 0.006
+	environment.fog_light_color = Color(0.55, 0.60, 0.62)
+	environment.fog_density = 0.0085
 	environment.fog_sky_affect = 0.0
 
 	# Contraste et saturation : sans cela, une palette de gris reste une
@@ -614,6 +642,25 @@ func _environment() -> Environment:
 
 ## Exposition. Le rendu travaille en HDR : sans exposition explicite, une
 ## flamme à énergie 4 et un mur à énergie 0,3 sont écrasés dans la même plage.
+## Ciel du bassin : blanc laiteux au zénith, plus dense à l'horizon, sans un
+## soleil visible. Le sel renvoie tellement de lumière qu'on ne distingue plus
+## où finit le sol et où commence l'air — c'est ce qu'on cherche.
+func _sky() -> Sky:
+	var material: ProceduralSkyMaterial = ProceduralSkyMaterial.new()
+	material.sky_top_color = Color(0.62, 0.68, 0.74)
+	material.sky_horizon_color = Color(0.88, 0.90, 0.90)
+	material.sky_energy_multiplier = 0.85
+	material.ground_bottom_color = Color(0.30, 0.33, 0.34)
+	material.ground_horizon_color = Color(0.80, 0.83, 0.83)
+	material.ground_energy_multiplier = 1.0
+	# Aucun disque solaire : le ciel du bassin est un voile, pas un beau jour.
+	material.sun_angle_max = 1.0
+	material.sun_curve = 1.0
+	var sky: Sky = Sky.new()
+	sky.sky_material = material
+	sky.radiance_size = Sky.RADIANCE_SIZE_128
+	return sky
+
 func _exposure() -> CameraAttributesPractical:
 	var attributes: CameraAttributesPractical = CameraAttributesPractical.new()
 	attributes.exposure_multiplier = 1.05
