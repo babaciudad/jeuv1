@@ -26,7 +26,7 @@ const COURSE: float = 3.70
 const CAST: Array[Dictionary] = [
 	{
 		"id": "gardien",
-		"repos": "Idle_Sword", "marche": "Walk_Large", "course": "Jog",
+		"repos": "Idle_Sword", "marche": "plus/Walk_Large", "course": "Jog",
 		"chute": "Death_D", "chute_bis": "plus/Death_A",
 		"gestes": {
 			"gardien_lourd": "Sword_Regular_C",
@@ -83,7 +83,7 @@ const CAST: Array[Dictionary] = [
 	},
 	{
 		"id": "warden",
-		"repos": "plus/Fighting Idle", "marche": "Walk_Large", "course": "Jog",
+		"repos": "plus/Fighting Idle", "marche": "plus/Walk_Large", "course": "Jog",
 		"chute": "plus/Death_A", "chute_bis": "Death_D",
 		"gestes": {
 			"boss_swing": "Sword_Regular_C",
@@ -92,6 +92,47 @@ const CAST: Array[Dictionary] = [
 	},
 ]
 
+## Tous les noms de clips réellement disponibles : ceux de `gestes_base` tels
+## quels, ceux de `gestes_plus` préfixés comme le fera `SaltAnimator._graft`.
+##
+## Cette table existe parce qu'on a livré pendant des jours un gardien et un
+## boss SANS ANIMATION DE MARCHE : leur clip était noté `Walk_Large`, qui
+## n'existe que dans la bibliothèque d'appoint et s'appelle donc
+## `plus/Walk_Large`. Un nom de clip inconnu ne lève rien — ni à la
+## génération, ni au chargement, ni à la lecture : `AnimationPlayer.play()`
+## sur un nom absent se contente de ne rien faire. Le personnage glissait au
+## sol en position de repos, et rien nulle part ne le disait.
+##
+## Désormais un nom inconnu arrête la génération.
+var _connus: Dictionary[StringName, bool] = {}
+
+func _lecteur(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node as AnimationPlayer
+	for child: Node in node.get_children():
+		var found: AnimationPlayer = _lecteur(child)
+		if found != null:
+			return found
+	return null
+
+func _recenser(scene: PackedScene, prefix: String) -> void:
+	var node: Node = scene.instantiate()
+	get_root().add_child(node)
+	var lecteur: AnimationPlayer = _lecteur(node)
+	if lecteur != null:
+		for nom: String in lecteur.get_animation_list():
+			_connus[StringName(prefix + nom)] = true
+	node.queue_free()
+
+## Vérifie un nom et le renvoie. `quoi` sert au message d'erreur.
+func _clip(nom: String, id: String, quoi: String) -> StringName:
+	if not _connus.has(StringName(nom)):
+		printerr("%s : clip inconnu pour %s : « %s »" % [id, quoi, nom])
+		_faute = true
+	return StringName(nom)
+
+var _faute: bool = false
+
 func _init() -> void:
 	var corps: PackedScene = load(CORPS)
 	var plus: PackedScene = load(GESTES_PLUS)
@@ -99,6 +140,9 @@ func _init() -> void:
 		printerr("corps ou gestes absents")
 		quit(1)
 		return
+	_recenser(corps, "")
+	_recenser(plus, "plus/")
+	print("clips disponibles : %d" % _connus.size())
 	for entry: Dictionary in CAST:
 		var id: String = entry["id"]
 		var model: ModelData = ModelData.new()
@@ -115,25 +159,25 @@ func _init() -> void:
 		var course: String = entry["course"]
 		var chute: String = entry["chute"]
 		var chute_bis: String = entry["chute_bis"]
-		model.idle = StringName(repos)
-		model.walk = StringName(marche)
-		model.run = StringName(course)
-		model.walk_back = &"plus/Walk_Backwards"
-		model.strafe_left = &"plus/Strafe_left"
-		model.strafe_right = &"plus/Strafe_right"
+		model.idle = _clip(repos, id, "repos")
+		model.walk = _clip(marche, id, "marche")
+		model.run = _clip(course, id, "course")
+		model.walk_back = _clip("plus/Walk_Backwards", id, "recul")
+		model.strafe_left = _clip("plus/Strafe_left", id, "pas gauche")
+		model.strafe_right = _clip("plus/Strafe_right", id, "pas droit")
 		model.walk_clip_speed = MARCHE
 		model.run_clip_speed = COURSE
-		model.dodge = &"Roll"
-		model.hurt = &"Hit_Chest"
-		model.hurt_alt = &"Hit_Head"
-		model.death = StringName(chute)
-		model.death_alt = StringName(chute_bis)
+		model.dodge = _clip("Roll", id, "esquive")
+		model.hurt = _clip("Hit_Chest", id, "encaissement")
+		model.hurt_alt = _clip("Hit_Head", id, "encaissement bis")
+		model.death = _clip(chute, id, "chute")
+		model.death_alt = _clip(chute_bis, id, "chute bis")
 		var table: Dictionary = entry["gestes"]
 		var gestes: Dictionary[StringName, StringName] = {}
 		var premier: String = ""
 		for cle: String in table:
 			var valeur: String = table[cle]
-			gestes[StringName(cle)] = StringName(valeur)
+			gestes[StringName(cle)] = _clip(valeur, id, "geste " + cle)
 			if premier == "":
 				premier = valeur
 		model.attack_clips = gestes
@@ -142,4 +186,8 @@ func _init() -> void:
 		model.blend_time = 0.16
 		var code: int = ResourceSaver.save(model, "res://models/%s.tres" % id)
 		print("%s : %d" % [id, code])
+	if _faute:
+		printerr("des clips manquent : modeles NON valides")
+		quit(1)
+		return
 	quit(0)

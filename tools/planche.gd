@@ -19,6 +19,13 @@ const DOSSIER: String = "/home/user/shots/perso"
 ## tenue doit être décrite : l'orientation d'un os de main ne se déduit pas,
 ## elle se regarde.
 const REPERES: bool = false
+## Fige tout le monde en pose de repos au lieu de jouer les clips.
+##
+## C'est le seul moyen de juger la COUPE d'un costume : sur une pose animée,
+## on ne sait jamais si une pièce est mal placée ou si c'est l'os qui a tourné.
+## Une demi-journée a été perdue à recoudre un vêtement qui tenait très bien —
+## c'était l'animation d'attente qui pliait le buste à cinquante degrés.
+const REPOS: bool = false
 
 var _camera: Camera3D
 var _players: Array[AnimationPlayer] = []
@@ -140,7 +147,7 @@ func _build_cast() -> void:
 						break
 			appoint.queue_free()
 		_players.append(lecteur)
-		if lecteur != null and lecteur.has_animation(data.idle):
+		if not REPOS and lecteur != null and lecteur.has_animation(data.idle):
 			lecteur.play(data.idle)
 
 		var etiquette: Label3D = Label3D.new()
@@ -240,11 +247,13 @@ func _process(_delta: float) -> void:
 		var base: int = debut + index * 12
 		if _frame == base:
 			_cadre_portrait(index)
-			_pose(index, _datas[index].idle, 0.35)
+			if not REPOS:
+				_pose(index, _datas[index].idle, 0.35)
 		if _frame == base + 4:
 			await _prise("%02d_%s_repos" % [index + 1, IDS[index]])
 		if _frame == base + 6:
-			_pose(index, _datas[index].attack, 0.45)
+			if not REPOS:
+				_pose(index, _datas[index].attack, 0.45)
 		if _frame == base + 10:
 			await _prise("%02d_%s_attaque" % [index + 1, IDS[index]])
 	if _frame > debut + IDS.size() * 12 + 6:
