@@ -487,8 +487,11 @@ func _tete(lunettes: bool) -> void:
 	# c'est elle qui dit où le personnage regarde.
 	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.205, 0.135, 0.21),
 		Vector3(0.0, 0.115, 0.0), Vector3.ZERO, DESSOUS)
-	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.180, 0.100, 0.19),
-		Vector3(0.0, -0.005, 0.030), Vector3(-12.0, 0.0, 0.0), TOILE_CLAIRE)
+	# La gaze ne couvre que le BAS DU VISAGE. Elle faisait 19 cm de profondeur,
+	# soit toute la tête : vu de dos — c'est-à-dire pendant tout le jeu — le
+	# personnage portait un gros œuf pâle en guise de crâne.
+	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.165, 0.085, 0.115),
+		Vector3(0.0, -0.012, 0.080), Vector3(-14.0, 0.0, 0.0), TOILE_CLAIRE)
 	# Bande de serrage sur le front : elle sépare la calotte de la gaze,
 	# sinon les deux ovoïdes se lisent comme une seule masse.
 	_add("head", SkinPart.Shape.TORUS, Vector3(0.030, 0.0, 0.185),

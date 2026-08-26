@@ -102,6 +102,18 @@ extends Resource
 ## sur `attack`.
 @export var attack_clips: Dictionary[StringName, StringName] = {}
 
+## Instant du CONTACT dans chaque clip d'attaque, en secondes depuis son début.
+## Mesuré, comme les vitesses : c'est l'image où la main d'arme va le plus
+## vite, c'est-à-dire celle où le coup porte.
+##
+## Sans lui, l'animation était simplement étirée pour durer aussi longtemps que
+## l'attaque simulée — ce qui aligne les DÉBUTS, pas les impacts. Une attaque
+## dont la hitbox s'ouvre à 40 % de sa durée et dont le clip frappe à 25 % de
+## la sienne montrait la lame traverser l'ennemi, puis les dégâts tombaient
+## cent millisecondes plus tard. C'est le défaut qui rend un coup mou : on ne
+## voit pas ce qui touche.
+@export var attack_contact: Dictionary[StringName, float] = {}
+
 @export_group("Réglages")
 ## Vitesse, en mètres par seconde, au-delà de laquelle on passe de la marche
 ## à la course.

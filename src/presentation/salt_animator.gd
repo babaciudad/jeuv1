@@ -309,9 +309,18 @@ func _drive_dodge(actor: Actor) -> void:
 	if rolling:
 		_fire(&"esquive")
 
-## Le geste d'attaque est CHOISI par identifiant d'attaque, puis ÉTIRÉ pour
-## durer exactement le temps de l'attaque simulée. C'est ce qui fait tomber le
-## coup sur la fenêtre de hitbox sans que l'animation ne décide de rien.
+## Le geste d'attaque est CHOISI par identifiant d'attaque, puis accéléré ou
+## ralenti pour que son CONTACT tombe sur l'ouverture de la hitbox.
+##
+## Il était simplement étiré pour durer aussi longtemps que l'attaque simulée.
+## Ça aligne les DÉBUTS, pas les impacts, et ce n'est pas la même chose : sur
+## les onze attaques du jeu, dix montraient le coup entre 350 ms trop tôt et
+## 415 ms trop tard. Une demi-seconde d'écart, c'est la lame qui traverse
+## l'ennemi sans rien faire puis les dégâts qui tombent après — le défaut qui
+## rend un coup mou.
+##
+## Une seule vitesse de lecture ne peut aligner qu'un seul instant. On choisit
+## le contact, parce que c'est le seul que le joueur regarde.
 func _drive_attack(actor: Actor) -> void:
 	var runner: AttackRunner = actor.runner
 	var striking: bool = runner != null and not runner.finished \
@@ -323,14 +332,43 @@ func _drive_attack(actor: Actor) -> void:
 		return
 	var wanted: StringName = _model.attack_clips.get(runner.attack.id, _model.attack)
 	_attack.animation = _clip(wanted, _model.attack)
-	var rate: float = 1.0
-	var simulated: float = 0.0
-	if runner.attack.timeline != null:
-		simulated = runner.attack.timeline.length
-	if simulated > 0.01 and _player.has_animation(_attack.animation):
-		rate = _player.get_animation(_attack.animation).length / simulated
-	_tree.set(&"parameters/tempo/scale", clampf(rate, 0.25, 4.0))
+	_tree.set(&"parameters/tempo/scale", _tempo(runner.attack))
 	_fire(&"coup")
+
+## Vitesse de lecture qui fait tomber le contact du clip sur l'ouverture de la
+## hitbox. Retombe sur l'ancien étirement de durée si l'un des deux instants
+## n'est pas connu.
+func _tempo(attack: AttackData) -> float:
+	if not _player.has_animation(_attack.animation):
+		return 1.0
+	var clip: float = _player.get_animation(_attack.animation).length
+	var simulated: float = 0.0
+	if attack.timeline != null:
+		simulated = attack.timeline.length
+	var contact: float = 0.0
+	if _model.attack_contact.has(_attack.animation):
+		contact = _model.attack_contact[_attack.animation]
+	var opening: float = SaltAnimator._hitbox_opening(attack)
+	if contact > 0.001 and opening > 0.001:
+		return clampf(contact / opening, 0.25, 4.0)
+	if simulated > 0.01:
+		return clampf(clip / simulated, 0.25, 4.0)
+	return 1.0
+
+## Instant, en secondes, où la ligne de temps d'une attaque ouvre sa hitbox.
+## Négatif si elle n'en ouvre pas — un soin, par exemple.
+static func _hitbox_opening(attack: AttackData) -> float:
+	if attack == null or attack.timeline == null:
+		return -1.0
+	var timeline: Animation = attack.timeline
+	for track: int in timeline.get_track_count():
+		if timeline.track_get_type(track) != Animation.TYPE_METHOD:
+			continue
+		for key: int in timeline.track_get_key_count(track):
+			var value: Dictionary = timeline.track_get_key_value(track, key)
+			if str(value.get("method", "")) == "open_hitbox":
+				return timeline.track_get_key_time(track, key)
+	return -1.0
 
 func _drive_hurt(actor: Actor) -> void:
 	var hit: bool = actor.state == Actor.State.STAGGERED

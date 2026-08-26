@@ -22,5 +22,8 @@ death_alt = &"plus/Death_C"
 attack_clips = Dictionary[StringName, StringName]({
 &"gobelin_coup": &"Zombie_Scratch"
 })
+attack_contact = Dictionary[StringName, float]({
+&"Zombie_Scratch": 0.6158854030072689
+})
 run_speed = 3.0
 blend_time = 0.16

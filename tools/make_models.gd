@@ -107,24 +107,21 @@ const CAST: Array[Dictionary] = [
 var _connus: Dictionary[StringName, bool] = {}
 
 # ---------------------------------------------------------------------------
-# Mesure de la vitesse au sol d'un clip
+# Mesure
 # ---------------------------------------------------------------------------
 #
-# Un clip de locomotion est animé SUR PLACE : le personnage ne bouge pas, mais
-# son pied d'appui recule sous lui. La vitesse à laquelle il recule est
-# exactement celle à laquelle le personnage est censé avancer. On la mesure
-# donc directement sur le clip, au lieu de la saisir à la main — ce qui donnait
-# des erreurs d'un facteur cinq et rendait les pas catastrophiques.
-#
-# On n'utilise pas l'AnimationPlayer pour poser le squelette : hors boucle de
-# rendu il ne pose rien du tout, et toutes les mesures sortent égales à la pose
-# de repos, sans le moindre signe que quelque chose cloche. On compose donc la
-# chaîne d'os à la main, à partir des pistes du clip.
+# Les vitesses de clip et les instants de contact sont MESURÉS, jamais saisis.
+# Le code de mesure vit dans `ClipMeasure` et non ici, parce que la suite de
+# tests s'en sert pour vérifier que les fiches écrites correspondent toujours
+# aux clips : une fiche modifiée à la main, ou un clip changé sans régénérer,
+# fait alors échouer les tests au lieu de passer inaperçu.
 
 var _os: Skeleton3D = null
 var _chemin: String = ""
 var _bassin: int = -1
-var _pieds: Array[int] = []
+var _pied_g: int = -1
+var _pied_d: int = -1
+var _main: int = -1
 
 func _squelette(node: Node) -> Skeleton3D:
 	if node is Skeleton3D:
@@ -135,88 +132,17 @@ func _squelette(node: Node) -> Skeleton3D:
 			return found
 	return null
 
-## Transformées globales de tous les os, pour un clip à un instant donné.
-func _poses(anim: Animation, temps: float) -> Array[Transform3D]:
-	var out: Array[Transform3D] = []
-	out.resize(_os.get_bone_count())
-	for index: int in _os.get_bone_count():
-		var repos: Transform3D = _os.get_bone_rest(index)
-		var voie: NodePath = NodePath(
-			_chemin + ":" + _os.get_bone_name(index))
-		var position: Vector3 = repos.origin
-		var rotation: Quaternion = repos.basis.get_rotation_quaternion()
-		var echelle: Vector3 = repos.basis.get_scale()
-		var tp: int = anim.find_track(voie, Animation.TYPE_POSITION_3D)
-		var tr: int = anim.find_track(voie, Animation.TYPE_ROTATION_3D)
-		var te: int = anim.find_track(voie, Animation.TYPE_SCALE_3D)
-		if tp >= 0:
-			position = anim.position_track_interpolate(tp, temps)
-		if tr >= 0:
-			rotation = anim.rotation_track_interpolate(tr, temps)
-		if te >= 0:
-			echelle = anim.scale_track_interpolate(te, temps)
-		var locale: Transform3D = Transform3D(
-			Basis(rotation).scaled(echelle), position)
-		var parent: int = _os.get_bone_parent(index)
-		out[index] = locale if parent < 0 else out[parent] * locale
-	return out
-
-## Vitesse au sol d'un clip, en mètres par seconde. Zéro si le clip est absent
-## ou n'a pas de pied d'appui identifiable.
 func _vitesse(lecteur: AnimationPlayer, nom: String) -> float:
-	if _os == null or _bassin < 0 or not lecteur.has_animation(nom):
+	if _os == null or not lecteur.has_animation(nom):
 		return 0.0
-	var anim: Animation = lecteur.get_animation(nom)
-	var duree: float = anim.length
-	if duree <= 0.01:
+	return ClipMeasure.ground_speed(_os, _chemin, lecteur.get_animation(nom),
+		_bassin, _pied_g, _pied_d)
+
+func _contact(lecteur: AnimationPlayer, nom: String) -> float:
+	if _os == null or not lecteur.has_animation(nom):
 		return 0.0
-	const PAS: int = 192
-	# Premier passage : où est le sol dans ce clip. On ne peut pas le supposer
-	# à zéro — un cycle de course fait descendre le bassin, et la hauteur du
-	# pied posé varie d'un clip à l'autre.
-	var sol: float = 1e9
-	var bas: Array[Vector3] = []
-	var hauts: Array[Vector3] = []
-	var bassins: Array[Vector3] = []
-	bas.resize(PAS + 1)
-	hauts.resize(PAS + 1)
-	bassins.resize(PAS + 1)
-	var appuis: Array[int] = []
-	appuis.resize(PAS + 1)
-	for index: int in PAS + 1:
-		var poses: Array[Transform3D] = _poses(
-			anim, duree * float(index) / float(PAS))
-		var gauche: Vector3 = poses[_pieds[0]].origin
-		var droite: Vector3 = poses[_pieds[1]].origin
-		var porte: int = 0 if gauche.y <= droite.y else 1
-		appuis[index] = porte
-		bas[index] = gauche if porte == 0 else droite
-		hauts[index] = droite if porte == 0 else gauche
-		bassins[index] = poses[_bassin].origin
-		sol = minf(sol, bas[index].y)
-	# Second passage : on n'intègre QUE pendant l'appui.
-	#
-	# Sans ce filtre, la mesure est fausse d'un bon quart : pendant l'envol
-	# d'une foulée de course, le pied « le plus bas » est en train de revenir
-	# vers l'avant, et son déplacement se soustrait de ce qu'on veut mesurer.
-	# La première version de cette fonction annonçait 5,01 m/s pour un clip qui
-	# en produit 8,7 au sol.
-	const MARGE: float = 0.05
-	var total: float = 0.0
-	var duree_appui: float = 0.0
-	var pas: float = duree / float(PAS)
-	for index: int in range(1, PAS + 1):
-		if appuis[index] != appuis[index - 1]:
-			continue
-		if bas[index].y > sol + MARGE or bas[index - 1].y > sol + MARGE:
-			continue
-		var a: Vector3 = bas[index - 1] - bassins[index - 1]
-		var b: Vector3 = bas[index] - bassins[index]
-		total += Vector2(b.x - a.x, b.z - a.z).length()
-		duree_appui += pas
-	if duree_appui <= 0.0001:
-		return 0.0
-	return total / duree_appui
+	return ClipMeasure.contact_time(_os, _chemin, lecteur.get_animation(nom),
+		_bassin, _main)
 
 func _lecteur(node: Node) -> AnimationPlayer:
 	if node is AnimationPlayer:
@@ -254,12 +180,14 @@ func _banc(corps: PackedScene, plus: PackedScene) -> AnimationPlayer:
 	_os = _squelette(node)
 	if _os == null:
 		return lecteur
-	var racine: Node = lecteur.get_node(lecteur.root_node)
-	_chemin = String(racine.get_path_to(_os))
+	_chemin = ClipMeasure.prefix_for(lecteur, _os)
 	_bassin = _os.find_bone("pelvis")
-	_pieds = [_os.find_bone("ball_l"), _os.find_bone("ball_r")]
-	if _pieds[0] < 0 or _pieds[1] < 0:
-		_pieds = [_os.find_bone("foot_l"), _os.find_bone("foot_r")]
+	_pied_g = _os.find_bone("ball_l")
+	_pied_d = _os.find_bone("ball_r")
+	if _pied_g < 0 or _pied_d < 0:
+		_pied_g = _os.find_bone("foot_l")
+		_pied_d = _os.find_bone("foot_r")
+	_main = _os.find_bone("hand_r")
 	return lecteur
 
 ## Vérifie un nom et le renvoie. `quoi` sert au message d'erreur.
@@ -322,13 +250,16 @@ func _init() -> void:
 		model.death_alt = _clip(chute_bis, id, "chute bis")
 		var table: Dictionary = entry["gestes"]
 		var gestes: Dictionary[StringName, StringName] = {}
+		var contacts: Dictionary[StringName, float] = {}
 		var premier: String = ""
 		for cle: String in table:
 			var valeur: String = table[cle]
 			gestes[StringName(cle)] = _clip(valeur, id, "geste " + cle)
+			contacts[StringName(valeur)] = _contact(banc, valeur)
 			if premier == "":
 				premier = valeur
 		model.attack_clips = gestes
+		model.attack_contact = contacts
 		model.attack = StringName(premier) if premier != "" else &"Idle_A"
 		model.run_speed = 3.0
 		model.blend_time = 0.16
