@@ -47,16 +47,39 @@ const DURATIONS: Dictionary[Kind, float] = {
 	Kind.DUST: 0.55,
 }
 
+## Blanc de cœur. Les premières fractions de seconde d'un impact, d'un éclat
+## ou d'une gerbe ne sont PAS de la couleur de l'effet : elles sont blanches,
+## parce que ce qui brille fort brûle le capteur. C'est ce virage du blanc
+## vers la couleur qui fait qu'un effet a l'air d'une décharge d'énergie et
+## non d'un confetti coloré.
+const CORE: Color = Color(1.0, 0.97, 0.90)
+
 var _age: float = 0.0
 var _life: float = 0.3
 var _kind: Kind = Kind.IMPACT
 var _materials: Array[StandardMaterial3D] = []
+## Couleur de destination de chaque matériau, dans le même ordre. Elle n'est
+## pas lue sur le matériau : celui-ci porte la couleur de l'INSTANT, qui part
+## du blanc.
+var _material_tones: Array[Color] = []
+## Couleur de DÉPART de chaque matériau. Blanc pour ce qui brille, la couleur
+## elle-même pour ce qui ne brille pas — une poussière n'a jamais été blanche
+## de chaleur.
+var _material_cores: Array[Color] = []
 var _shards: Array[Node3D] = []
 var _velocities: Array[Vector3] = []
+## Longueur au repos de chaque fragment. Un éclat lancé s'ÉTIRE dans le sens
+## de sa course : c'est ce qui sépare une étincelle d'un cube qui vole.
+var _shard_lengths: Array[float] = []
 var _rings: Array[Node3D] = []
 var _base_scales: Array[float] = []
+## Retard d'apparition de chaque anneau, en fraction de vie. Trois anneaux qui
+## partent ensemble font un seul anneau épais ; décalés, ils font une onde.
+var _ring_delays: Array[float] = []
 var _lights: Array[OmniLight3D] = []
 var _light_energies: Array[float] = []
+## Voiles plats face caméra : l'éclair de la première image.
+var _flares: Array[Node3D] = []
 
 ## Fabrique et pose l'effet. `at` est en coordonnées monde.
 static func spawn(parent: Node3D, kind: Kind, at: Vector3, color: Color) -> Vfx:
@@ -74,21 +97,31 @@ func _build(kind: Kind, color: Color) -> void:
 		Kind.IMPACT:
 			_add_ring(0.18, 0.34, color, 0.0)
 			_burst(7, color, 3.4, 0.075)
+			_flare(color, 1.05, 0.55)
 		Kind.HIT:
 			# L'anneau était posé un mètre AU-DESSUS du point d'apparition,
 			# parce que l'effet naissait aux pieds et devait remonter au buste.
 			# Il naît maintenant directement au point touché : le mètre en trop
 			# le mettait au-dessus de la tête.
 			_add_ring(0.34, 0.62, color, 0.0)
+			# Une SECONDE onde, en retard et plus large. Un coup qui porte
+			# n'a pas un contour, il en a deux : le point d'impact et ce qui
+			# part de lui. Sur une seule image d'un jeu à soixante, c'est la
+			# différence entre « il s'est passé quelque chose » et « il s'est
+			# passé quelque chose de violent ».
+			_add_ring(0.20, 0.30, color, 0.0, 0.22)
 			_burst(14, color, 3.4, 0.095)
 			# Un éclair court. C'est ce qui manquait le plus : sans lumière,
 			# une gerbe rouge sur un sol de sel blanc ne se voit pas, et le
 			# seul signe qu'un coup a porté était la barre de vie.
 			_flash(color, 4.2, 2.6)
+			_flare(color, 1.5, 0.62)
 		Kind.HEAL:
 			_add_ring(0.34, 0.52, color, 0.05)
-			_add_ring(0.20, 0.34, color, 0.55)
-			_burst(6, color, 1.1, 0.07)
+			_add_ring(0.20, 0.34, color, 0.55, 0.26)
+			_add_ring(0.26, 0.40, color, 1.05, 0.52)
+			_rise(9, color, 1.5, 0.05)
+			_flash(color, 3.4, 1.1)
 		Kind.CAST:
 			_add_ring(0.52, 0.78, color, 0.02)
 			_add_ring(0.34, 0.46, color, 0.02)
@@ -101,20 +134,30 @@ func _build(kind: Kind, color: Color) -> void:
 			_add_ring(0.16, 0.30, color, 0.0)
 			_burst(14, color, 5.2, 0.055)
 			_flash(color, 6.5, 4.0)
+			_flare(color, 1.8, 0.70)
 		Kind.RINSE:
 			_add_ring(0.46, 0.66, color, 1.75)
-			_add_ring(0.30, 0.42, color, 1.4)
-			_rain(10, color, 0.05)
+			_add_ring(0.30, 0.42, color, 1.4, 0.20)
+			# Une ride au SOL, après coup : ce qui tombe finit par toucher.
+			_add_ring(0.28, 0.38, color, 0.03, 0.55)
+			_rain(14, color, 0.05)
 			_flash(color, 3.6, 1.2)
 		Kind.MOTE:
 			_burst(1, color, 0.0, 0.05)
 		Kind.DUST:
-			_add_ring(0.24, 0.40, color, 0.05)
-			_burst(9, color, 1.9, 0.075)
+			# PAS D'ADDITIF ICI, et c'est tout le sujet. De la poussière est
+			# de la matière qui BOUCHE : posée en additif sur un dallage de
+			# sel déjà clair, elle n'ajoutait rigoureusement rien de visible.
+			# Une roulade ne soulevait donc rien du tout — le seul genre
+			# d'effet dont on ne remarque pas l'absence, et le seul qui donne
+			# du poids à une esquive.
+			_add_ring(0.24, 0.40, color, 0.04)
+			_puffs(10, color, 1.6)
 
 ## Anneau plat, posé à `height`. Additif : il éclaire au lieu de masquer, ce
 ## qui le rend lisible sur un sol sombre comme sur une armure claire.
-func _add_ring(inner: float, outer: float, color: Color, height: float) -> void:
+func _add_ring(inner: float, outer: float, color: Color, height: float,
+		delay: float = 0.0) -> void:
 	var torus: TorusMesh = TorusMesh.new()
 	torus.inner_radius = inner
 	torus.outer_radius = outer
@@ -127,6 +170,25 @@ func _add_ring(inner: float, outer: float, color: Color, height: float) -> void:
 	add_child(instance)
 	_rings.append(instance)
 	_base_scales.append(1.0)
+	_ring_delays.append(delay)
+
+## Voile plat tourné vers la caméra : l'éblouissement de la première image.
+## Un anneau et des éclats mettent trois images à se lire ; à soixante images
+## par seconde, un coup dure quatre images. Ce voile-là est vu.
+func _flare(color: Color, size: float, height: float) -> void:
+	var quad: QuadMesh = QuadMesh.new()
+	quad.size = Vector2(size, size)
+	var instance: MeshInstance3D = MeshInstance3D.new()
+	instance.mesh = quad
+	var material: StandardMaterial3D = _additive(color)
+	# Face caméra quoi qu'il arrive : un voile vu par la tranche n'éblouit
+	# personne.
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	material.billboard_keep_scale = true
+	instance.material_override = material
+	instance.position = Vector3(0.0, height, 0.0)
+	add_child(instance)
+	_flares.append(instance)
 
 ## Éclats jetés dans toutes les directions. Le pas angulaire est fixe et non
 ## tiré au hasard : deux joueurs doivent voir la même gerbe, et un effet ne
@@ -135,6 +197,11 @@ func _burst(count: int, color: Color, speed: float, size: float) -> void:
 	for index: int in count:
 		var angle: float = TAU * float(index) / float(count)
 		var lift: float = 0.55 + 0.45 * float(index % 3)
+		# Vitesses INÉGALES. Une gerbe dont tous les éclats vont à la même
+		# allure reste un anneau : on lit le cercle, pas la projection. Le pas
+		# est fixe et non tiré au hasard — deux joueurs doivent voir la même
+		# gerbe.
+		var pace: float = speed * (0.62 + 0.38 * float((index * 7) % 5))
 		var shard: MeshInstance3D = MeshInstance3D.new()
 		var box: BoxMesh = BoxMesh.new()
 		box.size = Vector3(size, size, size * 2.2)
@@ -143,8 +210,34 @@ func _burst(count: int, color: Color, speed: float, size: float) -> void:
 		shard.position = Vector3(0.0, 0.9, 0.0)
 		add_child(shard)
 		_shards.append(shard)
+		_shard_lengths.append(size * 2.2)
 		_velocities.append(
-			Vector3(cos(angle), lift, sin(angle)) * speed)
+			Vector3(cos(angle), lift, sin(angle)) * pace)
+
+## Bouffées de poussière : opaques, pâles, lentes, et sans lumière. Elles
+## montent à peine et s'élargissent beaucoup — c'est ce qui distingue un
+## nuage soulevé d'une gerbe projetée.
+func _puffs(count: int, color: Color, speed: float) -> void:
+	for index: int in count:
+		var angle: float = TAU * float(index) / float(count)
+		var puff: MeshInstance3D = MeshInstance3D.new()
+		var blob: SphereMesh = SphereMesh.new()
+		blob.radius = 0.13 + 0.05 * float(index % 3)
+		blob.height = blob.radius * 1.7
+		blob.radial_segments = 7
+		blob.rings = 4
+		puff.mesh = blob
+		puff.material_override = _powder(color)
+		puff.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		puff.position = Vector3(cos(angle) * 0.22, 0.10, sin(angle) * 0.22)
+		add_child(puff)
+		_shards.append(puff)
+		# Longueur nulle : une bouffée ne s'étire pas, elle enfle.
+		_shard_lengths.append(0.0)
+		var pace: float = speed * (0.55 + 0.30 * float(index % 4))
+		_velocities.append(
+			Vector3(cos(angle) * pace, 0.55 + 0.20 * float(index % 2),
+				sin(angle) * pace))
 
 ## Éclats qui montent en spirale vers la main du lanceur.
 func _rise(count: int, color: Color, height: float, size: float) -> void:
@@ -159,6 +252,7 @@ func _rise(count: int, color: Color, height: float, size: float) -> void:
 		shard.position = Vector3(cos(angle) * radius, 0.05, sin(angle) * radius)
 		add_child(shard)
 		_shards.append(shard)
+		_shard_lengths.append(size * 3.4)
 		_velocities.append(Vector3(-cos(angle) * 0.5, height, -sin(angle) * 0.5))
 
 ## Gouttes qui tombent : le rinçage. La gravité normale les fait accélérer,
@@ -178,6 +272,7 @@ func _rain(count: int, color: Color, size: float) -> void:
 		drop.position = Vector3(cos(angle) * radius, 1.9, sin(angle) * radius)
 		add_child(drop)
 		_shards.append(drop)
+		_shard_lengths.append(size * 5.0)
 		_velocities.append(Vector3(0.0, -1.4 - 0.4 * float(index % 3), 0.0))
 
 ## Éclair bref. Une lumière VRAIE, pas un aplat additif : c'est elle qui fait
@@ -195,13 +290,33 @@ func _flash(color: Color, reach: float, energy: float) -> void:
 
 func _additive(color: Color) -> StandardMaterial3D:
 	var material: StandardMaterial3D = StandardMaterial3D.new()
-	material.albedo_color = color
+	# On part du BLANC : `_process` fera le virage vers `color`. Poser la
+	# couleur finale tout de suite revient à se priver du seul instant où un
+	# effet a l'air chaud.
+	material.albedo_color = CORE
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	_materials.append(material)
+	_material_cores.append(CORE)
+	_material_tones.append(color)
+	return material
+
+## Matière de poussière : opaque, mate, non éclairée, et surtout PAS additive.
+## Elle bouche ce qu'il y a derrière, ce qui est la seule chose qu'on demande
+## à de la poussière.
+func _powder(color: Color) -> StandardMaterial3D:
+	var material: StandardMaterial3D = StandardMaterial3D.new()
+	material.albedo_color = color
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_materials.append(material)
+	_material_cores.append(color)
+	_material_tones.append(color)
 	return material
 
 ## Vitesse d'expansion des anneaux, par genre.
@@ -244,8 +359,14 @@ func _process(delta: float) -> void:
 	# sans traîner. Une décroissance linéaire donne une bouillie permanente
 	# quand trois ennemis frappent en même temps.
 	var alpha: float = (1.0 - t) * (1.0 - t)
-	for material: StandardMaterial3D in _materials:
-		var color: Color = material.albedo_color
+	# Le virage du blanc vers la couleur se fait dans le PREMIER QUART de la
+	# vie de l'effet, pas sur toute sa durée : au-delà, ce n'est plus une
+	# décharge qui refroidit, c'est un dégradé.
+	var cooled: float = clampf(t * 4.0, 0.0, 1.0)
+	for index: int in _materials.size():
+		var material: StandardMaterial3D = _materials[index]
+		var color: Color = _material_cores[index].lerp(
+			_material_tones[index], cooled)
 		color.a = alpha
 		material.albedo_color = color
 
@@ -254,16 +375,35 @@ func _process(delta: float) -> void:
 	for index: int in _lights.size():
 		_lights[index].light_energy = _light_energies[index] * pow(1.0 - t, 3.0)
 
-	var grow: float = 1.0 + t * _spread()
+	var spread: float = _spread()
 	for index: int in _rings.size():
 		var ring: Node3D = _rings[index]
-		ring.scale = Vector3.ONE * (_base_scales[index] * grow)
+		var delay: float = _ring_delays[index]
+		# Un anneau en retard n'existe pas encore : le montrer à l'échelle
+		# zéro laisse un point brillant au centre pendant tout son retard.
+		ring.visible = t >= delay
+		var own: float = clampf((t - delay) / maxf(1.0 - delay, 0.001),
+			0.0, 1.0)
+		var grow: float = 1.0 + own * spread
+		# À PLAT, jamais en volume. Un tore mis à l'échelle sur ses trois axes
+		# épaissit son tube en même temps qu'il s'élargit : au bout de sa
+		# course, l'onde est un beignet. Une onde de choc s'étale, elle
+		# n'enfle pas.
+		ring.scale = Vector3(_base_scales[index] * grow, 1.0,
+			_base_scales[index] * grow)
 		if _kind == Kind.HEAL:
 			ring.position.y += delta * 1.35
-		elif _kind == Kind.RINSE:
+		elif _kind == Kind.RINSE and ring.position.y > 0.10:
 			ring.position.y -= delta * 2.0
 		elif _kind == Kind.CAST:
 			ring.position.y += delta * 0.5
+
+	# Le voile s'ouvre vite et meurt encore plus vite : il ne dure que le
+	# temps qu'on ne peut pas ne pas voir.
+	for index: int in _flares.size():
+		var flare: Node3D = _flares[index]
+		flare.scale = Vector3.ONE * (0.45 + t * 2.4)
+		flare.visible = t < 0.45
 
 	var gravity: float = _gravity()
 	for index: int in _shards.size():
@@ -273,7 +413,26 @@ func _process(delta: float) -> void:
 		# Gravité : les éclats retombent, ce qui donne du poids au coup. Les
 		# éclats d'un sort en cours de lancer, eux, sont ASPIRÉS vers le haut.
 		_velocities[index] = velocity + Vector3.DOWN * gravity * delta
-		shard.rotate_y(delta * 6.0)
+		var length: float = _shard_lengths[index]
+		if length <= 0.0:
+			# Une bouffée de poussière enfle et ralentit : elle ne tourne pas
+			# et elle ne s'étire pas.
+			shard.scale = Vector3.ONE * (1.0 + t * 2.6)
+			_velocities[index] = _velocities[index] * (1.0 - delta * 2.2)
+			continue
+		# ÉTIREMENT DANS LE SENS DE LA COURSE. Un éclat rapide est une traînée,
+		# pas un dé qui tournoie : c'est ce qui manquait le plus à la gerbe.
+		# Le facteur est borné, sinon un éclat lancé à cinq mètres par seconde
+		# devient une aiguille de trente centimètres.
+		var pace: float = _velocities[index].length()
+		if pace > 0.01:
+			var forward: Vector3 = _velocities[index] / pace
+			var up: Vector3 = Vector3.UP
+			if absf(forward.dot(up)) > 0.98:
+				up = Vector3.FORWARD
+			shard.basis = Basis.looking_at(forward, up)
+			shard.scale = Vector3(1.0, 1.0,
+				clampf(1.0 + pace * 0.34 / maxf(length, 0.01), 1.0, 5.0))
 
 	if _age >= _life:
 		queue_free()
