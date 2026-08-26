@@ -255,8 +255,9 @@ func _stone_tint(cell: Vector3) -> Color:
 	# Auréoles de saumure : la pierre d'une saline est tachée, et ces taches
 	# sont FROIDES sur une pierre chaude. C'est le contraste de teinte qui
 	# porte le sol, pas le contraste de valeur.
-	var patch: float = _hash(floorf(cell.x * 0.24), floorf(cell.z * 0.24))
-	var stain: float = clampf(patch * 1.6 - 0.68, 0.0, 1.0) * 0.34
+	var patch: float = _blob(cell.x, cell.z, 0.19) * 0.68 \
+		+ _blob(cell.x, cell.z, 0.47) * 0.32
+	var stain: float = clampf(patch * 1.7 - 0.72, 0.0, 1.0) * 0.30
 	# Le VERT compte autant que le bleu. Une auréole qui ne fait que perdre du
 	# rouge vire au bleu d'ombre, c'est-à-dire à la même couleur que tout ce
 	# qui est déjà à l'ombre : elle disparaît. Poussée vers le TURQUOISE de la
@@ -265,6 +266,28 @@ func _stone_tint(cell: Vector3) -> Color:
 	# instance.
 	return Color(shade * (1.0 - stain * 1.30), shade * (1.0 + stain * 0.12),
 		shade * (1.0 + stain * 0.42), 1.0)
+
+## Tache douce, entre 0 et 1 : la même table de hachage, mais INTERPOLÉE entre
+## les quatre coins de sa maille au lieu d'être lue en escalier.
+##
+## Lire `_hash(floorf(x * k), floorf(z * k))` donne un DAMIER : chaque maille
+## rend une valeur, plate d'un bord à l'autre, et les bords sont alignés sur
+## les axes du monde comme les dalles. À k = 0,24 la maille fait 4,17 m, et le
+## parvis se lisait comme un carrelage de grands carreaux roses et gris — le
+## défaut le plus voyant de l'image, sur le sol qu'on regarde le plus.
+##
+## La maille est en plus TOURNÉE d'une vingtaine de degrés : alignée, même
+## interpolée, elle laisserait des lignes de crête parallèles aux murs.
+func _blob(x: float, z: float, scale: float) -> float:
+	var rx: float = (x * 0.94 - z * 0.34) * scale
+	var rz: float = (x * 0.34 + z * 0.94) * scale
+	var x0: float = floorf(rx)
+	var z0: float = floorf(rz)
+	var fx: float = smoothstep(0.0, 1.0, rx - x0)
+	var fz: float = smoothstep(0.0, 1.0, rz - z0)
+	var bas: float = lerpf(_hash(x0, z0), _hash(x0 + 1.0, z0), fx)
+	var haut: float = lerpf(_hash(x0, z0 + 1.0), _hash(x0 + 1.0, z0 + 1.0), fx)
+	return lerpf(bas, haut, fz)
 
 ## Bruit reproductible sur deux coordonnées, entre 0 et 1.
 func _hash(x: float, z: float) -> float:
