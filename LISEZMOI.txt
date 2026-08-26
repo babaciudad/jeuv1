@@ -1,0 +1,94 @@
+souls-like — build Windows (4e version)
+=======================================
+
+Decompresser, puis double-cliquer sur souls-like.exe. Tout est dedans.
+Windows dira « editeur inconnu » : le binaire n'est pas signe.
+« Informations complementaires » puis « Executer quand meme ».
+
+Au lancement : choisir une classe, laisser « Heberger », puis Jouer.
+Pour jouer a plusieurs, l'un heberge et donne son IP, les autres
+choisissent « Rejoindre » et la collent.
+
+
+CE QUI A CHANGE DEPUIS LA v3
+-----------------------------
+
+Deux changements de fond, pas des reglages.
+
+1. LES PERSONNAGES REPOSENT SUR UN VRAI CORPS
+
+La v3 fabriquait le personnage ENTIER en primitives collees sur des os : un
+cylindre par bras, un ovoide par bout de torse. Ca ne pouvait pas marcher —
+un empilement de volumes reste un mannequin articule, on voit les jonctions,
+les epaules ne se raccordent pas. Et le squelette etait chibi, donc il avait
+fallu rallonger les os de 2,1x, ce qui cassait mecaniquement tous les cycles
+de marche : ils avaient ete animes pour des jambes deux fois plus courtes.
+C'etait ca, les animations ratees.
+
+Le corps est maintenant un maillage SKINNE : une surface continue de 13 757
+triangles sur 66 os. Proportions mesurees, pas estimees — 1,83 m, bassin a
+50,1 % de la hauteur, epaules a 78,7 %. Le bricolage d'etirement a disparu.
+
+162 animations authentiques pour ces proportions, donc plus de patinage :
+marche, marche lourde, jogging, sprint, marche arriere, deux pas chasses,
+trois attaques a l'epee, sorts, tir a l'arc, coup au sol, trois
+encaissements, quatre morts. Et une VRAIE roulade.
+
+Les ennemis ont leur propre demarche de mort-vivant, qui ne ressemble a
+aucun joueur et se lit a vingt metres.
+
+Le costume ne remplace plus le corps, il se pose dessus : manches, jambieres
+bandees, redingote a plis, loques de ceinture, chapeau de saunier, lunettes
+de verre, croute de sel.
+
+2. LE NIVEAU EST CINQ FOIS PLUS GRAND, ET LA MOITIE EST DEHORS
+
+La v3 tenait dans 60 x 80 metres ENTIEREMENT COUVERT. Jamais le ciel.
+Agrandir les salles n'aurait rien regle : ce qui etouffait, c'est qu'il y
+avait un toit partout.
+
+68 x 184 metres maintenant, dont la moitie a ciel ouvert :
+
+  La Halle aux Saumures  30 x 36, voute de membrures a 15,5 m
+  Le Bassin              le feu, au fond de la halle
+  Le Parvis              52 x 27, A CIEL OUVERT — la premiere sortie
+  La Digue               14 x 26, resserree entre deux bassins vides
+  Les Tables             54 x 42, la plus grande surface du jeu
+  L'Arene du Gardien     50 x 38 sous douze metres
+  Le Raccourci           109 metres le long du bord est
+
+Plus rien de la chapelle generique : membrures de coque, panneaux de verre
+de saumure, cuves cerclees de fer, tas de sel, sechoirs, bittes d'amarrage,
+coques echouees, grues de quai penchees, et les levees des tables
+d'evaporation qui donnent sa forme a toute la zone.
+
+Six ennemis au lieu de trois, les runes du tutoriel deplacees sur le nouveau
+parcours.
+
+
+CE QUE JE N'AI PAS PU VERIFIER
+------------------------------
+
+Je developpe sous Linux en rendu logiciel a trois images par seconde. Je
+peux garantir que le code s'execute, que les 76 tests passent et que le
+paquet demarre. Je ne peux PAS garantir la fluidite reelle, le plein ecran,
+la manette, ni le rendu sur une vraie carte graphique — et le niveau vient
+de tripler de surface, donc c'est la question la plus ouverte de ce build.
+
+Ce qui m'interesse :
+
+  — est-ce que ca rame, et OU ? (les Tables sont la zone la plus lourde)
+  — est-ce que la camera part en vrille quelque part ?
+  — est-ce qu'un coup part quand tu cliques, a chaque fois ?
+  — est-ce que le perso se bloque ou traverse un mur ?
+  — est-ce que l'echelle est bonne, ou est-ce trop vide maintenant ?
+
+Une carte graphique compatible Vulkan est necessaire.
+
+
+CE QUI N'EXISTE PAS ENCORE
+--------------------------
+
+Pas de son. Pas de sauvegarde. Pas de manette. Pas de verrouillage de cible
+— c'est le prochain morceau, et c'est lui qui rendra utiles le recul et les
+pas chasses, deja animes mais jamais joues.
