@@ -61,3 +61,11 @@ desktop.ini
 .idea/
 *.tmp
 *.swp
+
+# ---------------------------------------------------------------------------
+# Agents
+# ---------------------------------------------------------------------------
+
+# Arbres de travail crees par les agents parallelles. Ce sont des depots git
+# a part entiere : les versionner ici en ferait des sous-modules fantomes.
+.claude/worktrees/
