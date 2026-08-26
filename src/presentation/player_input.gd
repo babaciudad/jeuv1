@@ -17,6 +17,10 @@ extends Node
 ## même chose : l'intention persiste côté simulation jusqu'à contrordre.
 const MOVE_RESEND_TICKS: int = 10
 const MOVE_EPSILON: float = 0.08
+## Portée du verrouillage côté présentation, en mètres. Volontairement un peu
+## plus courte que celle de la simulation : on ne veut pas accrocher une cible
+## que le monde relâchera au tick suivant.
+const LOCK_REACH: float = 22.0
 
 var _bootstrap: NetBootstrap
 var _rig: CameraRig
@@ -64,7 +68,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
 		_rig.add_look(motion.relative, mouse_sensitivity)
 		return
-	for action: StringName in [&"dodge", &"attack", &"attack_secondary", &"interact"]:
+	for action: StringName in [&"dodge", &"attack", &"attack_secondary",
+			&"interact", &"lock"]:
 		if event.is_action_pressed(action, false, true):
 			_pending[action] = true
 
@@ -94,9 +99,14 @@ func _physics_process(_delta: float) -> void:
 		direction = direction.normalized()
 	_send_direction(direction, false)
 
+	if _took(&"lock"):
+		_toggle_lock(actor)
 	if _took(&"dodge"):
-		var dodge: Vector2 = direction if direction.length() > 0.1 else actor.facing
-		_bootstrap.submit_command(Command.Type.DODGE, {"d": dodge})
+		# On envoie la direction TELLE QUELLE, vide comprise. Elle était
+		# remplacée par `actor.facing` quand le joueur ne poussait rien, ce qui
+		# transformait toute esquive sur place en roulade avant — et rendait le
+		# pas d'esquive arrière impossible à déclencher.
+		_bootstrap.submit_command(Command.Type.DODGE, {"d": direction})
 	# On frappe là où l'on va, ou à défaut là où l'on regarde. Sans cette visée,
 	# un personnage à l'arrêt frapperait toujours dans la direction de son
 	# dernier pas.
@@ -107,6 +117,46 @@ func _physics_process(_delta: float) -> void:
 		_bootstrap.submit_command(Command.Type.ATTACK, {"i": 1, "d": aim})
 	if _took(&"interact"):
 		_bootstrap.submit_command(Command.Type.INTERACT, {})
+
+## Verrouille sur l'adversaire le plus proche du centre de l'écran, ou relâche
+## si l'on est déjà verrouillé.
+##
+## LE CHOIX DE LA CIBLE APPARTIENT À LA PRÉSENTATION, exactement comme la visée
+## d'une attaque : « celui que je regarde » ne veut rien dire sans caméra, et
+## la simulation n'a pas le droit d'en avoir une (invariant 2). Elle se
+## contente de vérifier que la cible existe, qu'elle est vivante, qu'elle est
+## d'un autre camp et qu'elle est à portée.
+func _toggle_lock(actor: Actor) -> void:
+	if actor.lock_target_id != 0:
+		_bootstrap.submit_command(Command.Type.LOCK, {"t": 0})
+		return
+	var world: World = _bootstrap.world
+	if world == null:
+		return
+	var forward: Vector2 = _rig.planar_forward()
+	var best: int = 0
+	var best_score: float = -1.0
+	for other: Actor in world.actors.values():
+		if other.id == actor.id or other.kind == actor.kind:
+			continue
+		if not other.is_alive():
+			continue
+		var toward: Vector2 = other.position - actor.position
+		var distance: float = toward.length()
+		if distance < 0.5 or distance > LOCK_REACH:
+			continue
+		# On classe par ANGLE d'abord, distance ensuite : verrouiller sur
+		# l'ennemi le plus proche alors qu'on en regarde un autre est le
+		# défaut le plus agaçant du genre.
+		var alignment: float = forward.dot(toward / distance)
+		if alignment < 0.15:
+			continue
+		var score: float = alignment - distance * 0.012
+		if score > best_score:
+			best_score = score
+			best = other.id
+	if best != 0:
+		_bootstrap.submit_command(Command.Type.LOCK, {"t": best})
 
 func _send_direction(direction: Vector2, force: bool) -> void:
 	var changed: bool = direction.distance_to(_last_direction) > MOVE_EPSILON

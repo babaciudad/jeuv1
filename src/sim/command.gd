@@ -46,6 +46,13 @@ enum Type {
 	DECLARE_HEAL = 7,
 	## {"c": int} classe choisie par le joueur. Envoyée à la connexion.
 	SELECT_CLASS = 8,
+	## {"t": int} verrouillage sur un adversaire, 0 pour relâcher. La CIBLE
+	## est choisie par la présentation, comme la visée d'une attaque : elle
+	## dépend de la caméra, que la simulation n'a pas le droit de connaître
+	## (invariant 2). La simulation, elle, vérifie que la cible existe, qu'elle
+	## est vivante, qu'elle est ennemie et qu'elle est à portée — un client ne
+	## peut donc pas se verrouiller sur ce qu'il veut.
+	LOCK = 9,
 }
 
 const HEADER_SIZE: int = 13

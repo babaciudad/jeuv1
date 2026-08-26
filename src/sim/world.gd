@@ -260,6 +260,7 @@ func step(at_tick: int, commands: Array[Command]) -> void:
 		_decide_enemies()
 		_revive_dummies()
 		_check_wipe()
+	_refresh_locks()
 	_advance_attacks()
 	_resolve_hitboxes()
 	_advance_projectiles()
@@ -288,6 +289,8 @@ func _apply_command(command: Command) -> void:
 			_command_declare_heal(actor, command)
 		Command.Type.SELECT_CLASS:
 			_command_select_class(actor, command)
+		Command.Type.LOCK:
+			_command_lock(actor, command)
 		Command.Type.NONE:
 			pass
 
@@ -297,6 +300,50 @@ func _command_move(actor: Actor, command: Command) -> void:
 	var direction: Vector2 = _payload_vector(command, "d")
 	actor.move_intent = direction.normalized() if direction.length() > 0.001 else Vector2.ZERO
 
+## Distance au-delà de laquelle un verrouillage se relâche tout seul, en
+## mètres. Assez large pour traverser l'arène du boss sans le perdre, assez
+## courte pour qu'on ne reste pas accroché à un ennemi qu'on a fui.
+const LOCK_RANGE: float = 26.0
+## Part de la distance et du coût d'une roulade que garde un pas arrière.
+const BACKSTEP_REACH: float = 0.62
+const BACKSTEP_STAMINA: float = 0.60
+
+## Verrouille sur un adversaire. La présentation propose, la simulation
+## dispose : elle vérifie que la cible existe, qu'elle est vivante, qu'elle est
+## d'un autre camp et qu'elle est à portée. Zéro relâche.
+func _command_lock(actor: Actor, command: Command) -> void:
+	if not actor.is_alive():
+		return
+	var wanted: int = 0
+	if command.payload.has("t"):
+		var brut: Variant = command.payload["t"]
+		if brut is int:
+			wanted = brut
+		elif brut is float:
+			var f: float = brut
+			wanted = int(f)
+	if wanted == 0:
+		actor.lock_target_id = 0
+		return
+	var target: Actor = actor_or_null(wanted)
+	if target == null or not target.is_alive() or target.kind == actor.kind:
+		return
+	if actor.position.distance_to(target.position) > LOCK_RANGE:
+		return
+	actor.lock_target_id = wanted
+
+## Relâche un verrouillage devenu caduc : cible morte, disparue, ou trop loin.
+## Appelé chaque tick — un verrou qui survit à sa cible est un personnage qui
+## regarde un cadavre en reculant.
+func _refresh_locks() -> void:
+	for actor: Actor in actors.values():
+		if actor.lock_target_id == 0:
+			continue
+		var target: Actor = actor_or_null(actor.lock_target_id)
+		if target == null or not target.is_alive() \
+				or actor.position.distance_to(target.position) > LOCK_RANGE:
+			actor.lock_target_id = 0
+
 func _command_dodge(actor: Actor, command: Command) -> void:
 	if actor.kind != Actor.Kind.PLAYER or not actor.can_act():
 		return
@@ -304,11 +351,22 @@ func _command_dodge(actor: Actor, command: Command) -> void:
 	if fiche == null or not actor.has_stamina(fiche.dodge_stamina_cost):
 		return
 	var direction: Vector2 = _payload_vector(command, "d")
-	if direction.length() <= 0.001:
-		direction = actor.facing
-	actor.facing = direction.normalized()
-	actor.velocity = actor.facing * fiche.dodge_speed
-	actor.spend_stamina(fiche.dodge_stamina_cost, tick)
+	# PAS D'ESQUIVE ARRIÈRE. Sans direction, on ne roule pas en avant : on
+	# saute en arrière SANS SE RETOURNER. C'est le geste de garde du genre —
+	# celui qu'on fait quand on ne sait pas encore ce qui arrive — et il n'a
+	# aucun équivalent quand toute esquive part vers l'avant. Il coûte moins,
+	# va moins loin, et laisse le personnage face à ce qu'il fuit.
+	actor.dodge_backstep = direction.length() <= 0.001
+	if actor.dodge_backstep:
+		actor.dodge_heading = -actor.facing
+		actor.spend_stamina(
+			maxi(1, int(float(fiche.dodge_stamina_cost) * BACKSTEP_STAMINA)),
+			tick)
+	else:
+		actor.facing = direction.normalized()
+		actor.dodge_heading = actor.facing
+		actor.spend_stamina(fiche.dodge_stamina_cost, tick)
+	actor.velocity = actor.dodge_heading * fiche.dodge_speed
 	actor.enter_state(Actor.State.DODGING, tick)
 
 func _command_attack(actor: Actor, command: Command) -> void:
@@ -782,7 +840,12 @@ func _update_dodge_velocity(actor: Actor) -> void:
 	var shape: float = pow(1.0 - progress, 2.4)
 	var factor: float = fiche.dodge_tail \
 		+ (fiche.dodge_burst - fiche.dodge_tail) * shape
-	actor.velocity = actor.facing * (fiche.dodge_speed * factor)
+	if actor.dodge_backstep:
+		factor *= BACKSTEP_REACH
+	# On suit le CAP pris au départ, pas `facing` : un pas arrière laisse le
+	# personnage tourné vers ce qu'il fuit, et suivre `facing` le ferait
+	# repartir en avant.
+	actor.velocity = actor.dodge_heading * (fiche.dodge_speed * factor)
 
 ## Freinage propre à l'acteur : une classe lourde ne s'arrête pas comme un
 ## archer, et un ennemi encore moins.
@@ -812,13 +875,25 @@ func _update_walk(actor: Actor) -> void:
 			acceleration = fiche.acceleration
 			deceleration = fiche.deceleration
 			turn = fiche.turn_degrees_per_tick
+	# Verrouillé, on reste FACE à la cible, qu'on avance, qu'on recule ou qu'on
+	# tourne autour. C'est toute la différence de démarche entre un souls-like
+	# et un jeu d'action : sans ça le personnage regarde toujours là où il va,
+	# et il n'y a ni pas chassé ni marche arrière.
+	var locked: Actor = actor_or_null(actor.lock_target_id)
+	if locked != null and locked.is_alive():
+		var toward: Vector2 = locked.position - actor.position
+		if toward.length() > 0.01:
+			actor.facing = SimMath.rotate_towards(actor.facing, toward,
+				turn * 1.6)
 	if actor.move_intent.is_zero_approx():
 		actor.velocity = actor.velocity.move_toward(Vector2.ZERO,
 			deceleration * SimConfig.TICK_DURATION_SEC)
 		if actor.state == Actor.State.MOVING and actor.velocity.is_zero_approx():
 			actor.enter_state(Actor.State.IDLE, tick)
 		return
-	actor.facing = SimMath.rotate_towards(actor.facing, actor.move_intent, turn)
+	if locked == null or not locked.is_alive():
+		actor.facing = SimMath.rotate_towards(actor.facing, actor.move_intent,
+			turn)
 	actor.velocity = actor.velocity.move_toward(actor.move_intent * speed,
 		acceleration * SimConfig.TICK_DURATION_SEC)
 	if actor.state == Actor.State.IDLE:

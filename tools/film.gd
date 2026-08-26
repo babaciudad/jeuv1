@@ -12,13 +12,13 @@ extends Node
 const DOSSIER: String = "/home/user/shots/film"
 ## Ou se teleporter, et sous quel nom garder l'image.
 const ZONES: Dictionary[int, Vector2] = {
-	180: Vector2(0.0, -22.0), 196: Vector2(0.0, 6.0),
-	212: Vector2(0.0, 20.0), 228: Vector2(-8.0, 74.0),
-	244: Vector2(0.0, 128.0),
+	190: Vector2(0.0, -22.0), 206: Vector2(0.0, 6.0),
+	222: Vector2(0.0, 20.0), 238: Vector2(-8.0, 74.0),
+	254: Vector2(0.0, 128.0),
 }
 const NOMS: Dictionary[int, String] = {
-	188: "zone1_halle", 204: "zone2_bassin", 220: "zone3_parvis",
-	236: "zone4_tables", 252: "zone5_arene",
+	198: "zone1_halle", 214: "zone2_bassin", 230: "zone3_parvis",
+	246: "zone4_tables", 262: "zone5_arene",
 }
 var _frame: int = 0
 var _boot: NetBootstrap = null
@@ -53,28 +53,43 @@ func _process(_delta: float) -> void:
 	if me == null:
 		return
 	if _frame == 20:
-		# Face au premier cristallise du parvis.
+		# Face au premier cristallise du parvis, et on se verrouille dessus.
 		me.position = Vector2(-9.0, 15.0)
 		me.facing = Vector2(0.0, 1.0)
-	# 22 -> 118 : on marche sur lui et on frappe trois fois. Le combat entier
-	# doit tenir dans la pellicule : approche, coup, encaissement, chute.
 	if _frame >= 24 and _frame < 40:
 		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(0.0, 1.0)})
-	if _frame == 46 or _frame == 78 or _frame == 110:
+	if _frame == 42:
+		var proie: int = 0
+		for autre: Actor in world.actors.values():
+			if autre.id != me.id and autre.kind != me.kind and autre.is_alive():
+				if me.position.distance_to(autre.position) < 12.0:
+					proie = autre.id
+					break
+		if proie != 0:
+			_boot.submit_command(Command.Type.LOCK, {"t": proie})
+	# Verrouille, on tourne AUTOUR : c'est la que les pas chasses servent.
+	if _frame >= 48 and _frame < 96:
+		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(1.0, 0.0)})
+	if _frame >= 48 and _frame < 96 and _frame % 4 == 0:
+		await _prise("verrou_%03d" % _frame)
+	# Puis on recule, toujours de face.
+	if _frame >= 98 and _frame < 122:
+		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(0.0, -1.0)})
+	if _frame >= 98 and _frame < 122 and _frame % 3 == 0:
+		await _prise("recul_%03d" % _frame)
+	# Pas d'esquive arriere : direction VIDE.
+	if _frame == 126:
+		_boot.submit_command(Command.Type.DODGE, {"d": Vector2.ZERO})
+	if _frame >= 127 and _frame < 151 and _frame % 2 == 0:
+		await _prise("pas_%03d" % _frame)
+	if _frame == 154:
 		_boot.submit_command(Command.Type.ATTACK,
 			{"i": 0, "d": Vector2(0.0, 1.0)})
-	if _frame >= 24 and _frame < 136 and _frame % 4 == 0:
-		await _prise("combat_%03d" % _frame)
-	if _frame == 140:
-		me.position = Vector2(0.0, -26.0)
-		me.facing = Vector2(0.0, 1.0)
-	if _frame == 144:
-		_boot.submit_command(Command.Type.DODGE, {"d": Vector2(0.0, 1.0)})
-	if _frame >= 145 and _frame < 169 and _frame % 2 == 0:
-		await _prise("roulade_%03d" % _frame)
+	if _frame >= 155 and _frame < 179 and _frame % 2 == 0:
+		await _prise("coup_%03d" % _frame)
 
 	# Tour des cinq zones : on se pose, on laisse une image passer, on garde.
-	if _frame >= 172:
+	if _frame >= 184:
 		_boot.submit_command(Command.Type.MOVE, {"d": Vector2(0.0, 0.12)})
 	if ZONES.has(_frame):
 		me.position = ZONES[_frame]
@@ -83,7 +98,7 @@ func _process(_delta: float) -> void:
 		await _prise(NOMS[_frame])
 	# Vue d'ensemble : une camera a nous, tres haut, pour voir la silhouette du
 	# niveau entier et reperer ce qui flotte.
-	if _frame == 262:
+	if _frame == 272:
 		var oeil: Camera3D = Camera3D.new()
 		add_child(oeil)
 		oeil.fov = 55.0
@@ -91,19 +106,19 @@ func _process(_delta: float) -> void:
 		oeil.look_at(Vector3(0.0, 0.0, 58.0))
 		oeil.current = true
 		_oeil = oeil
-	if _frame == 268:
+	if _frame == 298:
 		await _prise("vue_densemble")
-	if _frame == 272 and _oeil != null:
+	if _frame == 292 and _oeil != null:
 		_oeil.position = Vector3(-96.0, 40.0, 60.0)
 		_oeil.look_at(Vector3(0.0, 8.0, 70.0))
-	if _frame == 278:
+	if _frame == 298:
 		await _prise("vue_ouest")
-	if _frame == 282 and _oeil != null:
+	if _frame == 292 and _oeil != null:
 		_oeil.position = Vector3(-4.0, 14.0, 88.0)
 		_oeil.look_at(Vector3(20.0, 14.0, 112.0))
-	if _frame == 288:
+	if _frame == 298:
 		await _prise("vue_arene")
-	if _frame > 294:
+	if _frame > 304:
 		get_tree().quit(0)
 
 func _prise(nom: String) -> void:

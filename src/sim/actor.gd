@@ -56,6 +56,20 @@ var attack_index: int = -1
 var aim: Vector2 = Vector2(0.0, 1.0)
 var runner: AttackRunner = null
 
+## Adversaire VERROUILLÉ, 0 si aucun. C'est ce qui sépare une locomotion de
+## souls-like d'une locomotion de jeu d'action ordinaire : verrouillé, on garde
+## l'ennemi de face et on se déplace AUTOUR de lui — on recule, on tourne, on
+## fait des pas chassés. Sans verrouillage, un personnage regarde toujours là
+## où il va, ne recule jamais, et la moitié des animations de déplacement ne
+## sert à rien.
+var lock_target_id: int = 0
+
+## Cap de l'esquive en cours, fixé à son déclenchement. Distinct de `facing`
+## parce qu'un pas arrière recule SANS se retourner.
+var dodge_heading: Vector2 = Vector2(0.0, 1.0)
+## Vrai si l'esquive en cours est un pas arrière et non une roulade.
+var dodge_backstep: bool = false
+
 ## Réservé aux ennemis : cible poursuivie, et tick de la dernière attaque.
 var target_id: int = 0
 var last_attack_tick: int = -10000

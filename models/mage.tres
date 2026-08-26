@@ -14,6 +14,7 @@ idle = &"Spell_Simple_Idle"
 run = &"Jog"
 attack = &"Sword_Regular_B"
 dodge_span = 0.6954166666666667
+backstep_span = 0.5652083333333333
 death = &"plus/Death_C"
 walk_clip_speed = 0.7386171209764816
 run_clip_speed = 4.829859967880257

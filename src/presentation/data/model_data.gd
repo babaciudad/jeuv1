@@ -54,6 +54,11 @@ extends Resource
 ## personnage est de nouveau debout. Mesurée. Le reste du clip est un temps
 ## mort qu'on ne joue pas.
 @export var dodge_span: float = 1.0
+## Pas d'esquive arrière : un saut en arrière, sans se retourner. Il a son
+## propre clip parce qu'une roulade jouée à reculons n'est pas un pas arrière,
+## c'est une roulade à l'envers.
+@export var backstep: StringName = &"plus/Dodge_back"
+@export var backstep_span: float = 1.0
 @export var hurt: StringName = &"Hit_Chest"
 @export var death: StringName = &"Death_D"
 

@@ -47,6 +47,12 @@ var _flight_spin: float = 0.0
 ## Hauteur, en mètres, à laquelle naît la gerbe d'un coup reçu : le buste.
 const HIT_HEIGHT: float = 1.05
 
+## Teinte du repère de verrouillage : la seule chose blanche pure du jeu.
+const COLOR_LOCK: Color = Color(0.96, 0.98, 1.0)
+
+var _lock_mark: MeshInstance3D = null
+var _lock_clock: float = 0.0
+
 var _last_health: Dictionary[int, int] = {}
 ## Attaques déjà saluées par un anneau de lancer, pour n'en poser qu'un.
 var _cast_seen: Dictionary[int, int] = {}
@@ -120,6 +126,7 @@ func _process(delta: float) -> void:
 		_level_view.set_shortcut_open(_shortcut_shown)
 
 	_watch_health(world)
+	_show_lock(world, delta)
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	var eye: Vector3 = camera.global_position if camera != null else Vector3.ZERO
 	var local: Actor = world.local_actor()
@@ -251,6 +258,46 @@ func _flight_material(tone: Color, additive: bool) -> StandardMaterial3D:
 	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	return material
+
+## Marque l'adversaire verrouillé d'un losange au-dessus de la tête.
+##
+## Sans repère, on ne sait pas SUR QUI on est accroché : entre trois
+## cristallisés, le verrouillage devient une loterie et on le lâche. C'est le
+## genre de manque qui fait dire d'un système qu'il « ne marche pas » alors
+## qu'il marche très bien, mais en silence.
+func _show_lock(world: World, delta: float) -> void:
+	var me: Actor = world.local_actor()
+	var target: Actor = null
+	if me != null and me.lock_target_id != 0:
+		target = world.actor_or_null(me.lock_target_id)
+	if target == null or not target.is_alive():
+		if _lock_mark != null:
+			_lock_mark.visible = false
+		return
+	if _lock_mark == null:
+		_lock_mark = MeshInstance3D.new()
+		_lock_mark.name = "Verrou"
+		var diamond: PrismMesh = PrismMesh.new()
+		diamond.size = Vector3(0.34, 0.40, 0.34)
+		_lock_mark.mesh = diamond
+		var glow: StandardMaterial3D = StandardMaterial3D.new()
+		glow.albedo_color = COLOR_LOCK
+		glow.emission_enabled = true
+		glow.emission = COLOR_LOCK
+		glow.emission_energy_multiplier = 3.4
+		glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		glow.billboard_mode = BaseMaterial3D.BILLBOARD_DISABLED
+		_lock_mark.material_override = glow
+		_lock_mark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_actors_root.add_child(_lock_mark)
+	_lock_clock += delta
+	var at: Vector2 = _shown_position(target)
+	_lock_mark.visible = true
+	# Pointe en bas, et un léger flottement : un repère parfaitement immobile
+	# se confond avec le décor.
+	_lock_mark.position = Vector3(at.x,
+		2.15 + sin(_lock_clock * 3.4) * 0.05, at.y)
+	_lock_mark.rotation = Vector3(PI, _lock_clock * 1.5, 0.0)
 
 ## Un écart de points de vie déjà arrivé se traduit en gerbe. La vue ne
 ## décide de rien : elle n'a même pas le moyen de savoir QUI a frappé.

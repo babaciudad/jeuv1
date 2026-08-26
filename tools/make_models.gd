@@ -258,6 +258,8 @@ func _init() -> void:
 			+ _vitesse(banc, "plus/Strafe_right"))
 		model.dodge = _clip("Roll", id, "esquive")
 		model.dodge_span = _relevee(banc, "Roll")
+		model.backstep = _clip("plus/Dodge_back", id, "pas arriere")
+		model.backstep_span = _relevee(banc, "plus/Dodge_back")
 		model.hurt = _clip("Hit_Chest", id, "encaissement")
 		model.hurt_alt = _clip("Hit_Head", id, "encaissement bis")
 		model.death = _clip(chute, id, "chute")

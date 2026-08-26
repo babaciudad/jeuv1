@@ -16,6 +16,9 @@ extends Node3D
 @export var shoulder_height: float = 1.7
 @export var pitch_min_degrees: float = -60.0
 @export var pitch_max_degrees: float = 20.0
+## Vitesse à laquelle la caméra rejoint sa cible verrouillée, en radians par
+## seconde.
+const LOCK_TURN: float = 4.2
 
 var _shake: float = 0.0
 var _shake_clock: float = 0.0
@@ -96,6 +99,7 @@ func shake(force: float) -> void:
 	_shake = minf(_shake + force, SHAKE_MAX)
 
 func _process(delta: float) -> void:
+	_aim_at_lock(delta)
 	rotation = Vector3(_pitch, _yaw, 0.0)
 	if _shake > 0.0:
 		_shake = maxf(0.0, _shake - delta * SHAKE_DECAY)
@@ -114,6 +118,47 @@ func _process(delta: float) -> void:
 		return
 	position = found[0] + Vector3(0.0, shoulder_height, 0.0)
 	_camera.position.z = _clear_distance()
+
+## VERROUILLAGE : la caméra se tourne toute seule vers l'adversaire accroché.
+##
+## Sans ça, le verrouillage ne sert à rien. Le personnage aurait beau rester
+## face à sa cible, le joueur devrait suivre à la souris pour la garder à
+## l'écran — c'est-à-dire faire exactement le travail que le verrouillage est
+## censé lui épargner. C'est la caméra qui fait la démarche de souls-like,
+## autant que l'orientation du personnage.
+##
+## Elle ne SAUTE pas : elle rejoint le cap voulu à vitesse bornée, et le joueur
+## peut toujours corriger à la souris par-dessus. Un recadrage instantané rend
+## malade et enlève tout contrôle.
+func _aim_at_lock(delta: float) -> void:
+	if _game_view == null:
+		return
+	var world: World = _game_view.simulated_world()
+	if world == null:
+		return
+	var me: Actor = world.local_actor()
+	if me == null or me.lock_target_id == 0:
+		return
+	var target: Actor = world.actor_or_null(me.lock_target_id)
+	if target == null or not target.is_alive():
+		return
+	var toward: Vector2 = target.position - me.position
+	if toward.length() < 0.4:
+		return
+	# Lacet voulu pour que la cible soit droit devant. Le repère de la
+	# simulation est (x, z) ; le lacet de la caméra tourne autour de Y.
+	var wanted: float = atan2(-toward.x, -toward.y)
+	var gap: float = wrapf(wanted - _yaw, -PI, PI)
+	_yaw += clampf(gap, -LOCK_TURN * delta, LOCK_TURN * delta)
+	# Et un peu de plongée, proportionnelle à la distance : de près on regarde
+	# vers le bas, de loin presque à l'horizontale. C'est ce qui garde les deux
+	# corps dans le cadre sans que personne ne touche à la souris.
+	var wanted_pitch: float = deg_to_rad(
+		lerpf(-26.0, -9.0, clampf(toward.length() / 16.0, 0.0, 1.0)))
+	var pitch_gap: float = wanted_pitch - _pitch
+	_pitch = clampf(_pitch + clampf(pitch_gap, -LOCK_TURN * delta,
+		LOCK_TURN * delta), deg_to_rad(pitch_min_degrees),
+		deg_to_rad(pitch_max_degrees))
 
 ## Recule la caméra le plus loin possible sans traverser un mur ni un acteur.
 ##

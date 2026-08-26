@@ -15,6 +15,7 @@ walk = &"Zombie_Walk"
 run = &"plus/Run_Female"
 attack = &"Zombie_Scratch"
 dodge_span = 0.6954166666666667
+backstep_span = 0.5652083333333333
 walk_clip_speed = 0.9316123230470877
 run_clip_speed = 4.009786339337498
 back_clip_speed = 0.9028102996488548

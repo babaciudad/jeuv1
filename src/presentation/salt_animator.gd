@@ -44,6 +44,9 @@ var _model: ModelData = null
 var _player: AnimationPlayer = null
 var _attack: AnimationNodeAnimation = null
 var _roll: AnimationNodeAnimation = null
+## Clip de roulade et clip de pas arrière, choisis au montage.
+var _roll_clip: StringName = &""
+var _step_clip: StringName = &""
 var _hurt: AnimationNodeAnimation = null
 var _death: AnimationNodeAnimation = null
 ## Vrai quand une impulsion est en cours : sert à ne la déclencher qu'une fois
@@ -195,6 +198,8 @@ func _assemble(rig: Node3D) -> void:
 	tree_root.add_node(&"coup", _one_shot(), Vector2(680.0, 0.0))
 	tree_root.add_node(&"douleur", _one_shot(), Vector2(900.0, 0.0))
 	_roll = _animation(_clip(_model.dodge, idle))
+	_roll_clip = _clip(_model.dodge, idle)
+	_step_clip = _clip(_model.backstep, _roll_clip)
 	tree_root.add_node(&"roulade", _roll, Vector2(0.0, 320.0))
 	# Chercheur de temps : l'esquive n'est PAS jouée, elle est POSITIONNÉE.
 	#
@@ -228,7 +233,13 @@ func _assemble(rig: Node3D) -> void:
 	tree_root.connect_node(&"douleur", 1, &"choc")
 	tree_root.connect_node(&"mort", 0, &"douleur")
 	tree_root.connect_node(&"mort", 1, &"chute")
-	tree_root.connect_node(&"output", 0, &"mort")
+	# Nœud de GEL, en toute fin de chaîne. Il ne sert qu'à une chose : figer le
+	# personnage entier pendant quelques centièmes de seconde au moment où un
+	# coup porte.
+	var gel: AnimationNodeTimeScale = AnimationNodeTimeScale.new()
+	tree_root.add_node(&"gel", gel, Vector2(1340.0, 0.0))
+	tree_root.connect_node(&"gel", 0, &"mort")
+	tree_root.connect_node(&"output", 0, &"gel")
 
 	_tree = AnimationTree.new()
 	_tree.name = "Sel_Animation"
@@ -259,6 +270,11 @@ func _one_shot() -> AnimationNodeOneShot:
 func drive(actor: Actor, travel: Vector2, facing: Vector2,
 		dodge: float = 0.0) -> void:
 	if _tree == null:
+		return
+	if _freeze_left > 0.0:
+		# Pendant le gel on ne pilote plus rien : changer un mélange sous une
+		# image figée la fait bouger, ce qui est exactement le contraire de ce
+		# qu'on cherche.
 		return
 	if actor.state == Actor.State.DEAD:
 		if not _dead:
@@ -317,6 +333,11 @@ func _capacite(blend: Vector2) -> float:
 
 func _drive_dodge(actor: Actor, progress: float) -> void:
 	var rolling: bool = actor.state == Actor.State.DODGING
+	if rolling and not _dodging:
+		# Le clip se choisit au DÉCLENCHEMENT : une roulade en avant et un pas
+		# en arrière ne sont pas le même geste, et jouer une roulade à reculons
+		# donne un personnage qui se vautre vers l'arrière.
+		_roll.animation = _step_clip if actor.dodge_backstep else _roll_clip
 	if rolling:
 		# On repose la roulade à chaque image sur l'avancement de l'esquive
 		# simulée. `dodge_span` coupe le temps mort de fin de clip, où le
@@ -324,7 +345,8 @@ func _drive_dodge(actor: Actor, progress: float) -> void:
 		var length: float = 0.0
 		if _player.has_animation(_roll.animation):
 			length = _player.get_animation(_roll.animation).length
-		var span: float = clampf(_model.dodge_span, 0.05, 1.0)
+		var span: float = clampf(_model.backstep_span if actor.dodge_backstep
+			else _model.dodge_span, 0.05, 1.0)
 		_tree.set(&"parameters/temps_roulade/seek_request",
 			clampf(progress, 0.0, 1.0) * length * span)
 	if rolling == _dodging:
@@ -405,6 +427,33 @@ func _drive_hurt(actor: Actor) -> void:
 		_model.hurt_alt if _flip else _model.hurt, _model.hurt)
 	_flip = not _flip
 	_fire(&"douleur")
+
+## ARRÊT SUR IMAGE. Le geste se fige quelques centièmes de seconde à l'instant
+## où le coup porte, des deux côtés.
+##
+## C'est le seul moyen de faire peser un coup sans toucher aux dégâts. Sans
+## lui, une arme traverse un corps sans que rien ne marque le contact : on voit
+## une barre de vie descendre, on ne SENT rien. Un souls-like se reconnaît à ce
+## dixième de seconde.
+##
+## Invariant 1 : ceci ne touche PAS la simulation. Le personnage continue de se
+## déplacer, la hitbox continue de vivre en ticks — seule l'image de son geste
+## s'arrête. Une pause qui suspendrait le monde serait une désynchronisation.
+const FREEZE_SECONDS: float = 0.085
+
+var _freeze_left: float = 0.0
+
+func freeze() -> void:
+	_freeze_left = FREEZE_SECONDS
+
+## À appeler chaque image. Rend la main au temps normal quand le gel est fini.
+func tick_freeze(delta: float) -> void:
+	if _tree == null:
+		return
+	if _freeze_left <= 0.0:
+		return
+	_freeze_left -= delta
+	_tree.set(&"parameters/gel/scale", 0.0 if _freeze_left > 0.0 else 1.0)
 
 func _fire(node: StringName) -> void:
 	_tree.set("parameters/%s/request" % node,

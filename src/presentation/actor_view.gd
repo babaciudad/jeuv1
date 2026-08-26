@@ -305,6 +305,8 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 		look_at(position + forward, Vector3.UP)
 
 	_recoil = maxf(0.0, _recoil - delta)
+	if _animator != null:
+		_animator.tick_freeze(delta)
 	_advance_gait(shown, delta)
 	if _animator != null and _animator.ready():
 		_animator.drive(actor, _travel, actor.facing, dodge)
@@ -324,6 +326,8 @@ func refresh(actor: Actor, camera_position: Vector3, is_local: bool,
 func impact(from: Vector2) -> void:
 	_recoil = RECOIL_SECONDS
 	_recoil_from = from
+	if _animator != null and _animator.ready():
+		_animator.freeze()
 
 ## Vrai si cette vue est bâtie sur un modèle importé.
 func uses_model() -> bool:

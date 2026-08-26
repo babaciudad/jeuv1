@@ -164,7 +164,12 @@ func submit_command(type: Command.Type, payload: Dictionary = {}) -> void:
 	var command: Command = Command.new(simulation.current_tick + 1,
 		world.local_actor_id, type, payload)
 	simulation.buffer.push(command)
-	if type == Command.Type.MOVE or type == Command.Type.DODGE:
+	# Le verrouillage entre dans l'historique au même titre que le déplacement :
+	# il décide de l'ORIENTATION du personnage, donc un rejeu de réconciliation
+	# qui l'oublierait ferait tourner le personnage sur place à chaque
+	# correction réseau.
+	if type == Command.Type.MOVE or type == Command.Type.DODGE \
+			or type == Command.Type.LOCK:
 		history.record_command(command)
 	if is_host():
 		return

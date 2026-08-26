@@ -15,6 +15,7 @@ walk = &"plus/Idle Hurt"
 run = &"plus/Idle Hurt"
 attack = &"Idle_A"
 dodge_span = 0.6954166666666667
+backstep_span = 0.5652083333333333
 death = &"plus/Death_B"
 walk_clip_speed = 0.0025765305643560255
 run_clip_speed = 0.0025765305643560255
