@@ -1,17 +1,22 @@
-## Habille un squelette animé d'un corps de saunier, taillé en primitives.
+## Habille un corps humain animé : vêtement, croûte de sel, arme.
 ##
-## Le problème que ce fichier résout : on a besoin d'un VRAI squelette animé —
-## marche, course, roulade, coups, chute — et on n'a pas le droit d'afficher
-## des personnages achetés sur étagère. La réponse est de séparer les deux :
+## CE QUI A CHANGÉ, ET POURQUOI ÇA CHANGE TOUT
 ##
-##   — le mouvement vient d'une bibliothèque d'animations sous CC0 (le rig
-##     KayKit et ses 76 à 95 clips), exactement comme on utiliserait Mixamo ;
-##   — la GÉOMÉTRIE VISIBLE est intégralement fabriquée ici, primitive par
-##     primitive, dans la direction artistique du sel.
+## La version précédente fabriquait le personnage ENTIER en primitives collées
+## sur des os : un cylindre par bras, un ovoïde par segment de torse. Ça ne
+## pouvait pas marcher, et ça n'a pas marché — un empilement de volumes reste
+## un mannequin articulé, quelles que soient les proportions. On voyait les
+## jonctions, les épaules ne se raccordaient pas, rien ne se pliait.
 ##
-## Aucun maillage importé n'est affiché : `dress()` cache tout ce que le .glb
-## apporte et n'en garde que les os. Ce qu'on voit à l'écran n'existe dans
-## aucun pack.
+## Maintenant le corps est un VRAI MAILLAGE SKINNÉ — une surface continue de
+## treize mille triangles, déformée par le squelette — et ce fichier ne fait
+## plus que l'habiller. C'est l'ordre normal des choses : on ne sculpte pas un
+## bras en assemblant des tuyaux, on met une manche sur un bras.
+##
+## Le corps et ses 162 animations viennent de Mesh2Motion (CC0). Le vêtement,
+## la croûte de sel, les outils et toute la direction artistique sont bâtis
+## ici. Un corps nu sous licence libre n'est pas plus un « asset flip » qu'un
+## mannequin de couture n'est une robe.
 ##
 ## Invariant 2 : présentation pure. Rien ici ne touche à une hitbox, à une
 ## portée ni à un rayon de collision.
@@ -19,64 +24,40 @@ class_name SaltBody
 extends RefCounted
 
 # ---------------------------------------------------------------------------
-# Proportions
-# ---------------------------------------------------------------------------
-
-## Le rig d'origine est chibi : jambes deux fois trop courtes, torse trop long.
-## On corrige en rallongeant les os, ce qui est possible parce que les clips
-## n'animent la POSITION que de `root`, `hips`, des attaches d'épaule et de
-## hanche et des os d'IK. Toute la chaîne déformante — cuisses, tibias,
-## avant-bras, nuque — n'est animée qu'en ROTATION, donc sa longueur de repos
-## nous appartient et une marche reste une marche après l'avoir changée.
-##
-## Mesuré : hanches à 46 % de la hauteur, épaules à 82 %, bras de 0,78 m pour
-## un personnage de 1,78 m. Le pied, lui, n'est PAS rallongé — un pied deux
-## fois trop long est le tell le plus voyant d'un personnage étiré.
-const LEG: float = 2.10
-const TORSO: float = 0.88
-const ARM: float = 1.32
-
-## Os dont la longueur de repos est réécrite, et par quel facteur. La longueur
-## d'un os est la position de repos de son ENFANT : `lowerleg` porte donc la
-## cuisse, `foot` le tibia, `wrist` l'avant-bras.
-const STRETCH: Dictionary[String, float] = {
-	"lowerleg.l": LEG, "lowerleg.r": LEG,
-	"foot.l": LEG, "foot.r": LEG,
-	"spine": TORSO, "chest": TORSO, "head": TORSO,
-	"lowerarm.l": ARM, "lowerarm.r": ARM,
-	"wrist.l": ARM, "wrist.r": ARM,
-}
-
-# ---------------------------------------------------------------------------
 # Palette du sel
 # ---------------------------------------------------------------------------
 
-## Toile huilée : ce que tout le monde porte contre la brûlure du sel.
-const TOILE: Color = Color(0.45, 0.43, 0.36)
-const TOILE_CLAIRE: Color = Color(0.63, 0.61, 0.52)
-## Croûte de sel. C'est la seule chose franchement claire d'un personnage :
-## elle doit se lire de loin, parce qu'elle dit depuis combien de temps
-## l'ennemi est mort.
-const SEL: Color = Color(0.88, 0.90, 0.87)
-const SEL_OMBRE: Color = Color(0.64, 0.68, 0.65)
-const CUIR: Color = Color(0.31, 0.27, 0.21)
-const CORDE: Color = Color(0.72, 0.66, 0.50)
+## Toile huilée : ce que tout le monde porte contre la brûlure du sel. C'est
+## la teinte du CORPS lui-même — dans ce monde on est emmailloté des pieds à
+## la tête, donc le maillage nu se lit déjà comme un vêtement.
+const TOILE: Color = Color(0.38, 0.36, 0.30)
+const TOILE_CLAIRE: Color = Color(0.62, 0.60, 0.51)
+## Croûte de sel. La seule chose franchement claire d'un personnage : elle se
+## lit de loin, et elle dit depuis combien de temps l'ennemi est mort.
+const SEL: Color = Color(0.89, 0.91, 0.88)
+const SEL_OMBRE: Color = Color(0.66, 0.70, 0.67)
+const CUIR: Color = Color(0.27, 0.24, 0.19)
+const CORDE: Color = Color(0.73, 0.67, 0.51)
 ## Verre de saumure : la seule couleur froide saturée du jeu.
 const VERRE: Color = Color(0.40, 0.76, 0.68)
 const FER: Color = Color(0.27, 0.29, 0.29)
 const BRAISE: Color = Color(1.0, 0.55, 0.20)
 
+## Repère de PRISE, mesuré sur le rig : le +X de l'os de main pointe vers le
+## haut du monde au repos, son +Z vers l'avant. Une arme « manche en bas, fer
+## en haut » se décrit donc dans cette base. Mesuré, jamais deviné — c'est ce
+## qui avait coûté deux versions sur le rig précédent.
+const GRIP: Basis = Basis(
+	Vector3(0.0, 0.0, 1.0), Vector3(1.0, 0.0, 0.0), Vector3(0.0, -1.0, 0.0))
+
 # ---------------------------------------------------------------------------
 # État
 # ---------------------------------------------------------------------------
 
-## Toutes les pièces bâties, dans l'ordre. ActorView les enregistre pour
-## l'estompage et le clignotement d'arme.
 var pieces: Array[MeshInstance3D] = []
 var colors: Array[Color] = []
 var weapons: Array[bool] = []
-## Décalage vertical à appliquer au modèle pour que la cheville retombe où
-## elle était avant l'allongement des jambes.
+## Le rig humain est déjà à l'échelle et posé au sol : plus rien à relever.
 var lift: float = 0.0
 
 var _skeleton: Skeleton3D = null
@@ -86,15 +67,13 @@ var _attachments: Dictionary[String, BoneAttachment3D] = {}
 # Entrée
 # ---------------------------------------------------------------------------
 
-## Cache les maillages importés, corrige les proportions, et rebâtit un corps.
 static func dress(rig: Node3D, id: StringName, _tint: Color) -> SaltBody:
 	var body: SaltBody = SaltBody.new()
 	body._skeleton = SaltBody._find_skeleton(rig)
 	if body._skeleton == null:
 		push_warning("Aucun squelette dans le rig %s : corps non bâti." % id)
 		return body
-	SaltBody._hide_imported(rig)
-	body.lift = body._reproportion()
+	body._paint_skin(rig, id)
 	body._build(id)
 	return body
 
@@ -107,52 +86,43 @@ static func _find_skeleton(node: Node) -> Skeleton3D:
 			return found
 	return null
 
-## Rien de ce que le pack apporte n'est affiché. On ne garde que le mouvement.
-static func _hide_imported(node: Node) -> void:
+## Le corps importé arrive avec sa texture d'origine. On la remplace par un
+## aplat de la palette : le personnage est emmailloté, pas nu, et une texture
+## de peau étrangère au monde serait la seule chose de l'écran à ne pas être
+## du sel.
+func _paint_skin(rig: Node3D, id: StringName) -> void:
+	var tone: Color = TOILE
+	if id == &"gobelin":
+		# La chair du cristallise reste SOMBRE : c'est la croute qui doit etre
+		# la seule chose claire de lui. Peint en blanc partout, il ne lisait
+		# plus comme un homme pris par le sel mais comme une statue de marbre.
+		tone = TOILE.lerp(SEL_OMBRE, 0.22)
+	elif id == &"warden":
+		tone = CUIR
+	for node: Node in SaltBody._meshes(rig):
+		var mesh: MeshInstance3D = node as MeshInstance3D
+		mesh.material_override = PrimitiveFactory.material_for(
+			tone, false, SkinPart.Surface.CLOTH)
+		pieces.append(mesh)
+		colors.append(tone)
+		weapons.append(false)
+
+static func _meshes(node: Node) -> Array[Node]:
+	var found: Array[Node] = []
 	if node is MeshInstance3D:
-		(node as MeshInstance3D).visible = false
+		found.append(node)
 	for child: Node in node.get_children():
-		SaltBody._hide_imported(child)
-
-# ---------------------------------------------------------------------------
-# Proportions
-# ---------------------------------------------------------------------------
-
-## Réécrit les longueurs de repos et renvoie de combien il faut relever le
-## personnage. La référence est la CHEVILLE et non le point le plus bas : au
-## repos le pied pend en pointe, et se caler dessus soulèverait le personnage
-## de dix centimètres au-dessus du sol dès qu'il marche.
-func _reproportion() -> float:
-	var before: float = _ankle_height()
-	for name_: String in STRETCH:
-		var index: int = _skeleton.find_bone(name_)
-		if index < 0:
-			continue
-		var rest: Transform3D = _skeleton.get_bone_rest(index)
-		rest.origin *= STRETCH[name_]
-		_skeleton.set_bone_rest(index, rest)
-		_skeleton.set_bone_pose_position(index, rest.origin)
-	return before - _ankle_height()
-
-func _ankle_height() -> float:
-	var index: int = _skeleton.find_bone("foot.l")
-	if index < 0:
-		return 0.0
-	return _skeleton.get_bone_global_rest(index).origin.y
+		found.append_array(SaltBody._meshes(child))
+	return found
 
 # ---------------------------------------------------------------------------
 # Repères
 # ---------------------------------------------------------------------------
 #
-# Tout le costume se décrit en coordonnées du MONDE — droite, haut, avant —
-# et non dans le repère de l'os, dont l'orientation change d'un os à l'autre :
-# le +Y d'un bras pointe vers le coude, celui d'une cuisse vers le sol, celui
-# d'une main vers l'arrière. Décrire un chapeau dans ce repère-là, c'est
-# écrire du code qu'on ne peut ni relire ni corriger.
-#
-# `_frame()` renvoie la base qui convertit une direction du monde en direction
-# locale à l'os, prise sur la pose de REPOS. L'animation fait ensuite tourner
-# l'os, et la pièce suit — exactement comme un chapeau suit une tête.
+# Le costume se décrit en coordonnées du MONDE — droite, haut, avant — jamais
+# dans le repère de l'os, dont l'orientation change d'un os à l'autre.
+# `_frame()` convertit, sur la pose de repos ; l'animation fait ensuite tourner
+# l'os et la pièce suit, comme un chapeau suit une tête.
 
 func _frame(bone: String) -> Basis:
 	var index: int = _skeleton.find_bone(bone)
@@ -160,8 +130,8 @@ func _frame(bone: String) -> Basis:
 		return Basis.IDENTITY
 	return _skeleton.get_bone_global_rest(index).basis.orthonormalized().inverse()
 
-## Vecteur d'un os vers son enfant, dans le repère de l'os : c'est l'axe et la
-## longueur du membre.
+## Vecteur d'un os vers son enfant, dans le repère de l'os : axe et longueur
+## du membre.
 func _axis(child: String) -> Vector3:
 	var index: int = _skeleton.find_bone(child)
 	if index < 0:
@@ -206,8 +176,7 @@ func _register(bone: String, instance: MeshInstance3D, color: Color,
 	instance.add_child(lamp)
 
 ## Pose une primitive sur un os, décrite dans le repère du MONDE : `at` est un
-## décalage (droite, haut, avant) en mètres depuis l'os, et la pièce est
-## orientée comme le personnage debout.
+## décalage (droite, haut, avant) en mètres depuis l'os.
 func _add(bone: String, shape: SkinPart.Shape, size: Vector3, at: Vector3,
 		tilt: Vector3, color: Color,
 		surface: SkinPart.Surface = SkinPart.Surface.CLOTH,
@@ -223,258 +192,49 @@ func _add(bone: String, shape: SkinPart.Shape, size: Vector3, at: Vector3,
 		instance.scale = size
 	_register(bone, instance, color, weapon, light_range)
 
-## Pose une primitive DANS L'AXE d'un membre : de l'os vers son enfant. `from`
-## et `to` sont des fractions de la longueur du membre, ce qui rend la pièce
-## indépendante des facteurs de proportion — changer LEG rhabille la jambe
-## sans qu'aucun nombre de costume ne bouge.
-func _limb(bone: String, child: String, shape: SkinPart.Shape,
-		from: float, to: float, radius_top: float, radius_bottom: float,
-		color: Color, surface: SkinPart.Surface = SkinPart.Surface.CLOTH,
-		weapon: bool = false) -> void:
-	var axis: Vector3 = _axis(child)
-	var length: float = axis.length() * (to - from)
-	if length <= 0.0001:
-		return
-	var size: Vector3 = Vector3(radius_top, length, radius_bottom)
-	if shape == SkinPart.Shape.CAPSULE:
-		size = Vector3(radius_top, length + radius_top * 2.0, 0.0)
-	var instance: MeshInstance3D = _mesh(shape, size, color, surface, 0.0)
-	if instance == null:
-		return
-	var direction: Vector3 = axis.normalized()
-	instance.transform = Transform3D(
-		Basis(Quaternion(Vector3.UP, direction)),
-		axis * ((from + to) * 0.5))
-	_register(bone, instance, color, weapon, 0.0)
-
-## Bande de toile enroulée : un anneau plat autour d'un membre. C'est LE motif
-## répété du costume — il dit « emmailloté » en une pièce, et il sépare
-## l'avant-bras du bras sans ajouter de silhouette.
+## Bande de toile enroulée autour d'un membre, posée à une fraction de sa
+## longueur. C'est LE motif du costume : il dit « emmailloté » en une pièce, et
+## il rythme un bras nu sans rien ajouter à la silhouette.
 func _bande(bone: String, child: String, at: float, radius: float,
 		color: Color = CORDE) -> void:
 	var axis: Vector3 = _axis(child)
 	var instance: MeshInstance3D = _mesh(SkinPart.Shape.TORUS,
-		Vector3(radius, 0.0, radius + 0.020), color, SkinPart.Surface.CLOTH, 0.0)
+		Vector3(radius, 0.0, radius + 0.022), color, SkinPart.Surface.CLOTH, 0.0)
 	if instance == null:
 		return
-	# Le tore de Godot est à plat dans le plan XZ : son axe est +Y, donc la
-	# même rotation que pour un membre le met d'aplomb autour de l'os.
 	instance.transform = Transform3D(
 		Basis(Quaternion(Vector3.UP, axis.normalized())), axis * at)
 	_register(bone, instance, color, false, 0.0)
 
-## Éclat de sel : une plaque cristalline qui a poussé sur le porteur. Toujours
-## de travers, jamais symétrique — c'est ce qui distingue une croûte d'une
-## armure.
+## Manchon : un tronc de cône enfilé le long d'un membre, de `from` à `to` en
+## fractions de sa longueur. Une manche, une jambière, un gantelet.
+func _manchon(bone: String, child: String, from: float, to: float,
+		radius_top: float, radius_bottom: float, color: Color,
+		surface: SkinPart.Surface = SkinPart.Surface.CLOTH) -> void:
+	var axis: Vector3 = _axis(child)
+	var length: float = axis.length() * (to - from)
+	if length <= 0.0001:
+		return
+	var instance: MeshInstance3D = _mesh(SkinPart.Shape.CYLINDER,
+		Vector3(radius_top, length, radius_bottom), color, surface, 0.0)
+	if instance == null:
+		return
+	instance.transform = Transform3D(
+		Basis(Quaternion(Vector3.UP, axis.normalized())),
+		axis * ((from + to) * 0.5))
+	_register(bone, instance, color, false, 0.0)
+
+## Éclat de sel : un bloc de travers, doublé d'un plus petit. Une croûte est
+## une grappe, pas une plaque — c'est ce qui la distingue d'une armure.
 func _eclat(bone: String, size: Vector3, at: Vector3, tilt: Vector3,
 		color: Color = SEL) -> void:
-	_add(bone, SkinPart.Shape.BOX, size, at, tilt, color,
-		SkinPart.Surface.STONE)
-	# Un deuxième bloc plus petit, décalé et retourné : une croûte est une
-	# grappe, pas une plaque. C'est ce qui la distingue d'une armure.
+	_add(bone, SkinPart.Shape.BOX, size, at, tilt, color, SkinPart.Surface.STONE)
 	_add(bone, SkinPart.Shape.BOX, size * 0.58,
 		at + Vector3(size.x * 0.30, size.y * 0.44, -size.z * 0.26),
 		tilt + Vector3(26.0, 34.0, -18.0), color.lightened(0.10),
 		SkinPart.Surface.STONE)
 
-# ---------------------------------------------------------------------------
-# Anatomie commune
-# ---------------------------------------------------------------------------
-
-## Membres : quatre segments par côté, resserrés vers les extrémités, et des
-## bandes de corde aux jonctions. Le tibia est le plus serré : c'est là que la
-## silhouette se pince, et c'est ce qui donne au corps sa forme de champignon.
-func _membres(epaisseur: float, teinte: Color) -> void:
-	for side: String in ["l", "r"]:
-		_limb("upperarm." + side, "lowerarm." + side, SkinPart.Shape.CYLINDER,
-			0.02, 1.0, epaisseur * 0.80, epaisseur * 0.98, teinte)
-		_bande("upperarm." + side, "lowerarm." + side, 0.92, epaisseur * 0.82)
-
-		_limb("lowerarm." + side, "wrist." + side, SkinPart.Shape.CYLINDER,
-			0.0, 1.0, epaisseur * 0.60, epaisseur * 0.82, teinte)
-		_bande("lowerarm." + side, "wrist." + side, 0.30, epaisseur * 0.74)
-		_bande("lowerarm." + side, "wrist." + side, 0.68, epaisseur * 0.64)
-
-		# Moufle : une main gantée est un volume, pas une gélule. La manchette
-		# la sépare de l'avant-bras, sinon le bras se termine en pointe.
-		_add("hand." + side, SkinPart.Shape.ELLIPSOID,
-			Vector3(epaisseur * 1.30, epaisseur * 1.70, epaisseur * 1.05),
-			Vector3.ZERO, Vector3.ZERO, CUIR)
-		_bande("wrist." + side, "hand." + side, 0.94, epaisseur * 0.78,
-			TOILE_CLAIRE)
-
-		_limb("upperleg." + side, "lowerleg." + side, SkinPart.Shape.CYLINDER,
-			0.0, 1.0, epaisseur * 0.98, epaisseur * 1.22, teinte)
-		_limb("lowerleg." + side, "foot." + side, SkinPart.Shape.CYLINDER,
-			0.0, 1.0, epaisseur * 0.66, epaisseur * 0.94, teinte)
-		_bande("lowerleg." + side, "foot." + side, 0.24, epaisseur * 0.86)
-		_bande("lowerleg." + side, "foot." + side, 0.54, epaisseur * 0.78)
-		_bande("lowerleg." + side, "foot." + side, 0.82, epaisseur * 0.70)
-
-		# Botte : lourde, carrée, posée à plat devant la cheville.
-		_add("foot." + side, SkinPart.Shape.BOX,
-			Vector3(epaisseur * 2.1, epaisseur * 1.5, epaisseur * 3.4),
-			Vector3(0.0, epaisseur * 0.6, epaisseur * 0.9),
-			Vector3.ZERO, CUIR)
-
-## Tronc : trois segments enchaînés de la hanche à la nuque, sans trou, plus
-## une ceinture de corde. Sans la ceinture, un tronc ovoïde reste un œuf : ce
-## qui fait une taille, c'est la ligne qui la marque.
-func _tronc(largeur: float, teinte: Color) -> void:
-	# Le tronc se lit en V : large aux épaules, pincé à la taille. Les trois
-	# volumes ont d'abord été de la même largeur, et le personnage avait du
-	# ventre — c'est le défaut par défaut d'un corps fait d'ovoïdes empilés.
-	_add("hips", SkinPart.Shape.ELLIPSOID,
-		Vector3(largeur * 0.74, 0.24, largeur * 0.60),
-		Vector3(0.0, 0.04, 0.0), Vector3.ZERO, teinte)
-	var buste: float = _axis("chest").length()
-	_add("spine", SkinPart.Shape.ELLIPSOID,
-		Vector3(largeur * 0.70, buste * 1.20, largeur * 0.58),
-		Vector3(0.0, buste * 0.40, 0.0), Vector3.ZERO, teinte)
-	var nuque: float = _axis("head").length()
-	_add("chest", SkinPart.Shape.ELLIPSOID,
-		Vector3(largeur * 1.10, nuque * 1.45, largeur * 0.84),
-		Vector3(0.0, nuque * 0.22, 0.0), Vector3.ZERO, teinte)
-	# Redingote : un tronc de cône de la taille à mi-cuisse. C'est la pièce qui
-	# fait passer le personnage d'un pantin articulé à quelqu'un d'habillé —
-	# elle couvre la jonction hanche/cuisse, qui est toujours l'endroit où un
-	# assemblage de primitives se trahit.
-	_add("hips", SkinPart.Shape.CYLINDER,
-		Vector3(largeur * 0.68, 0.42, largeur * 0.34),
-		Vector3(0.0, -0.13, 0.0), Vector3.ZERO, teinte.darkened(0.34))
-	# Épaules : deux bourrelets qui élargissent le haut. La silhouette du sel
-	# est large en haut et effilée en bas ; c'est ici qu'elle se décide.
-	for side: float in [-1.0, 1.0]:
-		_add("chest", SkinPart.Shape.ELLIPSOID,
-			Vector3(largeur * 0.52, largeur * 0.44, largeur * 0.60),
-			Vector3(side * largeur * 0.56, nuque * 0.52, 0.0),
-			Vector3(0.0, 0.0, side * -14.0), teinte)
-	_add("hips", SkinPart.Shape.TORUS,
-		Vector3(largeur * 0.44, 0.0, largeur * 0.54),
-		Vector3(0.0, 0.14, 0.0), Vector3.ZERO, CORDE)
-
-	# Nuque. Sans elle la tête est posée sur les épaules comme une bille sur
-	# une étagère, et c'est ce qui trahit le plus un corps assemblé.
-	_add("chest", SkinPart.Shape.CYLINDER,
-		Vector3(largeur * 0.30, nuque * 0.60, largeur * 0.34),
-		Vector3(0.0, nuque * 0.68, 0.0), Vector3(6.0, 0.0, 0.0),
-		teinte.darkened(0.18))
-
-	# Plis de la redingote : trois arêtes verticales. Une surface courbe nue
-	# n'a aucune ombre propre sous une lumière douce ; trois arêtes suffisent
-	# à en faire du tissu.
-	for pli: int in 3:
-		var angle: float = -34.0 + float(pli) * 34.0
-		_add("hips", SkinPart.Shape.BOX,
-			Vector3(0.022, 0.38, largeur * 0.16),
-			Vector3(sin(deg_to_rad(angle)) * largeur * 0.50, -0.14,
-				cos(deg_to_rad(angle)) * largeur * 0.40),
-			Vector3(0.0, angle, 0.0), teinte.darkened(0.44))
-
-	# Loques nouées à la ceinture. Elles pendent, elles suivent les hanches, et
-	# c'est le seul endroit du costume où quelque chose bouge tout seul.
-	for loque: int in 5:
-		var tour: float = -58.0 + float(loque) * 29.0
-		var longueur: float = 0.16 + float(loque % 3) * 0.08
-		_add("hips", SkinPart.Shape.BOX,
-			Vector3(0.05, longueur, 0.016),
-			Vector3(sin(deg_to_rad(tour)) * largeur * 0.46,
-				0.08 - longueur * 0.5,
-				cos(deg_to_rad(tour)) * largeur * 0.46),
-			Vector3(0.0, tour, float(loque % 2) * 8.0 - 4.0), CORDE)
-
-## Tête emmaillotée : crâne, gaze sur le bas du visage, lunettes de verre. On
-## ne voit JAMAIS d'yeux — c'est la règle de silhouette la plus utile du
-## projet, parce qu'elle rend un personnage inquiétant sans rien modéliser.
-## L'avant du personnage est +Z.
-func _tete(rayon: float, teinte: Color, lunettes: bool) -> void:
-	_add("head", SkinPart.Shape.ELLIPSOID,
-		Vector3(rayon * 1.55, rayon * 2.0, rayon * 1.75),
-		Vector3(0.0, rayon * 0.92, 0.0), Vector3.ZERO, teinte)
-	_add("head", SkinPart.Shape.ELLIPSOID,
-		Vector3(rayon * 1.25, rayon * 0.90, rayon * 1.05),
-		Vector3(0.0, rayon * 0.60, rayon * 0.62), Vector3(-14.0, 0.0, 0.0),
-		TOILE_CLAIRE)
-	if not lunettes:
-		return
-	for side: float in [-1.0, 1.0]:
-		_add("head", SkinPart.Shape.CYLINDER,
-			Vector3(rayon * 0.38, rayon * 0.26, rayon * 0.38),
-			Vector3(side * rayon * 0.46, rayon * 1.10, rayon * 0.72),
-			Vector3(90.0, 0.0, 0.0), FER, SkinPart.Surface.METAL)
-		_add("head", SkinPart.Shape.CYLINDER,
-			Vector3(rayon * 0.27, rayon * 0.08, rayon * 0.27),
-			Vector3(side * rayon * 0.46, rayon * 1.10, rayon * 0.86),
-			Vector3(90.0, 0.0, 0.0), VERRE, SkinPart.Surface.GLOW)
-	_add("head", SkinPart.Shape.BOX,
-		Vector3(rayon * 0.36, rayon * 0.09, rayon * 0.09),
-		Vector3(0.0, rayon * 1.10, rayon * 0.74), Vector3.ZERO, FER,
-		SkinPart.Surface.METAL)
-	# Bandeau de front : la bande de toile qui tient les lunettes. Elle ferme
-	# le haut du visage, et c'est elle qui fait qu'on ne cherche pas d'yeux.
-	_add("head", SkinPart.Shape.CYLINDER,
-		Vector3(rayon * 0.86, rayon * 0.38, rayon * 0.92),
-		Vector3(0.0, rayon * 1.14, 0.0), Vector3(90.0, 0.0, 0.0),
-		TOILE_CLAIRE.darkened(0.22))
-
-## Chapeau de saunier : un large disque plat et une calotte. C'est la pièce
-## qui travaille le plus de tout le costume — elle donne au personnage sa
-## silhouette large en haut, et elle se reconnaît de trente mètres.
-## `rayon_tete` est celui passé à `_tete` : le chapeau se pose sur le crâne,
-## il ne flotte pas au-dessus.
-func _chapeau(rayon: float, hauteur: float, teinte: Color,
-		rayon_tete: float) -> void:
-	var haut: float = rayon_tete * 1.78
-	_add("head", SkinPart.Shape.CYLINDER,
-		Vector3(rayon * 0.42, 0.030, rayon),
-		Vector3(0.0, haut, 0.0), Vector3(6.0, 0.0, 0.0), teinte)
-	_add("head", SkinPart.Shape.CONE,
-		Vector3(rayon * 0.50, hauteur + rayon_tete * 0.5, 0.0),
-		Vector3(0.0, haut + (hauteur + rayon_tete * 0.5) * 0.42, 0.0),
-		Vector3.ZERO, teinte)
-	_add("head", SkinPart.Shape.TORUS,
-		Vector3(rayon * 0.34, 0.0, rayon * 0.46),
-		Vector3(0.0, haut + 0.022, 0.0), Vector3.ZERO, CORDE)
-
-## Capuche : une calotte allongée qui déborde vers l'arrière, et une pèlerine
-## posée sur les épaules.
-func _capuche(rayon: float, teinte: Color) -> void:
-	_add("head", SkinPart.Shape.ELLIPSOID,
-		Vector3(rayon * 2.1, rayon * 2.3, rayon * 2.5),
-		Vector3(0.0, rayon * 0.98, -rayon * 0.22), Vector3.ZERO, teinte)
-	# Creux d'ombre : un volume presque noir juste derrière l'ouverture. Une
-	# capuche éclairée à l'intérieur ne cache rien ; celle-ci fait un trou.
-	_add("head", SkinPart.Shape.ELLIPSOID,
-		Vector3(rayon * 1.5, rayon * 1.5, rayon * 1.1),
-		Vector3(0.0, rayon * 1.02, rayon * 0.42), Vector3.ZERO,
-		Color(0.05, 0.06, 0.06))
-	_add("chest", SkinPart.Shape.CONE,
-		Vector3(rayon * 2.2, rayon * 1.6, 0.0),
-		Vector3(0.0, _axis("head").length() * 0.62, 0.0),
-		Vector3(180.0, 0.0, 0.0), teinte)
-
-# ---------------------------------------------------------------------------
-# Armes
-# ---------------------------------------------------------------------------
-#
-# Une arme tenue est décrite comme le reste : en coordonnées du monde, sur
-# l'os `handslot.r`. Debout au repos, elle est donc verticale, poignée en bas.
-
-## Repère de PRISE, dans les coordonnées de l'os de main.
-##
-## Mesuré à l'écran, pas déduit : `tools/planche.gd` sait tracer les trois axes
-## de l'os de main (REPERES), et c'est le seul moyen fiable de savoir dans quel
-## sens une arme tenue doit être décrite. Résultat : c'est le +Z de l'os qui
-## monte, une hampe se pose donc le long de celui-là.
-##
-## Les deux premières versions tenaient le rabot à l'horizontale, pointé dans
-## le dos, puis planté vers le sol. Une orientation d'os de main ne se devine
-## pas.
-const GRIP: Basis = Basis(
-	Vector3(0.0, 1.0, 0.0), Vector3(0.0, 0.0, 1.0), Vector3(1.0, 0.0, 0.0))
-
-## Pose une pièce d'arme dans la main droite. `at` et `tilt` s'entendent dans
-## le repère de prise : +Y vers le fer, +Z vers l'avant.
+## Pièce d'arme, dans le repère de prise de la main droite.
 func _prop(shape: SkinPart.Shape, size: Vector3, at: Vector3, tilt: Vector3,
 		color: Color, surface: SkinPart.Surface = SkinPart.Surface.PLAIN,
 		weapon: bool = false, light_range: float = 0.0) -> void:
@@ -486,12 +246,110 @@ func _prop(shape: SkinPart.Shape, size: Vector3, at: Vector3, tilt: Vector3,
 	instance.transform = Transform3D(GRIP * spin, GRIP * at)
 	if shape == SkinPart.Shape.ELLIPSOID:
 		instance.scale = size
-	_register("handslot.r", instance, color, weapon, light_range)
+	_register("hand_r", instance, color, weapon, light_range)
 
 func _hampe(longueur: float, rayon: float, color: Color,
 		surface: SkinPart.Surface) -> void:
 	_prop(SkinPart.Shape.CYLINDER, Vector3(rayon, longueur, rayon * 1.14),
-		Vector3(0.0, longueur * 0.28, 0.0), Vector3.ZERO, color, surface)
+		Vector3(0.0, longueur * 0.30, 0.0), Vector3.ZERO, color, surface)
+
+# ---------------------------------------------------------------------------
+# Vêtement commun
+# ---------------------------------------------------------------------------
+
+## Manches et jambières : des manchons posés SUR le corps, jamais à la place.
+## Ils s'arrêtent avant les articulations, sinon un coude qui plie fait sortir
+## un bout de manche rigide du bras.
+func _vetement(color: Color) -> void:
+	for side: String in ["l", "r"]:
+		_manchon("upperarm_" + side, "lowerarm_" + side, 0.05, 0.78,
+			0.075, 0.070, color)
+		_bande("lowerarm_" + side, "hand_" + side, 0.18, 0.058)
+		_bande("lowerarm_" + side, "hand_" + side, 0.52, 0.052)
+		_bande("lowerarm_" + side, "hand_" + side, 0.84, 0.048)
+		_manchon("thigh_" + side, "calf_" + side, 0.02, 0.62,
+			0.105, 0.090, color)
+		_bande("calf_" + side, "foot_" + side, 0.22, 0.075)
+		_bande("calf_" + side, "foot_" + side, 0.55, 0.068)
+		_bande("calf_" + side, "foot_" + side, 0.84, 0.062)
+		# Botte : lourde, carrée, posée devant la cheville.
+		_add("foot_" + side, SkinPart.Shape.BOX,
+			Vector3(0.135, 0.10, 0.27), Vector3(0.0, 0.03, 0.05),
+			Vector3.ZERO, CUIR)
+
+## Redingote : un tronc de cône de la taille à mi-cuisse, plus des plis et des
+## loques nouées à la ceinture. C'est la pièce qui porte la silhouette.
+func _redingote(color: Color, longueur: float = 0.46) -> void:
+	_add("pelvis", SkinPart.Shape.CYLINDER,
+		Vector3(0.28, longueur, 0.205),
+		Vector3(0.0, -longueur * 0.40, 0.0), Vector3.ZERO, color)
+	for pli: int in 4:
+		var angle: float = -52.0 + float(pli) * 35.0
+		_add("pelvis", SkinPart.Shape.BOX,
+			Vector3(0.028, longueur * 0.88, 0.055),
+			Vector3(sin(deg_to_rad(angle)) * 0.245, -longueur * 0.42,
+				cos(deg_to_rad(angle)) * 0.205),
+			Vector3(0.0, angle, 0.0), color.darkened(0.30))
+	_add("pelvis", SkinPart.Shape.TORUS, Vector3(0.20, 0.0, 0.255),
+		Vector3(0.0, 0.045, 0.0), Vector3.ZERO, CORDE)
+	for loque: int in 5:
+		var tour: float = -60.0 + float(loque) * 30.0
+		var chute: float = 0.14 + float(loque % 3) * 0.09
+		_add("pelvis", SkinPart.Shape.BOX,
+			Vector3(0.045, chute, 0.014),
+			Vector3(sin(deg_to_rad(tour)) * 0.225, -0.01 - chute * 0.5,
+				cos(deg_to_rad(tour)) * 0.225),
+			Vector3(0.0, tour, float(loque % 2) * 9.0 - 4.5), CORDE)
+
+## Pèlerine sur les épaules : elle élargit le haut, ce qui est la règle de
+## silhouette du sel — large en haut, effilé en bas.
+func _pelerine(color: Color) -> void:
+	_add("spine_03", SkinPart.Shape.CONE, Vector3(0.215, 0.20, 0.0),
+		Vector3(0.0, 0.055, -0.01), Vector3(184.0, 0.0, 0.0), color)
+	# Col roule : il ferme la peleine sur la nuque, sinon on voit le trou
+	# entre le cone et le corps des qu'on regarde d'en haut.
+	_add("spine_03", SkinPart.Shape.TORUS, Vector3(0.075, 0.0, 0.115),
+		Vector3(0.0, 0.135, -0.01), Vector3(8.0, 0.0, 0.0), color.darkened(0.2))
+
+## Tête emmaillotée : gaze sur le bas du visage, lunettes de verre. On ne voit
+## JAMAIS d'yeux — la règle de silhouette la plus utile du projet, parce
+## qu'elle rend un personnage inquiétant sans rien modéliser.
+func _tete(lunettes: bool) -> void:
+	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.185, 0.145, 0.20),
+		Vector3(0.0, 0.015, 0.035), Vector3(-12.0, 0.0, 0.0), TOILE_CLAIRE)
+	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.205, 0.135, 0.21),
+		Vector3(0.0, 0.115, 0.0), Vector3.ZERO, TOILE)
+	if not lunettes:
+		return
+	for side: float in [-1.0, 1.0]:
+		_add("head", SkinPart.Shape.CYLINDER, Vector3(0.042, 0.030, 0.042),
+			Vector3(side * 0.052, 0.062, 0.088), Vector3(90.0, 0.0, 0.0),
+			FER, SkinPart.Surface.METAL)
+		_add("head", SkinPart.Shape.CYLINDER, Vector3(0.030, 0.010, 0.030),
+			Vector3(side * 0.052, 0.062, 0.104), Vector3(90.0, 0.0, 0.0),
+			VERRE, SkinPart.Surface.GLOW)
+	_add("head", SkinPart.Shape.BOX, Vector3(0.045, 0.012, 0.012),
+		Vector3(0.0, 0.062, 0.090), Vector3.ZERO, FER, SkinPart.Surface.METAL)
+
+## Chapeau de saunier : large disque plat et calotte. La pièce qui travaille
+## le plus de tout le costume — on la reconnaît de trente mètres.
+func _chapeau(rayon: float, hauteur: float, color: Color) -> void:
+	_add("head", SkinPart.Shape.CYLINDER, Vector3(rayon * 0.40, 0.028, rayon),
+		Vector3(0.0, 0.155, 0.0), Vector3(6.0, 0.0, 0.0), color)
+	_add("head", SkinPart.Shape.CONE, Vector3(rayon * 0.46, hauteur, 0.0),
+		Vector3(0.0, 0.155 + hauteur * 0.44, 0.0), Vector3.ZERO, color)
+	_add("head", SkinPart.Shape.TORUS, Vector3(rayon * 0.32, 0.0, rayon * 0.42),
+		Vector3(0.0, 0.175, 0.0), Vector3.ZERO, CORDE)
+
+## Capuche : calotte allongée qui déborde en arrière, et un creux d'ombre
+## presque noir derrière l'ouverture. Une capuche éclairée à l'intérieur ne
+## cache rien ; celle-ci fait un trou.
+func _capuche(color: Color) -> void:
+	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.26, 0.27, 0.30),
+		Vector3(0.0, 0.075, -0.035), Vector3.ZERO, color)
+	_add("head", SkinPart.Shape.ELLIPSOID, Vector3(0.19, 0.19, 0.14),
+		Vector3(0.0, 0.075, 0.075), Vector3.ZERO, Color(0.05, 0.06, 0.06))
+	_pelerine(color)
 
 # ---------------------------------------------------------------------------
 # Distribution
@@ -512,216 +370,194 @@ func _build(id: StringName) -> void:
 		_:
 			_saunier()
 
-## LE SAUNIER — coupeur de sel. Lourd, épaulé, chapeau large. La plaque de sel
-## sur l'épaule gauche est asymétrique : elle a poussé, elle n'a pas été
-## forgée.
+## LE SAUNIER — coupeur de sel. Lourd, épaulé, chapeau large, sac dans le dos.
+## La plaque de sel sur l'épaule gauche est asymétrique : elle a poussé, elle
+## n'a pas été forgée.
 func _saunier() -> void:
-	_tronc(0.42, TOILE)
-	_membres(0.075, TOILE)
-	_tete(0.090, TOILE_CLAIRE, true)
-	_chapeau(0.31, 0.13, TOILE, 0.090)
-	_eclat("chest", Vector3(0.15, 0.13, 0.15),
-		Vector3(0.24, 0.17, 0.0), Vector3(0.0, 0.0, -28.0))
-	_eclat("chest", Vector3(0.10, 0.11, 0.10),
-		Vector3(0.29, 0.24, -0.05), Vector3(16.0, 30.0, -44.0), SEL_OMBRE)
-	_eclat("chest", Vector3(0.09, 0.10, 0.09),
-		Vector3(0.19, 0.24, 0.07), Vector3(-14.0, -20.0, -18.0), SEL)
-	_eclat("chest", Vector3(0.09, 0.09, 0.08),
-		Vector3(-0.13, 0.20, 0.12), Vector3(0.0, 0.0, 30.0), SEL_OMBRE)
-	# Tablier de cuir : il ferme le bas du tronc et alourdit la silhouette.
-	_add("hips", SkinPart.Shape.BOX, Vector3(0.26, 0.40, 0.04),
-		Vector3(0.0, -0.14, 0.19), Vector3(5.0, 0.0, 0.0), CUIR)
-	# Sac de sel, porté haut dans le dos. Il dit le métier avant l'outil, et
-	# il donne au dos une masse — un personnage vu de dos ne doit pas être
-	# plus pauvre que de face.
-	_add("chest", SkinPart.Shape.ELLIPSOID, Vector3(0.30, 0.36, 0.22),
-		Vector3(0.0, 0.14, -0.26), Vector3(-8.0, 0.0, 4.0), TOILE_CLAIRE)
-	_add("chest", SkinPart.Shape.TORUS, Vector3(0.11, 0.0, 0.15),
-		Vector3(0.0, 0.30, -0.26), Vector3(90.0, 0.0, 0.0), CORDE)
+	_vetement(TOILE)
+	_redingote(CUIR, 0.44)
+	_pelerine(TOILE)
+	_tete(true)
+	_chapeau(0.30, 0.13, TOILE)
+	_eclat("clavicle_l", Vector3(0.15, 0.13, 0.15),
+		Vector3(0.06, 0.05, 0.0), Vector3(0.0, 0.0, -28.0))
+	_eclat("clavicle_r", Vector3(0.09, 0.10, 0.09),
+		Vector3(-0.05, 0.06, 0.03), Vector3(-14.0, -20.0, 22.0), SEL_OMBRE)
+	# Sac de sel, porté haut : il dit le métier avant l'outil, et il donne une
+	# masse au dos — un personnage vu de dos ne doit pas être plus pauvre.
+	_add("spine_03", SkinPart.Shape.ELLIPSOID, Vector3(0.30, 0.34, 0.20),
+		Vector3(0.0, 0.06, -0.20), Vector3(-8.0, 0.0, 4.0), TOILE_CLAIRE)
+	_add("spine_03", SkinPart.Shape.TORUS, Vector3(0.10, 0.0, 0.14),
+		Vector3(0.0, 0.21, -0.20), Vector3(90.0, 0.0, 0.0), CORDE)
 	for bretelle: float in [-1.0, 1.0]:
-		_add("chest", SkinPart.Shape.BOX, Vector3(0.05, 0.34, 0.02),
-			Vector3(bretelle * 0.15, 0.14, 0.20),
+		_add("spine_03", SkinPart.Shape.BOX, Vector3(0.05, 0.30, 0.02),
+			Vector3(bretelle * 0.13, 0.05, 0.14),
 			Vector3(0.0, 0.0, bretelle * 12.0), CUIR)
 	_rabot()
 
-## Le rabot à sel : un manche long et une lame large montée de travers. Ce
-## n'est pas une épée, et ça doit se voir au premier coup d'œil.
+## Le rabot à sel : manche long, lame large montée de travers. Ce n'est pas
+## une épée, et ça doit se voir au premier coup d'œil.
 func _rabot() -> void:
-	_hampe(0.92, 0.023, CUIR, SkinPart.Surface.WOOD)
+	_hampe(0.94, 0.024, CUIR, SkinPart.Surface.WOOD)
 	_prop(SkinPart.Shape.BOX, Vector3(0.30, 0.10, 0.06),
-		Vector3(0.0, 0.60, 0.0), Vector3(0.0, 0.0, 8.0), FER,
+		Vector3(0.0, 0.62, 0.0), Vector3(0.0, 0.0, 8.0), FER,
 		SkinPart.Surface.METAL, true)
 	_prop(SkinPart.Shape.PRISM, Vector3(0.30, 0.16, 0.04),
-		Vector3(0.0, 0.70, 0.0), Vector3(0.0, 0.0, 8.0), SEL,
+		Vector3(0.0, 0.72, 0.0), Vector3(0.0, 0.0, 8.0), SEL,
 		SkinPart.Surface.STONE, true)
 	_prop(SkinPart.Shape.TORUS, Vector3(0.030, 0.0, 0.050),
 		Vector3(0.0, 0.10, 0.0), Vector3.ZERO, CORDE)
 
-## LE HARPONNEUR — pas de chapeau, capuche rabattue, lunettes. Rouleau de
-## cordage à la ceinture : c'est sa signature, et elle dit ce qu'il fait.
+## LE HARPONNEUR — capuche rabattue, lunettes, rouleau de cordage à la
+## ceinture. Sa signature dit ce qu'il fait.
 func _harponneur() -> void:
-	_tronc(0.36, TOILE)
-	_membres(0.064, TOILE)
-	_tete(0.084, TOILE_CLAIRE, true)
-	_capuche(0.088, TOILE)
+	_vetement(TOILE)
+	_redingote(TOILE.darkened(0.25), 0.34)
+	_tete(true)
+	_capuche(TOILE)
 	for turn: int in 3:
-		_add("hips", SkinPart.Shape.TORUS, Vector3(0.09, 0.0, 0.115),
-			Vector3(0.16, 0.06 + float(turn) * 0.028, 0.09),
+		_add("pelvis", SkinPart.Shape.TORUS, Vector3(0.075, 0.0, 0.10),
+			Vector3(0.20, 0.03 + float(turn) * 0.026, 0.07),
 			Vector3(0.0, 0.0, 74.0), CORDE)
-	_eclat("chest", Vector3(0.12, 0.11, 0.12),
-		Vector3(-0.24, 0.12, 0.0), Vector3(0.0, 0.0, 20.0), SEL_OMBRE)
-	# Crocs de quai pendus à la ceinture : trois crochets de fer qui cliquettent.
 	for croc: int in 3:
-		var x: float = -0.11 + float(croc) * 0.11
-		_add("hips", SkinPart.Shape.TORUS, Vector3(0.030, 0.0, 0.055),
-			Vector3(x, 0.02, 0.17), Vector3(0.0, 0.0, 24.0 - float(croc) * 20.0),
-			FER, SkinPart.Surface.METAL)
+		_add("pelvis", SkinPart.Shape.TORUS, Vector3(0.026, 0.0, 0.048),
+			Vector3(-0.10 + float(croc) * 0.10, -0.01, 0.20),
+			Vector3(0.0, 0.0, 24.0 - float(croc) * 20.0), FER,
+			SkinPart.Surface.METAL)
+	_eclat("clavicle_r", Vector3(0.10, 0.09, 0.10),
+		Vector3(-0.05, 0.05, 0.0), Vector3(0.0, 0.0, 20.0), SEL_OMBRE)
 	_harpon()
 
 func _harpon() -> void:
-	_hampe(1.34, 0.018, CUIR, SkinPart.Surface.WOOD)
+	_hampe(1.32, 0.018, CUIR, SkinPart.Surface.WOOD)
 	_prop(SkinPart.Shape.CONE, Vector3(0.040, 0.22, 0.0),
-		Vector3(0.0, 0.86, 0.0), Vector3.ZERO, FER,
+		Vector3(0.0, 0.90, 0.0), Vector3.ZERO, FER,
 		SkinPart.Surface.METAL, true)
 	for side: float in [-1.0, 1.0]:
 		_prop(SkinPart.Shape.PRISM, Vector3(0.06, 0.13, 0.016),
-			Vector3(side * 0.040, 0.78, 0.0), Vector3(0.0, 0.0, side * 152.0),
+			Vector3(side * 0.040, 0.82, 0.0), Vector3(0.0, 0.0, side * 152.0),
 			FER, SkinPart.Surface.METAL, true)
 
 ## LE VERRIER — souffleur de verre de saumure. Capuche haute, silhouette
 ## étroite, et la seule chose colorée du groupe : la perle en fusion.
 func _verrier() -> void:
-	_tronc(0.34, CUIR)
-	_membres(0.060, CUIR)
-	_tete(0.082, TOILE_CLAIRE, false)
-	_capuche(0.094, CUIR)
-	# Éclats de verre portés dans le dos, comme un carquois.
+	_vetement(CUIR)
+	_redingote(CUIR, 0.52)
+	_tete(false)
+	_capuche(CUIR)
 	for index: int in 4:
-		_add("chest", SkinPart.Shape.PRISM, Vector3(0.055, 0.34, 0.018),
-			Vector3(-0.09 + float(index) * 0.06, 0.20, -0.20),
+		_add("spine_03", SkinPart.Shape.PRISM, Vector3(0.055, 0.32, 0.018),
+			Vector3(-0.09 + float(index) * 0.06, 0.08, -0.17),
 			Vector3(26.0, 0.0, -28.0 + float(index) * 16.0), VERRE,
 			SkinPart.Surface.GLOW)
 	_canne()
 
 func _canne() -> void:
-	_hampe(1.02, 0.016, FER, SkinPart.Surface.METAL)
+	_hampe(1.04, 0.016, FER, SkinPart.Surface.METAL)
 	_prop(SkinPart.Shape.SPHERE, Vector3(0.068, 0.0, 0.0),
-		Vector3(0.0, 0.70, 0.0), Vector3.ZERO, VERRE, SkinPart.Surface.GLOW,
+		Vector3(0.0, 0.74, 0.0), Vector3.ZERO, VERRE, SkinPart.Surface.GLOW,
 		true, 3.4)
 	_prop(SkinPart.Shape.TORUS, Vector3(0.024, 0.0, 0.042),
 		Vector3(0.0, 0.09, 0.0), Vector3.ZERO, CORDE)
 
 ## LA RINCEUSE — celle qui lave le sel des autres. Chapeau plat et large,
-## outre de saumure, goupillon. Rien de martial : sa silhouette doit dire
+## outre de saumure, fioles. Rien de martial : sa silhouette doit dire
 ## « on vient vers elle », pas « on la fuit ».
 func _rinceuse() -> void:
-	_tronc(0.35, TOILE_CLAIRE)
-	_membres(0.062, TOILE_CLAIRE)
-	_tete(0.084, TOILE_CLAIRE, false)
-	_chapeau(0.36, 0.03, TOILE_CLAIRE, 0.084)
-	_add("chest", SkinPart.Shape.ELLIPSOID, Vector3(0.26, 0.32, 0.18),
-		Vector3(0.0, 0.10, -0.22), Vector3(-10.0, 0.0, 0.0), CUIR)
-	_add("chest", SkinPart.Shape.CYLINDER, Vector3(0.036, 0.11, 0.048),
-		Vector3(0.11, 0.24, -0.19), Vector3(0.0, 0.0, -24.0), FER,
-		SkinPart.Surface.METAL)
-	# Fioles de saumure alignées sur la poitrine. C'est la seule couleur du
-	# personnage, et elle dit ce qu'il donne.
+	_vetement(TOILE_CLAIRE)
+	_redingote(TOILE.darkened(0.15), 0.50)
+	_pelerine(TOILE_CLAIRE)
+	_tete(false)
+	_chapeau(0.36, 0.04, TOILE_CLAIRE)
+	_add("spine_03", SkinPart.Shape.ELLIPSOID, Vector3(0.25, 0.30, 0.17),
+		Vector3(0.0, 0.03, -0.19), Vector3(-10.0, 0.0, 0.0), CUIR)
 	for fiole: int in 4:
-		var x: float = -0.15 + float(fiole) * 0.10
-		_add("chest", SkinPart.Shape.CYLINDER, Vector3(0.026, 0.09, 0.030),
-			Vector3(x, 0.04 + float(fiole % 2) * 0.02, 0.17),
+		var x: float = -0.13 + float(fiole) * 0.09
+		_add("spine_02", SkinPart.Shape.CYLINDER, Vector3(0.024, 0.085, 0.028),
+			Vector3(x, 0.02 + float(fiole % 2) * 0.02, 0.135),
 			Vector3(12.0, 0.0, 0.0), VERRE, SkinPart.Surface.GLOW)
-		_add("chest", SkinPart.Shape.CYLINDER, Vector3(0.018, 0.03, 0.020),
-			Vector3(x, 0.10 + float(fiole % 2) * 0.02, 0.17),
-			Vector3(12.0, 0.0, 0.0), CUIR)
 	_goupillon()
 
 func _goupillon() -> void:
-	_hampe(0.68, 0.018, CUIR, SkinPart.Surface.WOOD)
+	_hampe(0.70, 0.018, CUIR, SkinPart.Surface.WOOD)
 	_prop(SkinPart.Shape.ELLIPSOID, Vector3(0.15, 0.20, 0.15),
-		Vector3(0.0, 0.44, 0.0), Vector3.ZERO, CORDE,
+		Vector3(0.0, 0.48, 0.0), Vector3.ZERO, CORDE,
 		SkinPart.Surface.CLOTH, true)
 	_prop(SkinPart.Shape.SPHERE, Vector3(0.034, 0.0, 0.0),
-		Vector3(0.0, 0.54, 0.0), Vector3.ZERO, VERRE, SkinPart.Surface.GLOW,
+		Vector3(0.0, 0.58, 0.0), Vector3.ZERO, VERRE, SkinPart.Surface.GLOW,
 		false, 2.6)
 
-## LE CRISTALLISÉ — l'ennemi de base. Un homme mort dans le bassin, que le sel
-## a repris. Maigre, voûté, à moitié blanc. Plus il est ancien, plus il est
-## clair : c'est la seule barre de vie dont on ait besoin.
+## LE CRISTALLISÉ — l'ennemi de base. Un homme mort dans le bassin que le sel
+## a repris. Il ne porte presque rien : la croûte a remplacé le vêtement, et
+## plus elle est étendue, plus la chose est ancienne. C'est la seule barre de
+## vie dont on ait besoin.
 func _cristallise() -> void:
-	_tronc(0.31, TOILE)
-	_membres(0.054, TOILE)
-	_tete(0.078, SEL_OMBRE, true)
-	# La croûte a mangé la moitié du crâne et l'épaule droite.
-	_eclat("head", Vector3(0.16, 0.15, 0.16),
-		Vector3(0.06, 0.12, -0.02), Vector3(18.0, 24.0, -32.0))
-	_eclat("chest", Vector3(0.18, 0.17, 0.16),
-		Vector3(-0.20, 0.12, 0.0), Vector3(0.0, 0.0, 28.0))
-	_eclat("chest", Vector3(0.11, 0.13, 0.11),
-		Vector3(-0.24, 0.24, -0.03), Vector3(20.0, 0.0, 42.0), SEL_OMBRE)
-	_eclat("chest", Vector3(0.19, 0.17, 0.13),
-		Vector3(0.05, 0.14, -0.14), Vector3(-16.0, 0.0, -18.0), SEL_OMBRE)
-	_eclat("lowerleg.l", Vector3(0.11, 0.14, 0.11),
-		Vector3(0.0, -0.16, 0.02), Vector3(0.0, 12.0, 22.0), SEL_OMBRE)
-	# Le bras gauche est entierement pris : plus une croute, un moulage. C'est
-	# le detail qui dit que la chose n'est plus quelqu'un.
-	_limb("upperarm.l", "lowerarm.l", SkinPart.Shape.CYLINDER,
-		0.10, 1.05, 0.075, 0.090, SEL, SkinPart.Surface.STONE)
-	_limb("lowerarm.l", "wrist.l", SkinPart.Shape.CYLINDER,
-		0.0, 1.05, 0.058, 0.078, SEL_OMBRE, SkinPart.Surface.STONE)
-	_eclat("lowerarm.l", Vector3(0.09, 0.10, 0.09),
-		Vector3(0.0, -0.10, 0.0), Vector3(14.0, 20.0, 28.0), SEL)
+	_bande("lowerarm_r", "hand_r", 0.40, 0.055)
+	_bande("calf_l", "foot_l", 0.45, 0.070)
+	_bande("calf_r", "foot_r", 0.30, 0.072)
+	_redingote(TOILE.darkened(0.40), 0.28)
+	_eclat("head", Vector3(0.14, 0.13, 0.14),
+		Vector3(0.06, 0.07, -0.02), Vector3(18.0, 24.0, -32.0))
+	_eclat("clavicle_r", Vector3(0.16, 0.15, 0.14),
+		Vector3(-0.05, 0.04, 0.0), Vector3(0.0, 0.0, 28.0))
+	_eclat("spine_03", Vector3(0.17, 0.15, 0.12),
+		Vector3(0.05, 0.06, -0.12), Vector3(-16.0, 0.0, -18.0), SEL_OMBRE)
+	_eclat("calf_l", Vector3(0.10, 0.13, 0.10),
+		Vector3(0.0, -0.14, 0.02), Vector3(0.0, 12.0, 22.0), SEL_OMBRE)
+	# Le bras gauche est entièrement pris : plus une croûte, un moulage. Le
+	# détail qui dit que la chose n'est plus quelqu'un.
+	_manchon("upperarm_l", "lowerarm_l", 0.0, 1.0, 0.085, 0.078, SEL,
+		SkinPart.Surface.STONE)
+	_manchon("lowerarm_l", "hand_l", 0.0, 0.9, 0.072, 0.062, SEL_OMBRE,
+		SkinPart.Surface.STONE)
+	_eclat("lowerarm_l", Vector3(0.09, 0.10, 0.09),
+		Vector3(0.0, -0.08, 0.0), Vector3(14.0, 20.0, 28.0), SEL)
 	# Éclat de sel tenu comme une lame : brut, jamais taillé.
-	_prop(SkinPart.Shape.PRISM, Vector3(0.10, 0.58, 0.05),
-		Vector3(0.0, 0.29, 0.0), Vector3(0.0, 0.0, 6.0), SEL,
+	_prop(SkinPart.Shape.PRISM, Vector3(0.10, 0.56, 0.05),
+		Vector3(0.0, 0.28, 0.0), Vector3(0.0, 0.0, 6.0), SEL,
 		SkinPart.Surface.STONE, true)
 	_prop(SkinPart.Shape.TORUS, Vector3(0.028, 0.0, 0.046),
 		Vector3(0.0, 0.04, 0.0), Vector3.ZERO, CORDE)
 
-## LE GARDIEN DES BRAISES — le boss. Il garde le dernier feu du bassin, et il
-## brûle en permanence : sa toile est huilée et allumée. C'est la seule chose
-## chaude d'une région entièrement blanche, et c'est tout le propos du combat.
+## LE GARDIEN DES BRAISES — le boss. Il garde le dernier feu du bassin et il
+## brûle en permanence : sa toile est huilée et allumée. La seule chose chaude
+## d'une région entièrement blanche, et tout le propos du combat.
 func _lampiste() -> void:
-	_tronc(0.50, CUIR)
-	_membres(0.086, CUIR)
-	_tete(0.098, CUIR, true)
-	_capuche(0.108, CUIR)
-	# Bandes de toile qui brûlent, en travers du tronc. Courtes et étroites :
-	# trois anneaux pleins autour du corps ne se lisaient pas comme un homme
-	# qui brûle mais comme une enseigne.
+	_vetement(CUIR)
+	_redingote(CUIR, 0.56)
+	_tete(true)
+	_capuche(CUIR)
 	for index: int in 5:
-		var y: float = -0.06 + float(index) * 0.11
+		var y: float = -0.06 + float(index) * 0.07
 		var side: float = -1.0 if index % 2 == 0 else 1.0
-		_add("chest", SkinPart.Shape.BOX, Vector3(0.16, 0.026, 0.05),
-			Vector3(side * 0.13, y, 0.26 + float(index % 3) * 0.02),
+		_add("spine_02", SkinPart.Shape.BOX, Vector3(0.15, 0.024, 0.05),
+			Vector3(side * 0.11, y, 0.15 + float(index % 3) * 0.015),
 			Vector3(0.0, 0.0, side * (18.0 + float(index) * 9.0)), BRAISE,
 			SkinPart.Surface.GLOW, false, 1.8)
-	_eclat("chest", Vector3(0.17, 0.14, 0.16),
-		Vector3(0.29, 0.15, 0.0), Vector3(0.0, 0.0, -30.0))
-	_eclat("chest", Vector3(0.14, 0.12, 0.13),
-		Vector3(-0.29, 0.15, 0.0), Vector3(0.0, 0.0, 30.0), SEL_OMBRE)
-	# Loques enflammees pendues aux bras : ce qui brule sur lui doit bouger
-	# quand il frappe, sinon le feu a l'air peint.
-	for cote: String in ["l", "r"]:
+	for side: String in ["l", "r"]:
 		for loque: int in 2:
-			_add("lowerarm." + cote, SkinPart.Shape.BOX,
-				Vector3(0.05, 0.22 + float(loque) * 0.07, 0.014),
-				Vector3(0.0, -0.10 - float(loque) * 0.06, 0.05),
+			_add("lowerarm_" + side, SkinPart.Shape.BOX,
+				Vector3(0.05, 0.20 + float(loque) * 0.07, 0.014),
+				Vector3(0.0, -0.09 - float(loque) * 0.05, 0.05),
 				Vector3(0.0, float(loque) * 24.0, 0.0), BRAISE,
 				SkinPart.Surface.GLOW, false, 1.4)
+	_eclat("clavicle_l", Vector3(0.17, 0.14, 0.16),
+		Vector3(0.07, 0.05, 0.0), Vector3(0.0, 0.0, -30.0))
+	_eclat("clavicle_r", Vector3(0.14, 0.12, 0.13),
+		Vector3(-0.06, 0.05, 0.0), Vector3(0.0, 0.0, 30.0), SEL_OMBRE)
 	_ratelier()
 
 ## Un râtelier de lampes tenu comme une arme d'hast. Trois lampes qui pendent :
 ## ce sont elles qu'on regarde, donc ce sont elles qui annoncent le coup.
 func _ratelier() -> void:
-	_hampe(1.40, 0.028, FER, SkinPart.Surface.METAL)
+	_hampe(1.42, 0.028, FER, SkinPart.Surface.METAL)
 	_prop(SkinPart.Shape.BOX, Vector3(0.58, 0.04, 0.04),
-		Vector3(0.0, 0.92, 0.0), Vector3.ZERO, FER,
+		Vector3(0.0, 0.96, 0.0), Vector3.ZERO, FER,
 		SkinPart.Surface.METAL, true)
 	for index: int in 3:
 		var x: float = -0.22 + float(index) * 0.22
 		_prop(SkinPart.Shape.CYLINDER, Vector3(0.010, 0.11, 0.010),
-			Vector3(x, 0.86, 0.0), Vector3.ZERO, FER, SkinPart.Surface.METAL)
+			Vector3(x, 0.90, 0.0), Vector3.ZERO, FER, SkinPart.Surface.METAL)
 		_prop(SkinPart.Shape.ELLIPSOID, Vector3(0.11, 0.14, 0.11),
-			Vector3(x, 0.74, 0.0), Vector3.ZERO, BRAISE,
+			Vector3(x, 0.78, 0.0), Vector3.ZERO, BRAISE,
 			SkinPart.Surface.GLOW, true, 3.2)

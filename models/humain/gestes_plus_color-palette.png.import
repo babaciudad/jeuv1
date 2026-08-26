@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7cujr5mcixv8"
-path="res://.godot/imported/warden_skeleton_texture.png-7bfc804e8518d911a68b324616e12cbd.ctex"
+uid="uid://dir34n834us6j"
+path="res://.godot/imported/gestes_plus_color-palette.png-2c208fea5a249ee95199d8c5e00a865c.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "661544b1e8ba10b5a0c98b638eae6d0b"
+"md5": "742d9e9152beb466850f4b5621321275"
 }
 
 [deps]
 
-source_file="res://models/warden_skeleton_texture.png"
-dest_files=["res://.godot/imported/warden_skeleton_texture.png-7bfc804e8518d911a68b324616e12cbd.ctex"]
+source_file="res://models/humain/gestes_plus_color-palette.png"
+dest_files=["res://.godot/imported/gestes_plus_color-palette.png-2c208fea5a249ee95199d8c5e00a865c.ctex"]
 
 [params]
 

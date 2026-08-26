@@ -76,8 +76,28 @@ static func build(rig: Node3D, model: ModelData) -> SaltAnimator:
 	# rien à appeler.
 	animator._player.callback_mode_method = \
 		AnimationMixer.ANIMATION_CALLBACK_MODE_METHOD_DEFERRED
+	animator._graft(model)
 	animator._assemble(rig)
 	return animator
+
+## Greffe la bibliotheque d'appoint sur le lecteur du corps. Le rig humain est
+## livre en trois fichiers — un corps, deux paquets de gestes — qui partagent
+## le meme squelette et les memes chemins de piste : la fusion se fait donc
+## sans retargeting, et un clip d'appoint s'appelle `plus/Dodge_left`.
+func _graft(model: ModelData) -> void:
+	if model.extra_animations == null:
+		return
+	var extra: Node = model.extra_animations.instantiate()
+	var source: AnimationPlayer = SaltAnimator._find_player(extra)
+	if source == null:
+		extra.queue_free()
+		return
+	for name_: StringName in source.get_animation_library_list():
+		var library: AnimationLibrary = source.get_animation_library(name_)
+		if library == null or _player.has_animation_library(model.extra_prefix):
+			continue
+		_player.add_animation_library(model.extra_prefix, library)
+	extra.queue_free()
 
 static func _find_player(node: Node) -> AnimationPlayer:
 	if node is AnimationPlayer:

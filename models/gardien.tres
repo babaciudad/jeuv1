@@ -1,24 +1,22 @@
 [gd_resource type="Resource" script_class="ModelData" format=3]
 
-[ext_resource type="PackedScene" path="res://models/gardien.glb" id="1_edacu"]
-[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="2_w85pm"]
+[ext_resource type="PackedScene" path="res://models/humain/gestes_plus.glb" id="1_w85pm"]
+[ext_resource type="PackedScene" path="res://models/humain/gestes_base.glb" id="2_8yo1o"]
+[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="3_xd2bl"]
 
 [resource]
-script = ExtResource("2_w85pm")
+script = ExtResource("3_xd2bl")
 id = &"gardien"
-scene = ExtResource("1_edacu")
+scene = ExtResource("2_8yo1o")
+extra_animations = ExtResource("1_w85pm")
 yaw_degrees = 180.0
-idle = &"2H_Melee_Idle"
-walk = &"Walking_A"
-run = &"Running_A"
-attack = &"1H_Melee_Attack_Chop"
-dodge = &"Dodge_Forward"
-hurt = &"Hit_A"
-death = &"Death_A"
-walk_clip_speed = 2.0
-run_clip_speed = 5.0
+idle = &"Idle_Sword"
+walk = &"Walk_Large"
+attack = &"Sword_Regular_C"
+death_alt = &"plus/Death_A"
 attack_clips = Dictionary[StringName, StringName]({
-&"gardien_lourd": &"2H_Melee_Attack_Chop",
-&"gardien_rapide": &"1H_Melee_Attack_Slice_Horizontal"
+&"gardien_lourd": &"Sword_Regular_C",
+&"gardien_rapide": &"Sword_Regular_A"
 })
+run_speed = 3.0
 blend_time = 0.16

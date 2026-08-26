@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bp1q0os5pb7v4"
-path="res://.godot/imported/gobelin_skeleton_texture.png-560ec1ee87919ff77889198b5ca0212c.ctex"
+uid="uid://br164sr2cljxl"
+path="res://.godot/imported/gestes_base_color-palette.png-0928ce94b989e3a94cba18218454cd9e.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "661544b1e8ba10b5a0c98b638eae6d0b"
+"md5": "742d9e9152beb466850f4b5621321275"
 }
 
 [deps]
 
-source_file="res://models/gobelin_skeleton_texture.png"
-dest_files=["res://.godot/imported/gobelin_skeleton_texture.png-560ec1ee87919ff77889198b5ca0212c.ctex"]
+source_file="res://models/humain/gestes_base_color-palette.png"
+dest_files=["res://.godot/imported/gestes_base_color-palette.png-0928ce94b989e3a94cba18218454cd9e.ctex"]
 
 [params]
 

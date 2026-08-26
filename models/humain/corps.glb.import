@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://pneinirgm3j3"
-path="res://.godot/imported/gardien.glb-5cbb62237bde2d10d4b63be8664eb25a.scn"
+uid="uid://bt3kab2l0vcs1"
+path="res://.godot/imported/corps.glb-1640eac7e6d4ee11699e53fe5494aa0f.scn"
 
 [deps]
 
-source_file="res://models/gardien.glb"
-dest_files=["res://.godot/imported/gardien.glb-5cbb62237bde2d10d4b63be8664eb25a.scn"]
+source_file="res://models/humain/corps.glb"
+dest_files=["res://.godot/imported/corps.glb-1640eac7e6d4ee11699e53fe5494aa0f.scn"]
 
 [params]
 

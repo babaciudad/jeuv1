@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b5r0shvxbduoc"
-path="res://.godot/imported/archer_rogue_texture.png-aa90fd2dd1309e872a6239a04a6f378f.ctex"
+uid="uid://djt5e0otcpd6p"
+path="res://.godot/imported/corps_color-palette.png-a9becdfeef688c0e5bf58222b6ab5890.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "5b6fbb4d6c67e8c66dd2dffbb40f8812"
+"md5": "742d9e9152beb466850f4b5621321275"
 }
 
 [deps]
 
-source_file="res://models/archer_rogue_texture.png"
-dest_files=["res://.godot/imported/archer_rogue_texture.png-aa90fd2dd1309e872a6239a04a6f378f.ctex"]
+source_file="res://models/humain/corps_color-palette.png"
+dest_files=["res://.godot/imported/corps_color-palette.png-a9becdfeef688c0e5bf58222b6ab5890.ctex"]
 
 [params]
 

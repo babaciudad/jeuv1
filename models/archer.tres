@@ -1,24 +1,21 @@
 [gd_resource type="Resource" script_class="ModelData" format=3]
 
-[ext_resource type="PackedScene" path="res://models/archer.glb" id="1_cuwqk"]
-[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="2_x8j2u"]
+[ext_resource type="PackedScene" path="res://models/humain/gestes_plus.glb" id="1_x8j2u"]
+[ext_resource type="PackedScene" path="res://models/humain/gestes_base.glb" id="2_mwppd"]
+[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="3_jbvux"]
 
 [resource]
-script = ExtResource("2_x8j2u")
+script = ExtResource("3_jbvux")
 id = &"archer"
-scene = ExtResource("1_cuwqk")
+scene = ExtResource("2_mwppd")
+extra_animations = ExtResource("1_x8j2u")
 yaw_degrees = 180.0
-idle = &"Idle"
-walk = &"Walking_A"
-run = &"Running_A"
-attack = &"1H_Ranged_Shoot"
-dodge = &"Dodge_Forward"
-hurt = &"Hit_A"
-death = &"Death_A"
-walk_clip_speed = 2.0
-run_clip_speed = 5.0
+attack = &"Sword_Regular_B"
+death = &"plus/Death_B"
+death_alt = &"Death_D"
 attack_clips = Dictionary[StringName, StringName]({
-&"archer_dague": &"1H_Melee_Attack_Stab",
-&"archer_fleche": &"1H_Ranged_Shoot"
+&"archer_dague": &"Sword_Regular_B",
+&"archer_fleche": &"plus/Bow Release"
 })
+run_speed = 3.0
 blend_time = 0.16

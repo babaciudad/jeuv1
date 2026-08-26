@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b8titn2p28poh"
-path="res://.godot/imported/soigneur.glb-12941693702317e588a4a6d9a4821ea2.scn"
+uid="uid://dowrmk3gr3454"
+path="res://.godot/imported/gestes_plus.glb-746343b980ac0a9cf51392dd14c32c27.scn"
 
 [deps]
 
-source_file="res://models/soigneur.glb"
-dest_files=["res://.godot/imported/soigneur.glb-12941693702317e588a4a6d9a4821ea2.scn"]
+source_file="res://models/humain/gestes_plus.glb"
+dest_files=["res://.godot/imported/gestes_plus.glb-746343b980ac0a9cf51392dd14c32c27.scn"]
 
 [params]
 

@@ -1,24 +1,21 @@
 [gd_resource type="Resource" script_class="ModelData" format=3]
 
-[ext_resource type="PackedScene" path="res://models/mage.glb" id="1_xdst3"]
-[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="2_7nbkl"]
+[ext_resource type="PackedScene" path="res://models/humain/gestes_plus.glb" id="1_7nbkl"]
+[ext_resource type="PackedScene" path="res://models/humain/gestes_base.glb" id="2_4qfac"]
+[ext_resource type="Script" path="res://src/presentation/data/model_data.gd" id="3_dof7s"]
 
 [resource]
-script = ExtResource("2_7nbkl")
+script = ExtResource("3_dof7s")
 id = &"mage"
-scene = ExtResource("1_xdst3")
+scene = ExtResource("2_4qfac")
+extra_animations = ExtResource("1_7nbkl")
 yaw_degrees = 180.0
-idle = &"Idle"
-walk = &"Walking_A"
-run = &"Running_A"
-attack = &"Spellcast_Shoot"
-dodge = &"Dodge_Forward"
-hurt = &"Hit_A"
-death = &"Death_A"
-walk_clip_speed = 2.0
-run_clip_speed = 5.0
+idle = &"Spell_Simple_Idle"
+attack = &"Sword_Regular_B"
+death = &"plus/Death_C"
 attack_clips = Dictionary[StringName, StringName]({
-&"mage_baton": &"2H_Melee_Attack_Stab",
-&"mage_trait": &"Spellcast_Shoot"
+&"mage_baton": &"Sword_Regular_B",
+&"mage_trait": &"Spell_Simple_Shoot"
 })
+run_speed = 3.0
 blend_time = 0.16

@@ -57,12 +57,6 @@ const ARM_STRIKE_DEGREES: float = 55.0
 const ARM_CAST_DEGREES: float = -95.0
 const ARM_HEAL_DEGREES: float = -150.0
 
-## Hauteur du pivot de roulade, en mètres, pour un personnage de taille
-## standard. C'est le bassin : un corps qui se roule tourne autour de ses
-## hanches.
-const ROLL_PIVOT_HEIGHT: float = 0.58
-## Écrasement vertical au milieu de la roulade. Le corps se ramasse.
-const ROLL_TUCK: float = 0.26
 ## Radians d'inclinaison par mètre par seconde carré d'accélération, et butée.
 const LEAN_PER_ACCEL: float = 0.019
 const LEAN_MAX: float = 0.21
@@ -439,10 +433,10 @@ func _apply_pose(actor: Actor, dodge: float) -> void:
 	# les paquets fournissent des pas de côté — donc c'est ici qu'elle se
 	# fait, et c'est la seule pose qu'on impose à un modèle.
 	if _model != null:
-		if actor.state == Actor.State.DODGING:
-			_apply_roll(dodge)
-		else:
-			_apply_lean(actor)
+		# La roulade est desormais un VRAI clip du rig humain, pas une bascule
+		# du porte-pieces : le corps se ramasse, roule sur l'epaule et se
+		# releve. La faire tourner en plus la ferait pivoter deux fois.
+		_apply_lean(actor)
 		return
 	match actor.state:
 		Actor.State.DEAD:
@@ -469,7 +463,8 @@ func _apply_pose(actor: Actor, dodge: float) -> void:
 func _apply_lean(actor: Actor) -> void:
 	var pitch: float = 0.0
 	var roll: float = 0.0
-	if actor.state != Actor.State.DEAD and actor.state != Actor.State.STAGGERED:
+	if actor.state != Actor.State.DEAD and actor.state != Actor.State.STAGGERED \
+			and actor.state != Actor.State.DODGING:
 		var forward: Vector2 = actor.facing.normalized() 			if not actor.facing.is_zero_approx() else Vector2(0.0, 1.0)
 		var right: Vector2 = Vector2(forward.y, -forward.x)
 		pitch = clampf(_push.dot(forward) * LEAN_PER_ACCEL,
@@ -493,31 +488,6 @@ func _apply_lean(actor: Actor) -> void:
 		basis = basis.scaled(Vector3(1.0 + part * 0.05, 1.0 - part * 0.09,
 			1.0 + part * 0.05))
 	_pose.transform = Transform3D(basis, offset)
-
-## Roulade : un tour complet vers l'avant, pivoté à hauteur de HANCHE et non
-## aux pieds. Tourner autour des pieds ferait décrire au personnage un arc de
-## cercle d'un mètre de rayon — il partirait en l'air, et c'est exactement
-## l'erreur qu'on fait la première fois.
-##
-## Le corps se ramasse au début et se redresse à la fin ; l'échelle verticale
-## suit, ce qui donne l'impression d'un corps qui se roule en boule plutôt
-## que d'une planche qui pivote.
-func _apply_roll(progress: float) -> void:
-	var eased: float = clampf(progress, 0.0, 1.0)
-	# Le tour n'est pas linéaire : vif au décollage, il finit posé, à l'image
-	# du profil de vitesse que la simulation applique au même moment.
-	var turn: float = 1.0 - pow(1.0 - eased, 2.0)
-	var pivot: Vector3 = Vector3(0.0, ROLL_PIVOT_HEIGHT * _body_scale(), 0.0)
-	var basis: Basis = Basis(Vector3.RIGHT, -TAU * turn)
-	var tuck: float = 1.0 - sin(eased * PI) * ROLL_TUCK
-	basis = basis.scaled(Vector3(1.0, tuck, 1.0))
-	_pose.transform = Transform3D(basis, pivot - basis * pivot)
-
-## Hauteur du personnage rapportée à celle pour laquelle les constantes de
-## roulade sont réglées : un gobelin ne roule pas autour du même axe qu'un
-## boss.
-func _body_scale() -> float:
-	return clampf(_stand_height / 0.90, 0.6, 1.8)
 
 func _fade_alpha(camera_position: Vector3, is_local: bool, player_distance: float) -> float:
 	if is_local or player_distance <= 0.0:

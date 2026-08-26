@@ -126,6 +126,19 @@ func _build_cast() -> void:
 		corps.position = Vector3(_abscisse(index),
 			data.lift + sel.lift * maxf(0.001, data.scale), 0.0)
 		var lecteur: AnimationPlayer = _lecteur(corps)
+		# Même greffe que SaltAnimator : sans elle les clips `plus/...` de la
+		# bibliothèque d'appoint n'existent pas sur ce lecteur.
+		if lecteur != null and data.extra_animations != null \
+				and not lecteur.has_animation_library(data.extra_prefix):
+			var appoint: Node = data.extra_animations.instantiate()
+			var source: AnimationPlayer = _lecteur(appoint)
+			if source != null:
+				for nom: StringName in source.get_animation_library_list():
+					var bib: AnimationLibrary = source.get_animation_library(nom)
+					if bib != null:
+						lecteur.add_animation_library(data.extra_prefix, bib)
+						break
+			appoint.queue_free()
 		_players.append(lecteur)
 		if lecteur != null and lecteur.has_animation(data.idle):
 			lecteur.play(data.idle)

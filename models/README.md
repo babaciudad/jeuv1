@@ -1,35 +1,62 @@
 # Modèles de personnages
 
-Six personnages riggés et animés vivent ici. Dès qu'un fichier `<id>.tres`
-apparaît dans ce dossier, il remplace le skin en primitives du personnage
-correspondant. Rien à changer dans le code.
+Tous les personnages du jeu partagent **un seul corps** et **une seule
+bibliothèque de mouvements**. Ce qui les distingue est le costume, bâti en
+primitives par `SaltBody`, et le choix des clips.
 
-| Fichier | Source | Attaque |
-|---|---|---|
-| `gardien.glb` | KayKit Adventurers — *Knight* | `1H_Melee_Attack_Chop` |
-| `mage.glb` | KayKit Adventurers — *Mage* | `Spellcast_Shoot` |
-| `soigneur.glb` | KayKit Adventurers — *Rogue_Hooded* | `Spellcast_Raise` |
-| `archer.glb` | KayKit Adventurers — *Rogue* | `1H_Ranged_Shoot` |
-| `gobelin.glb` | KayKit Skeletons — *Skeleton_Minion* | `1H_Melee_Attack_Slice_Diagonal` |
-| `warden.glb` | KayKit Skeletons — *Skeleton_Warrior* | `2H_Melee_Attack_Chop` |
+| Fichier | Ce que c'est |
+|---|---|
+| `humain/corps.glb` | Maillage skinné seul, 66 os, 13 757 triangles |
+| `humain/gestes_base.glb` | Le même corps + 87 clips. **C'est la scène utilisée.** |
+| `humain/gestes_plus.glb` | 75 clips de plus, greffés au montage sous `plus/` |
+| `<id>.tres` | La fiche `ModelData` d'un personnage : quels clips, quel costume |
+
+Onze mégaoctets pour six personnages, contre vingt-quatre auparavant pour six
+squelettes identiques.
 
 ## Licence et attribution
 
-**KayKit Character Packs**, par Kay Lousberg — **CC0 1.0**. Libres d'usage
-personnel, éducatif et commercial ; le crédit est facultatif et donné ici
-par correction. Textes de licence : `LICENSE.txt` des paquets d'origine.
+**Mesh2Motion** (Scott Petrovic) — modèles, rigs et animations en **CC0 1.0**.
+Le code de leur application est MIT, mais on n'en utilise rien. Texte de la
+licence : `humain/LICENCE-CC0.md`. Source :
+<https://github.com/Mesh2Motion/mesh2motion-app>
 
-## Ce sont des doublures, pas la direction artistique
+## Pourquoi ce corps-là, et pourquoi ce n'est pas un asset flip
 
-Un chevalier européen en plaque et deux squelettes sont exactement ce que le
-brief artistique du projet interdit : personnage générique d'un côté,
-assemblage d'assets achetés de l'autre. **Ils sont là pour une seule raison :
-débloquer l'animation.** Ils apportent de vrais squelettes (41 os) et 76 à 95
-animations chacun, donc de quoi régler les enchaînements, les temps et les
-racines de mouvement avec de vrais corps.
+Ce qui est importé, c'est un **mannequin nu et sa bibliothèque de gestes** —
+l'équivalent libre de ce que fait Mixamo. Tout ce qu'on voit à l'écran par
+dessus — la toile huilée, le chapeau de saunier, les lunettes de verre, la
+croûte de sel, le rabot, le râtelier de lampes — est fabriqué dans
+`src/presentation/salt_body.gd`. Un mannequin de couture n'est pas une robe.
 
-Ils doivent être remplacés par des personnages originaux avant toute
-diffusion. C'est inscrit dans la feuille de route et ce n'est pas négociable.
+La version précédente assemblait le personnage ENTIER en primitives collées
+sur des os. Ça ne pouvait pas marcher : un empilement de volumes reste un
+mannequin articulé, on voit les jonctions, les épaules ne se raccordent pas.
+Le corps est maintenant une surface continue déformée par le squelette, et le
+code ne fait plus que l'habiller.
+
+## Proportions
+
+Mesurées sur le rig, pas estimées : personnage de **1,83 m**, bassin à
+**50,1 %** de la hauteur, épaules à **78,7 %**. Ce sont les proportions
+humaines de manuel. Le rig précédent était chibi et il avait fallu rallonger
+les os de 2,1× pour y remédier — ce qui cassait tous les cycles de marche,
+animés pour des jambes deux fois plus courtes. Ce bricolage a disparu.
+
+## Les clips qui comptent
+
+162 en tout. Ceux que la simulation sait produire :
+
+- **Locomotion** : `Walk`, `Walk_Large`, `Walk_Formal`, `Jog`, `Sprint`,
+  `plus/Walk_Backwards`, `plus/Strafe_left`, `plus/Strafe_right`
+- **Esquive** : `Roll` — une **vraie roulade**, plus une bascule du
+  porte-pièces. Aussi `plus/Dodge_back/left/right`.
+- **Coups** : `Sword_Regular_A/B/C`, `Spell_Simple_Shoot`,
+  `plus/Bow Release`, `plus/Two-hand Blast`, `plus/Attack_Ground_Pound`
+- **Réactions** : `Hit_Chest`, `Hit_Head`, `Hit_Knockback`, quatre morts
+- **Mort-vivant** : `Zombie_Idle`, `Zombie_Walk`, `plus/Zombie_Walk_2`,
+  `Zombie_Scratch`. C'est ce qui donne aux cristallisés une démarche qui
+  n'est pas celle des joueurs, et ça se lit de loin.
 
 ---
 

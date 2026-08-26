@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cyr835m2wv37l"
-path="res://.godot/imported/gobelin.glb-d1627d33843688b776dacb1c8cd5138a.scn"
+uid="uid://cl3u6x75umj2i"
+path="res://.godot/imported/gestes_base.glb-447c251f6e4f57caac6ef9405072274d.scn"
 
 [deps]
 
-source_file="res://models/gobelin.glb"
-dest_files=["res://.godot/imported/gobelin.glb-d1627d33843688b776dacb1c8cd5138a.scn"]
+source_file="res://models/humain/gestes_base.glb"
+dest_files=["res://.godot/imported/gestes_base.glb-447c251f6e4f57caac6ef9405072274d.scn"]
 
 [params]
 
