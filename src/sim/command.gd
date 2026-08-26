@@ -22,7 +22,12 @@ extends RefCounted
 ## et un client ne peut donc rien gonfler (invariant 5).
 enum Type {
 	NONE = 0,
-	## {"d": Vector2} direction de déplacement souhaitée.
+	## {"d": Vector2} déplacement souhaité. Sa DIRECTION dit où, et sa LONGUEUR
+	## dit à quelle allure : 1 pour la course normale, davantage pour une
+	## course forcée. Faire porter l'allure par la longueur plutôt que par un
+	## second champ n'est pas une astuce d'économie — c'est la seule façon
+	## d'ajouter une allure sans toucher au protocole, donc sans casser la
+	## compatibilité entre deux versions du jeu qui se parlent.
 	MOVE = 1,
 	## {"d": Vector2} direction de la roulade.
 	DODGE = 2,

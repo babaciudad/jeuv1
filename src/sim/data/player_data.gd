@@ -25,6 +25,14 @@ extends Resource
 @export var acceleration: float = 60.0
 @export var deceleration: float = 45.0
 @export var turn_degrees_per_tick: float = 12.0
+## Multiplicateur de vitesse en COURSE FORCÉE, et ce qu'elle coûte par tick.
+##
+## Trois allures valent mieux que deux : on marche pour lire un combat, on
+## court pour se replacer, on force pour fuir ou rattraper — et forcer se paie.
+## Sans cette dépense, la course forcée serait la seule allure jamais utilisée
+## et le jeu n'aurait plus qu'une vitesse, comme avant.
+@export var sprint_multiplier: float = 1.55
+@export var sprint_stamina_per_tick_centi: int = 46
 
 @export_group("Roulade")
 @export var dodge_speed: float = 9.5

@@ -107,7 +107,13 @@ func has_stamina(points: int) -> bool:
 	return stamina_centi >= points * CENTI
 
 func spend_stamina(points: int, tick: int) -> void:
-	stamina_centi = maxi(0, stamina_centi - points * CENTI)
+	spend_stamina_centi(points * CENTI, tick)
+
+## Dépense en CENTIÈMES de point. La course forcée coûte une fraction de point
+## par tick : l'exprimer en points entiers reviendrait à ne rien coûter du tout
+## ou à vider la jauge en une seconde.
+func spend_stamina_centi(amount: int, tick: int) -> void:
+	stamina_centi = maxi(0, stamina_centi - amount)
 	last_stamina_spend_tick = tick
 
 func enter_state(new_state: State, tick: int) -> void:

@@ -298,7 +298,12 @@ func _command_move(actor: Actor, command: Command) -> void:
 	if not actor.is_alive():
 		return
 	var direction: Vector2 = _payload_vector(command, "d")
-	actor.move_intent = direction.normalized() if direction.length() > 0.001 else Vector2.ZERO
+	# On GARDE la longueur, bornée : c'est elle qui porte l'allure. Elle était
+	# normalisée, ce qui écrasait les trois allures en une seule.
+	if direction.length() <= 0.001:
+		actor.move_intent = Vector2.ZERO
+		return
+	actor.move_intent = direction.limit_length(GAIT_MAX)
 
 ## Distance au-delà de laquelle un verrouillage se relâche tout seul, en
 ## mètres. Assez large pour traverser l'arène du boss sans le perdre, assez
@@ -307,6 +312,11 @@ const LOCK_RANGE: float = 26.0
 ## Part de la distance et du coût d'une roulade que garde un pas arrière.
 const BACKSTEP_REACH: float = 0.62
 const BACKSTEP_STAMINA: float = 0.60
+## Longueur maximale d'une intention de déplacement. Au-delà, un client
+## enverrait une allure qu'aucune classe ne possède.
+const GAIT_MAX: float = 2.0
+## En dessous de cette longueur d'intention, on n'est pas en course forcée.
+const SPRINT_THRESHOLD: float = 1.05
 
 ## Verrouille sur un adversaire. La présentation propose, la simulation
 ## dispose : elle vérifie que la cible existe, qu'elle est vivante, qu'elle est
@@ -905,9 +915,26 @@ func _update_walk(actor: Actor) -> void:
 			actor.enter_state(Actor.State.IDLE, tick)
 		return
 	if locked == null or not locked.is_alive():
-		actor.facing = SimMath.rotate_towards(actor.facing, actor.move_intent,
-			turn)
-	actor.velocity = actor.velocity.move_toward(actor.move_intent * speed,
+		actor.facing = SimMath.rotate_towards(actor.facing,
+			actor.move_intent.normalized(), turn)
+	# COURSE FORCÉE. L'intention plus longue que 1 demande à forcer l'allure ;
+	# on l'accorde tant qu'il reste de l'endurance, et on la facture. Sans
+	# facture, forcer serait gratuit et deviendrait la seule allure du jeu.
+	var gait: Vector2 = actor.move_intent
+	if gait.length() > SPRINT_THRESHOLD:
+		var fiche_sprint: PlayerData = class_for(actor)
+		var cost: int = 0
+		var ceiling: float = 1.0
+		if fiche_sprint != null:
+			cost = fiche_sprint.sprint_stamina_per_tick_centi
+			ceiling = maxf(1.0, fiche_sprint.sprint_multiplier)
+		if actor.kind != Actor.Kind.PLAYER or cost <= 0 \
+				or actor.stamina_centi <= cost:
+			gait = gait.normalized()
+		else:
+			gait = gait.limit_length(ceiling)
+			actor.spend_stamina_centi(cost, tick)
+	actor.velocity = actor.velocity.move_toward(gait * speed,
 		acceleration * SimConfig.TICK_DURATION_SEC)
 	if actor.state == Actor.State.IDLE:
 		actor.enter_state(Actor.State.MOVING, tick)

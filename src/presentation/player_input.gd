@@ -21,6 +21,10 @@ const MOVE_EPSILON: float = 0.08
 ## plus courte que celle de la simulation : on ne veut pas accrocher une cible
 ## que le monde relâchera au tick suivant.
 const LOCK_REACH: float = 22.0
+## Longueur d'intention envoyée quand la course forcée est demandée. La
+## simulation la borne au multiplicateur de la classe : ce nombre dit
+## « au maximum », pas « exactement tant ».
+const SPRINT_LENGTH: float = 1.9
 
 var _bootstrap: NetBootstrap
 var _rig: CameraRig
@@ -97,6 +101,12 @@ func _physics_process(_delta: float) -> void:
 	var direction: Vector2 = _rig.planar_right() * raw.x + _rig.planar_forward() * raw.y
 	if direction.length() > 1.0:
 		direction = direction.normalized()
+	# COURSE FORCÉE : on allonge l'intention au lieu d'ajouter un champ. La
+	# simulation lit l'allure dans la LONGUEUR du vecteur, ce qui évite de
+	# toucher au protocole — et donc de casser la compatibilité entre deux
+	# versions du jeu qui se parlent.
+	if Input.is_action_pressed(&"sprint") and direction.length() > 0.1:
+		direction *= SPRINT_LENGTH
 	_send_direction(direction, false)
 
 	if _took(&"lock"):
