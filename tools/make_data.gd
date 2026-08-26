@@ -922,6 +922,117 @@ func borne(out: Array[SkinPart], at: Vector3) -> void:
 # Le decor, zone par zone
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Exterieurs
+# ---------------------------------------------------------------------------
+#
+# La coque du niveau ne fabrique que des murs droits : une zone fermee vue du
+# dehors est une boite grise a trou noir, et c'est exactement ce qu'on voyait
+# depuis le parvis en regardant la halle. Un batiment se lit d'abord a sa
+# SILHOUETTE — un toit, une corniche, des contreforts — et rien de tout ca ne
+# peut sortir d'un algorithme de murs.
+#
+# Ces pieces sont du decor : elles ne bloquent rien et ne sont jamais dans le
+# champ de la collision, qui reste le rectangle praticable.
+
+## Toit a deux pentes, faîtage dans le sens de la longueur.
+##
+## C'est la piece qui transforme une boite en batiment. Les deux pans debordent
+## des murs : une couverture qui s'arrete pile au nu du mur ne se lit pas comme
+## un toit, elle se lit comme un couvercle.
+func toiture(out: Array[SkinPart], plan: Rect2, mur: float, montee: float,
+		teinte: Color) -> void:
+	var cx: float = plan.position.x + plan.size.x * 0.5
+	var cz: float = plan.position.y + plan.size.y * 0.5
+	var demi: float = plan.size.x * 0.5 + 1.2
+	var pente: float = sqrt(demi * demi + montee * montee)
+	var angle: float = rad_to_deg(atan2(montee, demi))
+	for cote: float in [-1.0, 1.0]:
+		var pan: SkinPart = D(B,
+			Vector3(pente, 0.34, plan.size.y + 2.4),
+			Vector3(cx + cote * demi * 0.5, mur + montee * 0.5, cz),
+			teinte, M_WOOD)
+		# Le signe compte : une rotation POSITIVE autour de Z leve l'extremite
+		# +X. Avec `cote * angle`, les deux pans montaient vers l'exterieur et
+		# le toit etait un V — deux ailes en travers du ciel au lieu d'une
+		# couverture.
+		pan.rotation_degrees = Vector3(0.0, 0.0, -cote * angle)
+		out.append(pan)
+	# Faîtiere : la ligne sombre au sommet, qui donne son arete au toit.
+	out.append(D(B, Vector3(0.55, 0.42, plan.size.y + 2.6),
+		Vector3(cx, mur + montee + 0.12, cz), teinte.darkened(0.35), M_WOOD))
+	# Pignons : les deux triangles qui bouchent les extremites. Sans eux on
+	# voit sous le toit depuis les bouts.
+	for bout: float in [-1.0, 1.0]:
+		var pignon: SkinPart = D(PR,
+			Vector3(plan.size.x + 2.4, montee, 0.5),
+			Vector3(cx, mur + montee * 0.5,
+				cz + bout * (plan.size.y * 0.5 + 0.9)),
+			teinte.darkened(0.18), M_STONE)
+		out.append(pignon)
+
+## Corniche : un bandeau qui deborde tout autour, au sommet des murs.
+func corniche(out: Array[SkinPart], plan: Rect2, hauteur: float,
+		teinte: Color) -> void:
+	var cx: float = plan.position.x + plan.size.x * 0.5
+	var cz: float = plan.position.y + plan.size.y * 0.5
+	for cote: float in [-1.0, 1.0]:
+		out.append(D(B, Vector3(0.9, 0.7, plan.size.y + 1.8),
+			Vector3(cx + cote * (plan.size.x * 0.5 + 0.2), hauteur - 0.35, cz),
+			teinte, M_STONE))
+		out.append(D(B, Vector3(plan.size.x + 1.8, 0.7, 0.9),
+			Vector3(cx, hauteur - 0.35,
+				cz + cote * (plan.size.y * 0.5 + 0.2)), teinte, M_STONE))
+
+## Contreforts : des piles talutees plaquees contre un mur, tous les `pas`.
+## Elles rythment une longueur nue et disent que le mur porte quelque chose.
+func contreforts(out: Array[SkinPart], plan: Rect2, hauteur: float,
+		pas: float, teinte: Color) -> void:
+	var z: float = plan.position.y + pas * 0.5
+	while z < plan.end.y:
+		for cote: float in [-1.0, 1.0]:
+			var x: float = plan.position.x if cote < 0.0 else plan.end.x
+			out.append(D(B, Vector3(1.5, hauteur * 0.72, 1.3),
+				Vector3(x + cote * 0.65, hauteur * 0.36, z), teinte, M_STONE))
+			var talus: SkinPart = D(PR, Vector3(1.5, 1.6, 1.3),
+				Vector3(x + cote * 0.65, hauteur * 0.72 + 0.8, z),
+				teinte.darkened(0.12), M_STONE)
+			talus.rotation_degrees = Vector3(0.0, 0.0, 0.0 if cote > 0.0 else 180.0)
+			out.append(talus)
+		z += pas
+
+## Cheminee d'evaporation : ce que fabrique vraiment une saline, c'est de la
+## vapeur. Trois d'entre elles sur un toit disent le metier de loin.
+func cheminee(out: Array[SkinPart], at: Vector3, hauteur: float) -> void:
+	out.append(D(B, Vector3(1.6, hauteur, 1.6),
+		at + Vector3(0.0, hauteur * 0.5, 0.0), STONE_PALE, M_STONE))
+	out.append(D(B, Vector3(2.1, 0.45, 2.1),
+		at + Vector3(0.0, hauteur + 0.2, 0.0), STONE, M_STONE))
+	for coin: int in 4:
+		var angle: float = 45.0 + float(coin) * 90.0
+		out.append(D(SkinPart.Shape.CYLINDER, Vector3(0.10, 1.2, 0.10),
+			at + Vector3(sin(deg_to_rad(angle)) * 0.85, hauteur + 0.9,
+				cos(deg_to_rad(angle)) * 0.85), IRON, M_METAL))
+	out.append(D(B, Vector3(2.4, 0.3, 2.4),
+		at + Vector3(0.0, hauteur + 1.5, 0.0), IRON, M_METAL))
+
+## Habille l'exterieur des trois volumes fermes du niveau.
+func _exterieurs(parts: Array[SkinPart]) -> void:
+	corniche(parts, HALLE, H_HALLE, STONE_PALE)
+	contreforts(parts, HALLE, H_HALLE, 7.0, STONE)
+	toiture(parts, HALLE, H_HALLE, 5.2, WOOD)
+	for z: float in [-27.0, -18.0, -9.0]:
+		cheminee(parts, Vector3(0.0, H_HALLE + 4.4, z), 3.4)
+	corniche(parts, BASSIN, H_BASSIN, STONE_PALE)
+	toiture(parts, BASSIN, H_BASSIN, 2.4, WOOD)
+	corniche(parts, ARENE, H_ARENE, STONE_PALE)
+	contreforts(parts, ARENE, H_ARENE, 8.0, STONE)
+	toiture(parts, ARENE, H_ARENE, 6.0, WOOD)
+	cheminee(parts, Vector3(0.0, H_ARENE + 5.2, 124.0), 4.2)
+	cheminee(parts, Vector3(0.0, H_ARENE + 5.2, 138.0), 4.2)
+	corniche(parts, SEUIL, H_SEUIL, STONE_PALE)
+	toiture(parts, SEUIL, H_SEUIL, 1.8, WOOD)
+
 func build_decor() -> DecorData:
 	var decor: DecorData = DecorData.new()
 	decor.id = &"salines"
@@ -932,6 +1043,7 @@ func build_decor() -> DecorData:
 	_digue(parts)
 	_tables(parts)
 	_arene(parts)
+	_exterieurs(parts)
 	decor.parts = parts
 	return decor
 

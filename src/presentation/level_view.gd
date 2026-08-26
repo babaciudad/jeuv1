@@ -21,6 +21,9 @@ const PROBE_MARGIN: float = 2.0
 ## Hauteur d'un muret bordant une zone à ciel ouvert. À hauteur de poitrine :
 ## il arrête, il ne cache pas.
 const RAMPART_HEIGHT: float = 1.15
+## Hauteur maximale de la grille du raccourci, en mètres. Une porte se franchit
+## à pied ; elle n'a pas la taille d'un mur de nef.
+const GATE_HEIGHT: float = 4.4
 
 # Sol volontairement sombre : dehors, le sel est ce qu'il y a de blanc dans
 # l'image. Un dallage a 0,62 passait au blanc pur sous le soleil et avalait
@@ -477,12 +480,31 @@ func _build_gate(level: LevelData) -> MeshInstance3D:
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return null
 	var centre: Vector2 = rect.position + rect.size * 0.5
-	var height: float = level.height_at(centre)
+	# UNE PORTE, PAS UNE MURAILLE. La hauteur venait de `height_at`, qui rend
+	# le dégagement de ciel — vingt-quatre mètres — au-dessus d'une zone
+	# ouverte. Le raccourci passant justement dehors, la grille était un
+	# monolithe de vingt-quatre mètres planté devant l'arène, visible depuis la
+	# moitié du niveau, et pris pour un défaut de décor pendant des jours.
+	var height: float = minf(level.height_at(centre), GATE_HEIGHT)
 	var gate: MeshInstance3D = _add_box(
 		Vector3(rect.size.x, height, rect.size.y),
 		Vector3(centre.x, height * 0.5, centre.y), COLOR_GATE,
 		SkinPart.Surface.METAL)
 	gate.name = "ShortcutGate"
+	# Linteau : il pose la grille sous quelque chose, au lieu de la laisser
+	# s'arrêter en l'air.
+	var lintel: MeshInstance3D = _add_box(
+		Vector3(rect.size.x + 0.8, 0.55, rect.size.y + 0.8),
+		Vector3(centre.x, height + 0.28, centre.y), COLOR_STONE_DARK,
+		SkinPart.Surface.STONE)
+	lintel.name = "ShortcutLintel"
+	for side: float in [-1.0, 1.0]:
+		var post: MeshInstance3D = _add_box(
+			Vector3(0.5, height + 0.55, rect.size.y + 0.8),
+			Vector3(centre.x + side * (rect.size.x * 0.5 + 0.25),
+				(height + 0.55) * 0.5, centre.y), COLOR_STONE,
+			SkinPart.Surface.STONE)
+		post.name = "ShortcutPost"
 	return gate
 
 ## Repère au sol : un anneau de la taille exacte du rayon d'interaction. Le
