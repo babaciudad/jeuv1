@@ -1,0 +1,61 @@
+Le Sel de Guérande — v10
+========================
+
+Godot 4.7.2, Windows x86-64. Un seul fichier : SelDeGuerande.exe.
+Rien à installer. Décompressez, double-cliquez.
+
+  SHA-256  5b357bd9e1d8b8622f7a18e9c5be2894f8f2924291c46d93d2105f3c7e351223
+
+Windows affichera un avertissement SmartScreen (exécutable non signé) :
+« Informations complémentaires » puis « Exécuter quand même ».
+
+
+NOUVEAU DANS CE BUILD — après la chasse aux bugs
+------------------------------------------------
+Vingt-quatre défauts reproduits par des scripts de mesure, tous corrigés :
+
+  — la chaîne des bassins DESCEND enfin (elle montait : la règle centrale
+    du lore était violée par le niveau lui-même) ;
+  — la fleur ne disparaît plus en 4,5 s : plus de tutoriel infinissable ;
+  — les vannes s'ouvrent ET se referment — un paludier dose ;
+  — la fenêtre de coup est réelle (11 ticks, chacun peut toucher, jamais
+    deux fois le même corps) ; le sel est un stock fini qu'on épuise ;
+  — courir coûte de l'endurance ; les corps ne se traversent plus ;
+  — l'eau profonde noie (1,3 s pour ressortir) — un bassin reste une
+    flaque inoffensive ; la caméra ne passe plus sous l'eau ;
+  — la digue rendue fait sa vraie largeur (75 cm, plus une lame de 25) ;
+  — la porte de marée est posée sur son seuil (elle flottait en l'air) ;
+  — l'animation de mort se joue ; ouvrir une vanne, cueillir et se lever
+    ont leurs gestes ; le cristallisé SE LÈVE (3,4 s) ;
+  — le las fait cinq mètres, tête d'origine, prise près du bout : sa
+    portée visible est sa portée réelle.
+
+Et le jeu est un jeu :
+  — écran-titre, PAUSE (Échap), écran de fin ;
+  — SAUVEGARDE automatique à chaque étape et au quitter — reprenez la
+    saison où vous l'avez laissée ; le point de renaissance progresse
+    (le départ d'abord, la ladure une fois qu'on s'y est reposé).
+
+
+COMMANDES
+---------
+  ZQSD / WASD    marcher
+  Souris         regarder
+  Maj            courir (coûte de l'endurance)
+  Clic gauche    le las
+  Espace         esquiver
+  E              interagir — vanne (ouvrir/fermer), cueillir, se reposer
+  Échap          pause
+
+
+CE QUI N'A PAS PU ÊTRE VÉRIFIÉ ICI
+----------------------------------
+Machine de build sans carte graphique, sans carte son, sans Windows.
+La performance réelle, le mixage sonore et le ressenti restent à juger
+par vous. Ce qui EST vérifié : 39 scripts sous typage strict, 50 tests,
+un pilote automatique qui boucle les sept étapes en 52,7 s, et le binaire
+(export Linux du même pack) qui démarre et sort proprement.
+
+Note connue : à la fermeture, le moteur peut signaler quelques ressources
+audio encore vivantes. C'est constant, sans effet, et documenté dans le
+code plutôt que maquillé.
