@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/jeu/apercu.gd" id="1"]
+
+[node name="ApercuDigue" type="Node3D"]
+script = ExtResource("1")
+oeil = Vector3(9.125, 2.05, 2.6)
+vise = Vector3(9.4, 0.85, 17.0)
+champ = 64.0
+ambiante = 1.0
+blanc = 3.0
+exposition = 1.45
+densite = 0.45

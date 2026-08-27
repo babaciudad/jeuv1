@@ -12,6 +12,9 @@ var simulation: Simulation = Simulation.new()
 var tutoriel: Tutoriel = Tutoriel.new()
 
 var _vue_marais: VueMarais = null
+var _semis: Semis = null
+var _oiseaux: Oiseaux = null
+var _ambiance: Ambiance = null
 var _ciel: Ciel = null
 var _camera: CameraRig = null
 var _hud: Hud = null
@@ -44,11 +47,32 @@ func _ready() -> void:
 	_vue_marais.construire(monde.marais, Bruit.commun())
 	_vue_marais.prolonger(420.0, Reglages.HAUTEUR_TALUS - 0.06, Bruit.commun())
 
+	_semis = Semis.new()
+	_semis.name = "Semis"
+	add_child(_semis)
+	_semis.semer(monde.marais, 320.0)
+	_semis.souffler(0.22)
+
+	var attirail: Attirail = Attirail.new()
+	attirail.name = "Attirail"
+	add_child(attirail)
+	attirail.garnir(monde.marais)
+
+	_oiseaux = Oiseaux.new()
+	_oiseaux.name = "Oiseaux"
+	add_child(_oiseaux)
+	_oiseaux.peupler(monde.marais)
+
 	_camera = CameraRig.new()
 	_camera.name = "Camera"
 	add_child(_camera)
 	_camera.regarder(monde.marais)
 	_camera.lacet = PI
+
+	_ambiance = Ambiance.new()
+	_ambiance.name = "Ambiance"
+	add_child(_ambiance)
+	_ambiance.monter(monde.marais)
 
 	_hud = Hud.new()
 	add_child(_hud)
@@ -98,8 +122,12 @@ func _process(delta: float) -> void:
 
 	_vue_marais.rafraichir(monde.vent_est)
 	_ciel.regler(monde.vent_est)
+	# Le vent d'est plie la végétation avant qu'on en parle : c'est le lieu qui
+	# annonce la fleur, pas le bandeau.
+	_semis.souffler(maxf(0.22, monde.vent_est))
 	_camera.cadrer(Vector3(joueur.position.x,
 		monde.marais.hauteur_sol(joueur.position), joueur.position.y), delta)
+	_ambiance.suivre(monde, delta)
 	_hud.rafraichir(monde, tutoriel)
 
 ## Monte un corps pour chaque acteur qui n'en a pas encore. C'est ainsi qu'un

@@ -12,6 +12,9 @@ extends Node3D
 @export var vent: float = 0.0
 @export var marnage: float = 1.0
 @export var brume: float = 1.0
+## Allègement du semis pour les captures : ce conteneur rend en logiciel.
+@export var densite: float = 1.0
+@export var avec_decor: bool = true
 ## Coupe brume, halo et corrections : on ne regarde que la lumière.
 @export var depouille: bool = false
 ## Cache les nappes d'eau : sert à savoir si un défaut vient du sol ou d'elles.
@@ -55,6 +58,23 @@ func _ready() -> void:
 	# continue à perte de vue, et c'est un miroir.
 	vue.prolonger(420.0, Reglages.HAUTEUR_TALUS - 0.06, Bruit.commun())
 	vue.rafraichir(vent)
+
+	if avec_decor:
+		var semis: Semis = Semis.new()
+		semis.name = "Semis"
+		add_child(semis)
+		semis.semer(marais, 90.0, densite)
+		semis.souffler(maxf(vent, 0.22))
+
+		var attirail: Attirail = Attirail.new()
+		attirail.name = "Attirail"
+		add_child(attirail)
+		attirail.garnir(marais)
+
+		var oiseaux: Oiseaux = Oiseaux.new()
+		oiseaux.name = "Oiseaux"
+		add_child(oiseaux)
+		oiseaux.peupler(marais)
 	if debug_normales or debug_albedo:
 		for enfant: Node in vue.get_children():
 			var maille: MeshInstance3D = enfant as MeshInstance3D

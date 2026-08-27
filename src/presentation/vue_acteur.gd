@@ -14,6 +14,16 @@ const RIG: String = "res://models/humain/gestes_base.glb"
 const GESTES_PLUS: String = "res://models/humain/gestes_plus.glb"
 const PREFIXE_PLUS: StringName = &"plus"
 
+## L'outil dans la main. « Dans les Salines, on se bat avec ce qui sert à
+## travailler. » Le las est un râteau de cinq mètres de manche : c'est l'arme du
+## Saunier, et c'est le même objet qui traîne contre la ladure.
+const LAS: String = "res://models/marais/props/rateau.glb"
+## Os de la main droite dans le squelette du mannequin.
+const OS_MAIN: StringName = &"hand_r"
+## Le râteau versé mesure 1,76 m ; un las en fait cinq. On l'étire sur son
+## manche, ce qui est exactement ce qui le distingue d'un outil de jardin.
+const ETIREMENT_LAS: Vector3 = Vector3(1.0, 2.7, 1.0)
+
 ## Rotation à appliquer au modèle pour que son avant coïncide avec l'avant du
 ## jeu. Mesurée en regardant le personnage, pas devinée.
 const ORIENTATION: float = PI
@@ -43,6 +53,7 @@ func monter(pour: Acteur, cristallise: bool) -> void:
 	add_child(_rig)
 	_greffer()
 	_animateur = Animateur.monter(_rig, cristallise)
+	_armer()
 
 ## Greffe la bibliothèque d'appoint sur le lecteur du rig. Un clip d'appoint
 ## s'appelle alors « plus/Dodge_left ».
@@ -68,6 +79,45 @@ func _greffer() -> void:
 	# orphelin jusqu'à l'image suivante, et dans un test qui n'en joue aucune,
 	# il resterait pour toujours.
 	source_rig.free()
+
+## Met le las dans la main. Un attachement d'os, et non un enfant du corps :
+## l'outil doit suivre la main à chaque image de l'animation, pas le tronc.
+func _armer() -> void:
+	var squelette: Skeleton3D = _squelette(_rig)
+	if squelette == null:
+		return
+	var os: int = squelette.find_bone(OS_MAIN)
+	if os < 0:
+		push_warning("Pas d'os %s : le las restera au sol." % OS_MAIN)
+		return
+	if not ResourceLoader.exists(LAS):
+		return
+	var paquet: PackedScene = load(LAS) as PackedScene
+	if paquet == null:
+		return
+	var attache: BoneAttachment3D = BoneAttachment3D.new()
+	attache.name = "Main"
+	squelette.add_child(attache)
+	attache.bone_idx = os
+	var outil: Node3D = paquet.instantiate() as Node3D
+	if outil == null:
+		return
+	# Posé dans la paume, manche vers l'avant, légèrement incliné : c'est la
+	# façon dont on porte un outil à long manche quand on marche avec.
+	outil.position = Vector3(0.0, 0.04, 0.02)
+	outil.rotation = Vector3(deg_to_rad(-96.0), 0.0, deg_to_rad(14.0))
+	outil.scale = ETIREMENT_LAS
+	attache.add_child(outil)
+
+func _squelette(noeud: Node) -> Skeleton3D:
+	var squelette: Skeleton3D = noeud as Skeleton3D
+	if squelette != null:
+		return squelette
+	for enfant: Node in noeud.get_children():
+		var trouve: Skeleton3D = _squelette(enfant)
+		if trouve != null:
+			return trouve
+	return null
 
 ## Recopie l'état simulé. `sol` est l'altitude du terrain sous les pieds.
 func suivre(sol: float, duree_geste: float, delta: float) -> void:
