@@ -16,6 +16,19 @@
 ## le cone etait symetrique autour du cap alors que le coup est DIAGONAL, si
 ## bien que la moitie du cone frappait du cote ou le fer ne passe jamais.
 ##
+## CE QUI N'EST PAS ICI, ET POURQUOI. Le baton du mage et la dague de
+## l'archer ont ete mesures aussi, et leurs chiffres ont ete JETES :
+##
+##   mage_baton     fer 0,95 a 0,96 m, balaie +107 a +107 (demi 0)
+##   archer_dague   fer 1,44 a 1,46 m, balaie +142 a +144 (demi 1)
+##
+## Un geste qui balaie un degre et se tient DERRIERE le personnage n'est pas un
+## geste : c'est l'instrument qui se trompe de bout. Il retient la piece la
+## plus eloignee du poignet, or un baton et un arc depassent des DEUX cotes de
+## la main — il attrape le talon de l'arme, pas sa pointe. Tant que
+## `tools/frappe.gd` ne sait pas distinguer les deux, ces deux fiches gardent
+## leurs valeurs d'origine plutot que des valeurs fausses mais precises.
+##
 ## Ce test tient les deux bouts. Il ne remesure pas l'animation — cela demande
 ## un contexte de rendu, et la suite tourne sans — il verifie que les fiches
 ## declarent ce qui a ete mesure, et que le decalage d'arc fait vraiment ce
@@ -25,10 +38,12 @@ extends GdUnitTestSuite
 ## Portee du fer mesuree en jeu, par geste, en metres.
 const FER: Dictionary = {
 	"gardien_lourd": 1.82,
+	"soigneur_lame": 1.51,
 }
 ## Balayage mesure en jeu : centre et demi-ouverture, en degres.
 const BALAYAGE: Dictionary = {
 	"gardien_lourd": Vector2(30.0, 30.0),
+	"soigneur_lame": Vector2(47.0, 30.0),
 }
 ## Ce qu'on s'autorise en plus du fer, en metres. Un souls-like pardonne un
 ## peu — sinon on rate un coup qui a l'air d'avoir touche — mais un peu

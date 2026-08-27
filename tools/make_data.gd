@@ -1001,7 +1001,7 @@ func rubble(out: Array[SkinPart], at: Vector3, spread: float) -> void:
 		var angle: float = TAU * float(index) / float(blocs.size()) + at.x
 		out.append(M(blocs[index],
 			at + Vector3(cos(angle) * spread, 0.0, sin(angle) * spread),
-			0.34 + float(index % 3) * 0.16, rad_to_deg(angle) * 0.7))
+			0.62 + float(index % 3) * 0.34, rad_to_deg(angle) * 0.7))
 
 ## Panneau de verre de saumure : ce qui remplace le vitrail. Vert pale, il
 ## brille de lui-meme parce que dehors il fait plus clair que dedans.
@@ -1685,22 +1685,13 @@ func caisses(out: Array[SkinPart], at: Vector3, angle: float) -> void:
 ## seau, une pelle appuyee contre. C'est la trace de QUELQU'UN, et il n'y en
 ## avait nulle part dans une saline censee etre exploitee.
 func etal(out: Array[SkinPart], at: Vector3, angle: float) -> void:
-	var plateau: SkinPart = D(B, Vector3(2.3, 0.13, 0.90),
-		at + Vector3(0.0, 0.90, 0.0), WOOD, M_WOOD)
-	plateau.rotation_degrees = Vector3(0.0, angle, 0.0)
-	out.append(plateau)
-	for sx: float in [-1.0, 1.0]:
-		for sz: float in [-1.0, 1.0]:
-			out.append(D(B, Vector3(0.14, 0.90, 0.14),
-				at + Vector3(sx * 0.95, 0.45, sz * 0.32), WOOD, M_WOOD))
-	out.append(D(CO, Vector3(0.42, 0.42, 0.0), at + Vector3(0.35, 1.17, 0.0),
+	out.append(M("village/MarketStand_1", at, 2.35, angle))
+	# Le tas de sel dessus reste une primitive : c'est la marchandise du lieu,
+	# et aucun modele du kit ne fait un tas de sel.
+	out.append(D(CO, Vector3(0.42, 0.42, 0.0), at + Vector3(0.35, 1.05, 0.0),
 		SALT, M_STONE))
-	out.append(D(CY, Vector3(0.26, 0.42, 0.30), at + Vector3(-1.35, 0.21, 0.5),
-		IRON, M_METAL))
-	var pelle: SkinPart = D(B, Vector3(0.10, 1.7, 0.10),
-		at + Vector3(-0.9, 0.85, -0.7), WOOD, M_WOOD)
-	pelle.rotation_degrees = Vector3(14.0, 0.0, 9.0)
-	out.append(pelle)
+	out.append(M("village/Barrel", at + Vector3(-1.35, 0.0, 0.5), 0.92,
+		angle + 40.0))
 
 ## Sechoir a toiles : une chevre de bois et deux toiles qui pendent. La seule
 ## silhouette MOLLE d'un niveau qui n'en compte que des dures.
@@ -1881,11 +1872,69 @@ func _exterieurs(parts: Array[SkinPart]) -> void:
 	colombage(parts, Vector3(-8.0, 0.0, 104.0), 8.0, H_SEUIL, 0, -1.0, 4.0)
 	colombage(parts, Vector3(8.0, 0.0, 104.0), 8.0, H_SEUIL, 0, 1.0, 4.0)
 
+## Ce qui traine, et ce qui pousse. Deux choses qu'un decor taille dans des
+## primitives ne sait pas faire, et dont l'absence se lit tout de suite : une
+## saline exploitee est ENCOMBREE, et un marais a des arbres morts.
+##
+## Rien de ce qui est pose ici ne bloque : la collision est declaree ailleurs,
+## et un obstacle qu'on voit sans qu'il arrete est un mensonge — mais un objet
+## de moins d'un metre pose contre un mur ne se lit pas comme un obstacle.
+func _props(parts: Array[SkinPart]) -> void:
+	# Le long des murs et dans les angles, jamais au milieu d'un passage.
+	var coins: Array[Vector3] = [
+		Vector3(-12.5, 0.0, -30.0), Vector3(12.5, 0.0, -26.0),
+		Vector3(-12.5, 0.0, -14.0), Vector3(12.5, 0.0, -8.0),
+		Vector3(-22.0, 0.0, 22.0), Vector3(22.0, 0.0, 28.0),
+		Vector3(-22.0, 0.0, 46.0), Vector3(27.0, 0.0, 62.0),
+		Vector3(-22.0, 0.0, 84.0), Vector3(27.0, 0.0, 96.0),
+		Vector3(-21.0, 0.0, 120.0), Vector3(21.0, 0.0, 132.0),
+	]
+	var choix: Array[String] = ["village/Barrel", "village/Crate",
+		"village/Bench_1", "village/Cart", "village/Hay", "village/Cauldron",
+		"village/Bags", "village/Bench_2"]
+	var hauteurs: Array[float] = [0.92, 0.78, 0.55, 1.25, 1.05, 0.72, 0.45,
+		0.55]
+	for index: int in coins.size():
+		var quoi: int = index % choix.size()
+		parts.append(M(choix[quoi], coins[index], hauteurs[quoi],
+			float(index) * 47.0))
+		var voisin: int = (index + 3) % choix.size()
+		parts.append(M(choix[voisin],
+			coins[index] + Vector3(0.9, 0.0, -0.7), hauteurs[voisin] * 0.9,
+			float(index) * 23.0 + 120.0))
+
+	# Arbres morts sur les berges. Le marais avait des silhouettes lointaines
+	# taillees dans des boites ; un arbre en boites reste une boite.
+	var arbres: Array[String] = ["nature/CommonTree_Dead_1",
+		"nature/CommonTree_Dead_2", "nature/CommonTree_Dead_3",
+		"nature/CommonTree_Dead_4", "nature/CommonTree_Dead_5",
+		"nature/BirchTree_Dead_1", "nature/BirchTree_Dead_2",
+		"nature/BirchTree_Dead_3"]
+	var plantes: Array[Vector3] = [
+		Vector3(-40.0, -1.4, -46.0), Vector3(-33.0, -1.4, -40.0),
+		Vector3(40.0, -1.4, -44.0), Vector3(30.0, -1.4, -50.0),
+		Vector3(-41.0, -1.4, 14.0), Vector3(-38.0, -1.4, 38.0),
+		Vector3(-42.0, -1.4, 66.0), Vector3(-39.0, -1.4, 92.0),
+		Vector3(40.0, -1.4, 20.0), Vector3(42.0, -1.4, 52.0),
+		Vector3(39.0, -1.4, 88.0), Vector3(41.0, -1.4, 118.0),
+		Vector3(-43.0, -1.4, 130.0), Vector3(43.0, -1.4, 146.0),
+		Vector3(-30.0, -1.4, 158.0), Vector3(28.0, -1.4, 162.0),
+	]
+	for index: int in plantes.size():
+		parts.append(M(arbres[index % arbres.size()], plantes[index],
+			5.2 + float(index % 4) * 1.7, float(index) * 61.0))
+	for index: int in 10:
+		var angle: float = TAU * float(index) / 10.0
+		parts.append(M("nature/Bush_1" if index % 2 == 0 else "nature/Bush_2",
+			Vector3(cos(angle) * 44.0, -1.4, 60.0 + sin(angle) * 70.0),
+			1.1 + float(index % 3) * 0.35, float(index) * 37.0))
+
 func build_decor() -> DecorData:
 	var decor: DecorData = DecorData.new()
 	decor.id = &"salines"
 	var parts: Array[SkinPart] = []
 	_abords(parts)
+	_props(parts)
 	_halle(parts)
 	_bassin(parts)
 	_parvis(parts)

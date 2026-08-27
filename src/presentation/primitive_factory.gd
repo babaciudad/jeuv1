@@ -155,6 +155,16 @@ const FINISH: Dictionary[int, Vector2] = {
 	# couverte, un miroir parfait ne reflete rien du tout et les flaques
 	# devenaient des trous noirs a lisere blanc — des bouches d'egout. A 0,22
 	# le reflet s'etale assez pour attraper les torches.
+	# NON METALLIQUE, et ce n'est pas un oubli. Une nappe d'eau est un
+	# dielectrique : elle ne renvoie que quatre pour cent de ce qui l'eclaire
+	# de face, ce qui explique qu'elle rende un aplat vue de haut — l'angle
+	# sous lequel la camera d'un souls-like la regarde toujours.
+	#
+	# On a essaye de la rendre partiellement metallique (0,55) pour teinter le
+	# reflet et le rendre visible sous cet angle : mesure a l'image, ca change
+	# des pixels et rien de lisible. Le vrai manque etait ailleurs — il n'y
+	# avait aucune reflexion d'ecran dans la scene, donc rien du DECOR n'etait
+	# jamais renvoye. Voir `ssr_enabled` dans `level_view.gd`.
 	SkinPart.Surface.LIQUID: Vector2(0.20, 0.0),
 }
 

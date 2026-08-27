@@ -871,6 +871,21 @@ func _environment() -> Environment:
 	# SDFGI occlut l'ambiante ET fait rebondir la lumière : le soleil rasant
 	# frappe le sel du parvis, rebondit par la grande porte et remonte sous les
 	# membrures. C'est de la lumière qu'aucun réglage manuel n'aurait produite.
+	# RÉFLEXIONS D'ÉCRAN. Sans elles, une flaque ne reflète que le ciel, et
+	# seulement par Fresnel puisqu'elle n'est pas métallique : dehors elle rend
+	# un aplat bleu, dedans un trou. Toute la matière du sol mouillé vient de
+	# ce qu'il renvoie le DÉCOR — la halle, les brasiers, le personnage qui
+	# passe dessus. C'est ce qui manquait, et aucun réglage de rugosité ne
+	# pouvait le remplacer.
+	#
+	# Le SSR ne voit que ce qui est à l'écran : ce qui sort du cadre disparaît
+	# du reflet. D'où le fondu sur les bords, qui cache la coupure, et la
+	# sonde de radiance qui prend le relais au-delà.
+	environment.ssr_enabled = true
+	environment.ssr_max_steps = 48
+	environment.ssr_fade_in = 0.4
+	environment.ssr_fade_out = 6.0
+	environment.ssr_depth_tolerance = 0.3
 	environment.sdfgi_enabled = true
 	environment.sdfgi_use_occlusion = true
 	environment.sdfgi_read_sky_light = true
