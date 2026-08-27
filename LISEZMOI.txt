@@ -1,0 +1,63 @@
+Le Sel de Guérande — tutoriel de l'étier
+========================================
+
+Godot 4.7.2, Windows x86-64. Un seul fichier : SelDeGuerande.exe.
+Rien à installer. Décompressez, double-cliquez.
+
+  SHA-256  ea18c585dbe5ed3c6934dbcf7066d9e7df3f0cb4cfd4f6a641f118487ca9095c
+
+Windows affichera un avertissement SmartScreen : l'exécutable n'est pas
+signé. « Informations complémentaires » puis « Exécuter quand même ».
+
+
+COMMANDES
+---------
+  ZQSD / WASD    marcher
+  Souris         regarder
+  Maj            courir (dépense de l'endurance)
+  Clic gauche    le las
+  Espace         esquiver
+  E              interagir — ouvrir une vanne, cueillir, se reposer
+  Échap          libérer la souris
+  Alt + F4       quitter
+
+
+LE TUTORIEL, EN SEPT GESTES
+---------------------------
+  1  Marcher sur un talus de soixante-quinze centimètres, l'eau des deux côtés.
+  2  Ouvrir la porte de marée. Le premier geste du jeu n'est pas un coup.
+  3  Tirer le sel au las, vers la ladure.
+  4  Le premier cristallisé. Il refait le seul geste qu'il ait jamais fait.
+  5  L'esquive, apprise contre ce geste-là : large, lisible, lent.
+  6  La ladure. Mourir n'y rend pas au néant.
+  7  Le vent d'est. La fleur prend en surface — la cueillir.
+
+Un pilote automatique boucle ces sept étapes en 65,7 secondes de jeu.
+
+
+CE QUI N'A PAS PU ÊTRE VÉRIFIÉ
+------------------------------
+Ce build a été fabriqué sur une machine Linux sans carte graphique et sans
+carte son. Trois choses restent donc à juger par vous :
+
+  — LA PERFORMANCE. Aucun chiffre de FPS n'a de sens depuis un rendu
+    logiciel sur quatre cœurs. La scène demande 1 220 293 primitives en
+    169 appels de dessin : c'est léger pour une carte graphique moderne,
+    mais c'est vous qui verrez.
+  — LE SON. Il n'a jamais été entendu. Les 55 sons se chargent, les nappes
+    bouclent, le volume d'une vanne suit son débit réel. Le mélange, non.
+  — LE RESSENTI. La caméra, l'inertie, le poids du las.
+
+Ce qui EST vérifié : l'exécutable démarre, charge la scène, construit le
+marais et les arbres d'animation, et se ferme proprement — mesuré sur un
+export Linux du même projet et du même pack.
+
+
+CE QUI MANQUE ENCORE
+--------------------
+  — Les vrais roseaux. Ce que vous voyez au bord de l'eau est du bambou et
+    du blé stylisés : la silhouette tient, l'espèce non.
+  — Le salorge, la lousse à manche de cinq mètres, une mouette animée qui
+    soit une mouette.
+
+Sources et licences de tous les assets : ASSETS.md dans le dépôt.
