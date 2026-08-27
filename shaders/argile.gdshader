@@ -56,17 +56,19 @@ void vertex() {
 }
 
 void fragment() {
-	if (debug_normales) {
-		ALBEDO = vec3(0.0);
-		EMISSION = texture(bruit, monde.xz * echelle_plaques).rgb;
-		return;
-	}
+	// PAS DE `return` ICI. Le langage de shader de Godot l'interdit dans
+	// `fragment`, et il ne le dit qu'au chargement : le shader ne compile plus
+	// du tout, le moteur retombe sur un matériau blanc par défaut, et l'image
+	// change juste assez pour qu'on croie à un problème de réglage. Deux heures
+	// de captures identiques au bit près sont sorties de cette seule ligne.
 	if (debug_albedo) {
 		ALBEDO = vec3(0.72);
 		ROUGHNESS = 1.0;
 		SPECULAR = 0.0;
-		return;
-	}
+	} else if (debug_normales) {
+		ALBEDO = vec3(0.0);
+		EMISSION = texture(bruit, monde.xz * echelle_plaques).rgb;
+	} else {
 	// Deux échelles : de grandes plaques qui font la géologie, un grain fin qui
 	// casse l'uniformité de près. Une seule donnerait une moquette.
 	float plaques = texture(bruit, monde.xz * echelle_plaques).r;
@@ -84,4 +86,5 @@ void fragment() {
 	// L'argile mouillée brille, l'argile sèche non, et le sel est mat et poudreux.
 	ROUGHNESS = mix(mix(0.94, 0.42, mouille), 0.88, sel);
 	SPECULAR = mix(0.32, 0.12, sel);
+	}
 }

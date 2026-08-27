@@ -13,8 +13,16 @@ const DUREE_TICK: float = 1.0 / float(TICKS_PAR_SECONDE)
 # --- Déplacement ------------------------------------------------------------
 ## Le paludier ne court pas : il travaille. La marche est la vitesse normale,
 ## et la course est une dépense, pas un mode de déplacement.
-const VITESSE_MARCHE: float = 2.6
-const VITESSE_COURSE: float = 5.2
+##
+## Ces deux valeurs ne sont pas choisies au goût : elles sont calées sur les
+## clips, mesurés par outils/mesurer_pas.gd, qui rend la vitesse au sol réelle
+## de chaque animation en suivant le pied qui porte. Jog vaut 2,04 m/s et
+## Sprint 2,85 m/s. Marcher à 2,0 fait donc tourner Jog à sa cadence naturelle,
+## et courir à 3,7 n'étire Sprint que d'un quart. Au-delà, les pieds patinent —
+## c'est le défaut d'animation le plus visible d'un jeu à la troisième personne,
+## et il ne se voit sur aucune capture d'écran.
+const VITESSE_MARCHE: float = 2.00
+const VITESSE_COURSE: float = 3.70
 ## Accélération et freinage, en mètres par seconde carrée. Un corps qui porte
 ## un las de cinq mètres ne pivote pas sur place.
 const ACCELERATION: float = 26.0

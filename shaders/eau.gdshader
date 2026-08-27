@@ -76,20 +76,14 @@ float epaisseur(vec2 ecran, vec3 vue, mat4 inv_projection) {
 }
 
 void fragment() {
-	if (debug_normales) {
-		vec3 n = normalize((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
-		ALBEDO = vec3(0.0);
-		EMISSION = vec3(1.0, 0.0, 1.0) * (n.y * 0.5 + 0.5);
-		ALPHA = 1.0;
-		return;
-	}
+	// Aucun `return` dans `fragment` : Godot l'interdit et le shader entier
+	// cesse alors de compiler, sans que rien ne le dise à l'image.
 	if (debug_albedo) {
 		ALBEDO = vec3(0.10, 0.55, 0.75);
 		ROUGHNESS = 1.0;
 		SPECULAR = 0.0;
 		ALPHA = 1.0;
-		return;
-	}
+	} else {
 	// Deux couches de bruit qui dérivent en sens contraire : une seule donnerait
 	// un défilement visible, et un marais ne défile pas.
 	vec2 uv = monde.xz * echelle_rides;
@@ -130,7 +124,11 @@ void fragment() {
 	ALBEDO = mix(couleur, vec3(0.94, 0.945, 0.93), voile);
 	// Une eau salée peu profonde reste très lisse : c'est ce qui la rend
 	// miroir. La fleur, elle, est mate — c'est un solide.
-	ROUGHNESS = mix(mix(0.028, 0.15, vent), 0.72, voile);
+	// Jamais en dessous de 0,07. Une eau parfaitement lisse concentre tout le
+	// soleil sur quelques pixels : la valeur déborde, les canaux rouge et vert
+	// saturent avant le bleu, et il reste une tache bleue au cœur du reflet.
+	// Une nappe réelle porte toujours un souffle.
+	ROUGHNESS = mix(mix(0.070, 0.17, vent), 0.72, voile);
 	METALLIC = 0.0;
 	SPECULAR = mix(0.72, 0.2, voile);
 
@@ -152,4 +150,5 @@ void fragment() {
 	// Assez opaque pour garder le reflet, jamais assez pour nier le fond.
 	float base = mix(0.68, 0.97, opacite);
 	ALPHA = mix(mix(base, 1.0, fresnel), 1.0, voile);
+	}
 }

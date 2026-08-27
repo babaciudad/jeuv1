@@ -53,8 +53,8 @@ func regler(vent: float) -> void:
 			Color(1.0, 0.836, 0.690), t)
 		_soleil.light_energy = lerpf(3.20, 3.90, t)
 	if _ciel != null:
-		_ciel.sky_horizon_color = Color(0.855, 0.573, 0.340).lerp(
-			Color(0.905, 0.716, 0.520), t)
+		_ciel.sky_horizon_color = Color(0.900, 0.492, 0.212).lerp(
+			Color(0.935, 0.660, 0.400), t)
 		_ciel.ground_horizon_color = Color(0.470, 0.360, 0.255).lerp(
 			Color(0.556, 0.470, 0.360), t)
 	if _atmosphere != null:
@@ -84,8 +84,8 @@ func _batir_soleil() -> void:
 
 func _batir_environnement() -> void:
 	_ciel = ProceduralSkyMaterial.new()
-	_ciel.sky_top_color = Color(0.185, 0.268, 0.395)
-	_ciel.sky_horizon_color = Color(0.855, 0.573, 0.340)
+	_ciel.sky_top_color = Color(0.128, 0.205, 0.360)
+	_ciel.sky_horizon_color = Color(0.900, 0.492, 0.212)
 	_ciel.sky_curve = 0.13
 	_ciel.ground_bottom_color = Color(0.215, 0.190, 0.160)
 	_ciel.ground_horizon_color = Color(0.470, 0.360, 0.255)
@@ -163,16 +163,20 @@ func _batir_environnement() -> void:
 	# suffisait à lever toute l'image de cinquante niveaux de gris.
 	_atmosphere.glow_bloom = 0.0
 	_atmosphere.glow_hdr_threshold = 1.45
-	# Linéaire, et c'est un choix mesuré. ACES relevait les tons moyens de façon
-	# massive — la même scène passait de 122 à 193 de luminance moyenne au sol —
-	# et écrasait du même coup le contraste entre l'argile et l'eau. Un couchant
-	# n'a pas besoin d'être filmique : il a besoin d'être contrasté.
-	_atmosphere.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	# AgX. Un couchant sur une nappe d'eau produit des valeurs énormes sur
+	# quelques pixels : le linéaire les tronque brutalement et les canaux se
+	# déchirent, ACES relevait massivement les tons moyens et écrasait le
+	# contraste entre l'argile et l'eau. AgX désature les très hautes lumières
+	# vers le blanc sans virage de teinte — c'est exactement le problème posé.
+	_atmosphere.tonemap_mode = Environment.TONE_MAPPER_AGX
 	_atmosphere.tonemap_white = blanc
 	_atmosphere.tonemap_exposure = exposition
 	_atmosphere.adjustment_enabled = true
-	_atmosphere.adjustment_saturation = 1.06
-	_atmosphere.adjustment_contrast = 1.04
+	# AgX désature volontairement : c'est le prix de son encaissement des hautes
+	# lumières. On lui rend sa couleur après coup, sinon le couchant vire au
+	# pastel et le cuivre de l'eau disparaît.
+	_atmosphere.adjustment_saturation = 1.42
+	_atmosphere.adjustment_contrast = 1.12
 
 	_environnement = WorldEnvironment.new()
 	_environnement.name = "Atmosphere"

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Geste" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/sim/combat/geste.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+nom = &"las_lourd"
+duree = 96
+debut_coup = 44
+fin_coup = 54
+portee = 4.6
+demi_angle = 62.0
+degats = 34.0
+cout_endurance = 28.0
+poussee = 1.1

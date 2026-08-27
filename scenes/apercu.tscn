@@ -9,4 +9,4 @@ vise = Vector3(9.0, 0.35, 21.0)
 champ = 55.0
 ambiante = 1.0
 blanc = 3.0
-exposition = 1.0
+exposition = 1.45

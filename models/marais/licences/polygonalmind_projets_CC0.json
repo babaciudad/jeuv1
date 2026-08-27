@@ -1,0 +1,30 @@
+[
+ {
+  "id": "pm-momuspark",
+  "name": "MomusPark",
+  "creator_id": "Polygonal Mind",
+  "description": "Versatile park environment assets designed for testing and demonstration purposes",
+  "is_public": true,
+  "license": "CC0",
+  "source_type": "github",
+  "storage_type": "github",
+  "github_url": "https://github.com/ToxSam/cc0-models-Polygonal-Mind/tree/main/projects/MomusPark",
+  "created_at": "2026-02-09T18:22:04.150Z",
+  "updated_at": "2026-02-09T18:22:04.150Z",
+  "asset_data_file": "assets/pm-momuspark.json"
+ },
+ {
+  "id": "pm-tomb-chaser-2",
+  "name": "tomb-chaser-2",
+  "creator_id": "Polygonal Mind",
+  "description": "Neonwave Japanese pagoda assets mixing neon lights with traditional urban Japanese architecture",
+  "is_public": true,
+  "license": "CC0",
+  "source_type": "github",
+  "storage_type": "github",
+  "github_url": "https://github.com/ToxSam/cc0-models-Polygonal-Mind/tree/main/projects/tomb-chaser-2",
+  "created_at": "2026-02-09T18:22:10.077Z",
+  "updated_at": "2026-02-09T18:22:10.077Z",
+  "asset_data_file": "assets/pm-tomb-chaser-2.json"
+ }
+]
