@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/jeu/apercu.gd" id="1"]
+
+[node name="ApercuHaut" type="Node3D"]
+script = ExtResource("1")
+oeil = Vector3(80, 46, 74)
+vise = Vector3(30, 0, 20)
+champ = 52.0
+brume = 0.0

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/jeu/apercu.gd" id="1"]
+
+[node name="ApercuNormales" type="Node3D"]
+script = ExtResource("1")
+oeil = Vector3(57.0, 3.4, 30.0)
+vise = Vector3(9.0, 0.35, 21.0)
+champ = 55.0
+depouille = true
+debug_normales = true

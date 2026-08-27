@@ -31,10 +31,19 @@ class Bassin extends RefCounted:
 	var surface: float = 0.0
 	## Salinité, de 0 (eau de mer) à 1 (saturée, le sel cristallise).
 	var salinite: float = 0.0
+	## Vrai pour un bassin dont le niveau est imposé de l'extérieur : l'étier,
+	## que la marée remplit et vide. Un tel bassin est une réserve infinie —
+	## on ne le vide pas en lui prenant de l'eau, et on ne le remplit pas en
+	## lui en rendant.
+	var tenu_par_la_maree: bool = false
+	## Niveau imposé, quand la marée le tient.
+	var niveau_impose: float = 0.0
 
 	## Niveau de la surface de l'eau, en mètres. C'est ce qu'on compare d'un
 	## bassin à l'autre pour connaître le sens de l'écoulement.
 	func niveau() -> float:
+		if tenu_par_la_maree:
+			return niveau_impose
 		if surface <= 0.0:
 			return fond
 		return fond + volume / surface
@@ -49,6 +58,10 @@ class Vanne extends RefCounted:
 	var amont: int = -1
 	var aval: int = -1
 	var ouverte: bool = false
+	## Section de la vanne, en multiples d'une vanne d'œillet. Une porte de
+	## marée sur un étier n'a pas le débit d'un passage entre deux œillets, et
+	## le joueur doit voir la différence : l'une gronde, l'autre suinte.
+	var section: float = 1.0
 	## Position dans le monde, pour que la présentation sache où la poser et
 	## le joueur où aller la chercher.
 	var position: Vector2 = Vector2.ZERO
@@ -73,10 +86,10 @@ var _case_talus: PackedFloat32Array = PackedFloat32Array()
 # ---------------------------------------------------------------------------
 
 ## Prépare une grille vide, entièrement en talus, couvrant l'étendue donnée.
-func preparer(origine: Vector2, etendue: Vector2, altitude_talus: float) -> void:
-	_origine = origine
-	_largeur = int(ceilf(etendue.x / PAS))
-	_hauteur = int(ceilf(etendue.y / PAS))
+func preparer(coin: Vector2, emprise: Vector2, altitude_talus: float) -> void:
+	_origine = coin
+	_largeur = int(ceilf(emprise.x / PAS))
+	_hauteur = int(ceilf(emprise.y / PAS))
 	var total: int = _largeur * _hauteur
 	_case_bassin = PackedInt32Array()
 	_case_bassin.resize(total)
@@ -121,22 +134,24 @@ func creuser(nom: StringName, polygone: PackedVector2Array, fond: float,
 	bassin.volume = bassin.surface * maxf(0.0, profondeur_initiale)
 	return indice
 
-## Relie deux bassins par une vanne. L'amont doit être plus haut que l'aval :
-## tout descend, rien ne remonte. On refuse le contraire plutôt que de le
-## corriger en silence, parce qu'un niveau posé à l'envers est une erreur de
-## conception du marais, pas un cas à rattraper.
+## Relie deux bassins par une vanne.
+##
+## « Amont » et « aval » sont des noms de conception, pas une contrainte : le
+## sens réel de l'écoulement est décidé à chaque tick par la différence de
+## NIVEAU, jamais par l'altitude des fonds. C'est ce qui permet à l'étier —
+## dont le lit est le plus bas de tout le marais — d'alimenter la vasière à
+## marée montante. L'eau ne remonte pas pour autant : c'est la mer qui monte.
 func relier(nom: StringName, amont: int, aval: int, position: Vector2,
-		ouverte: bool) -> int:
+		ouverte: bool, section: float = 1.0) -> int:
 	assert(amont >= 0 and amont < bassins.size(), "vanne : amont inconnu")
 	assert(aval >= 0 and aval < bassins.size(), "vanne : aval inconnu")
-	assert(bassins[amont].fond >= bassins[aval].fond,
-		"vanne %s : l'amont est plus bas que l'aval, l'eau ne remonte pas" % nom)
 	var vanne: Vanne = Vanne.new()
 	vanne.nom = nom
 	vanne.amont = amont
 	vanne.aval = aval
 	vanne.position = position
 	vanne.ouverte = ouverte
+	vanne.section = section
 	vannes.append(vanne)
 	return vannes.size() - 1
 
@@ -212,29 +227,46 @@ func ecouler(duree: float) -> void:
 		vanne.debit = 0.0
 		if not vanne.ouverte:
 			continue
+		# Le haut et le bas se lisent sur les NIVEAUX, pas sur les noms : une
+		# vanne ne sait pas de quel côté elle est, elle sait seulement laquelle
+		# des deux surfaces est au-dessus de l'autre.
 		var amont: Bassin = bassins[vanne.amont]
 		var aval: Bassin = bassins[vanne.aval]
+		if aval.niveau() > amont.niveau():
+			var echange: Bassin = amont
+			amont = aval
+			aval = echange
 		var charge: float = amont.niveau() - aval.niveau()
 		if charge <= Reglages.CHARGE_MINIMALE:
 			continue
-		var debit: float = Reglages.DEBIT_VANNE * charge
+		var debit: float = Reglages.DEBIT_VANNE * vanne.section * charge
 		var transfert: float = debit * duree
-		transfert = minf(transfert, amont.volume)
-		# Ce qu'il faudrait pour égaliser les deux surfaces : on ne dépasse
-		# jamais la moitié de cette quantité dans un tick.
-		var egalisation: float = charge / (1.0 / maxf(amont.surface, 0.001)
-			+ 1.0 / maxf(aval.surface, 0.001))
-		transfert = minf(transfert, egalisation)
+		if not amont.tenu_par_la_maree:
+			transfert = minf(transfert, amont.volume)
+		# Ce qu'il faudrait pour égaliser les deux surfaces. Un bassin tenu par
+		# la marée ne s'égalise jamais : il ne bouge pas, donc seule la surface
+		# de l'autre compte.
+		var inverse_amont: float = 0.0
+		if not amont.tenu_par_la_maree:
+			inverse_amont = 1.0 / maxf(amont.surface, 0.001)
+		var inverse_aval: float = 0.0
+		if not aval.tenu_par_la_maree:
+			inverse_aval = 1.0 / maxf(aval.surface, 0.001)
+		var somme_inverses: float = inverse_amont + inverse_aval
+		if somme_inverses > 0.0:
+			transfert = minf(transfert, charge / somme_inverses)
 		if transfert <= 0.0:
 			continue
-		amont.volume -= transfert
-		aval.volume += transfert
+		if not amont.tenu_par_la_maree:
+			amont.volume -= transfert
+		if not aval.tenu_par_la_maree:
+			aval.volume += transfert
 		vanne.debit = transfert / duree
 
 		# Le sel voyage avec l'eau. L'aval reçoit une saumure, se mélange, puis
 		# se concentre à l'évaporation : c'est toute la chaîne du marais, et
 		# c'est ce qui fait qu'un œillet finit par cristalliser.
-		if aval.volume > 0.0:
+		if aval.volume > 0.0 and not aval.tenu_par_la_maree:
 			var part: float = transfert / aval.volume
 			aval.salinite = lerpf(aval.salinite, amont.salinite, clampf(part, 0.0, 1.0))
 
@@ -243,6 +275,9 @@ func ecouler(duree: float) -> void:
 func evaporer(hauteur_par_seconde: float, duree: float) -> void:
 	var perte: float = hauteur_par_seconde * duree
 	for bassin: Bassin in bassins:
+		# La mer ne s'évapore pas à notre échelle : la marée la renouvelle.
+		if bassin.tenu_par_la_maree:
+			continue
 		if bassin.surface <= 0.0 or bassin.volume <= 0.0:
 			continue
 		var avant: float = bassin.volume
@@ -269,3 +304,49 @@ func _boite(polygone: PackedVector2Array) -> Rect2:
 	for p: Vector2 in polygone:
 		boite = boite.expand(p)
 	return boite
+
+# ---------------------------------------------------------------------------
+# Ce que la présentation a le droit de savoir
+#
+# Elle lit la forme du terrain pour en faire un maillage. Elle ne l'écrit
+# jamais : l'invariant 2 tient tant que ces méthodes restent en lecture seule.
+# ---------------------------------------------------------------------------
+
+func origine() -> Vector2:
+	return _origine
+
+func dimensions() -> Vector2i:
+	return Vector2i(_largeur, _hauteur)
+
+func etendue() -> Rect2:
+	return Rect2(_origine, Vector2(float(_largeur) * PAS, float(_hauteur) * PAS))
+
+## Bassin d'une case par ses indices de grille, ou -1 pour un talus.
+func bassin_de_case(x: int, y: int) -> int:
+	if x < 0 or x >= _largeur or y < 0 or y >= _hauteur:
+		return -1
+	return _case_bassin[y * _largeur + x]
+
+## Altitude du sol dur d'une case, par ses indices de grille.
+func hauteur_de_case(x: int, y: int) -> float:
+	if x < 0 or x >= _largeur or y < 0 or y >= _hauteur:
+		return 0.0
+	var k: int = y * _largeur + x
+	var b: int = _case_bassin[k]
+	if b == -1:
+		return _case_talus[k]
+	return bassins[b].fond
+
+func centre_de_case(x: int, y: int) -> Vector2:
+	return _centre_case(x, y)
+
+## Impose le niveau de la mer dans les bassins qu'elle tient.
+##
+## Le tutoriel se passe « à l'étier, à marée montante » : ce n'est pas une
+## indication d'ambiance, c'est le moteur du niveau. La mer monte, elle passe
+## au-dessus du fond de la vasière, et l'eau entre — sans qu'aucune goutte
+## n'ait remonté une pente.
+func maree(niveau_mer: float) -> void:
+	for bassin: Bassin in bassins:
+		if bassin.tenu_par_la_maree:
+			bassin.niveau_impose = niveau_mer
