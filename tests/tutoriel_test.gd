@@ -43,7 +43,11 @@ class Pilote extends RefCounted:
 				_aller(c, joueur, Etier.PORTE_DE_MAREE)
 			Tutoriel.Etape.VANNE:
 				_aller(c, joueur, Etier.PORTE_DE_MAREE)
-				c.interagit = joueur.position.distance_to(Etier.PORTE_DE_MAREE) < 1.6
+				# Un seul appui : les vannes basculent désormais dans les deux
+				# sens, et tenir la touche rouvrirait-refermerait à chaque tick.
+				var porte: int = monde.marais.vanne_nommee(&"porte_de_maree")
+				c.interagit = joueur.position.distance_to(Etier.PORTE_DE_MAREE) < 1.6 \
+					and porte >= 0 and not monde.marais.vannes[porte].ouverte
 			Tutoriel.Etape.LAS:
 				var but: Vector2 = _prochain(joueur, Etier.OEILLET_DU_SEL)
 				_aller(c, joueur, but)
@@ -81,6 +85,24 @@ class Pilote extends RefCounted:
 		var ecart: Vector2 = ennemi.position - joueur.position
 		var distance: float = ecart.length()
 		c.cap = atan2(ecart.x, ecart.y)
+
+		# À l'étape de l'esquive, le pilote joue comme un joueur de souls-like :
+		# il APPÂTE. Rester au contact à échanger des coups le laissait en
+		# DOULEUR précisément pendant les fenêtres de danger — jamais LIBRE au
+		# bon moment, donc jamais d'esquive, donc un tutoriel infinissable.
+		# Reculer hors du contact, laisser partir le geste, sortir de l'arc :
+		# c'est la leçon que l'étape enseigne, et le pilote doit l'apprendre
+		# comme un joueur.
+		if tutoriel.etape == Tutoriel.Etape.ESQUIVE:
+			if _danger(monde, ennemi) and joueur.etat == Acteur.Etat.LIBRE \
+					and joueur.endurance > Reglages.ENDURANCE_ESQUIVE:
+				c.esquive = true
+				c.direction = -ecart.normalized()
+			elif distance < 2.6:
+				c.direction = -ecart.normalized()
+			elif distance > 3.5:
+				c.direction = ecart.normalized()
+			return
 		# Il frappe : on sort de son arc. « Le las est lent, et large. »
 		# On n'esquive QUE dans la fenêtre où le coup part vraiment : esquiver
 		# à chaque image où l'ennemi lève son las vide toute l'endurance et il
@@ -228,8 +250,12 @@ func test_mourir_redepose_a_la_ladure_sans_remettre_le_monde_a_zero() -> void:
 	for _i: int in range(10 * Reglages.TICKS_PAR_SECONDE):
 		simulation.avancer(monde, {})
 	var vasiere: int = monde.marais.bassin_nomme(&"vasiere_nord")
-	var niveau: float = monde.marais.bassins[vasiere].niveau()
+	var _niveau_a_la_mort: float = monde.marais.bassins[vasiere].niveau()
 
+	# Le niveau AVANT le premier geste : c'est contre lui qu'on mesure, parce
+	# que depuis que la chaîne descend vraiment, la vasière reçoit de la mer ET
+	# donne au cobier — son niveau instantané peut fluctuer. Ce qui ne doit
+	# jamais arriver, c'est un retour à l'état d'avant le geste.
 	joueur.blesser(9999.0)
 	assert_bool(joueur.vivant()).is_false()
 	for _i: int in range(Reglages.REPOS_APRES_MORT + 2):
@@ -237,9 +263,12 @@ func test_mourir_redepose_a_la_ladure_sans_remettre_le_monde_a_zero() -> void:
 	assert_bool(joueur.vivant()).is_true()
 	assert_vector(joueur.position).is_equal(Etier.LADURE)
 	assert_float(joueur.vie).is_equal(joueur.vie_max)
-	# « Le monde ne se remet pas à zéro : l'eau qu'il a fait descendre est
-	# toujours descendue. »
-	assert_float(monde.marais.bassins[vasiere].niveau()).is_greater_equal(niveau)
+	# « Le monde ne se remet pas à zéro. » La porte est restée ouverte et l'eau
+	# entrée est toujours dans la chaîne : le niveau reste au-dessus de celui
+	# d'avant l'ouverture (0,13), même si la vasière a déjà donné à l'aval.
+	assert_bool(monde.marais.vannes[porte].ouverte).is_true()
+	assert_float(monde.marais.bassins[vasiere].niveau()).is_greater(0.135)
+	prints("vasiere apres renaissance :", monde.marais.bassins[vasiere].niveau())
 
 func test_la_porte_de_maree_fait_monter_la_vasiere() -> void:
 	# Le premier geste du jeu doit avoir un effet VISIBLE, et mesurable.
@@ -252,4 +281,108 @@ func test_la_porte_de_maree_fait_monter_la_vasiere() -> void:
 		monde.marais.ecouler(Reglages.DUREE_TICK)
 	var apres: float = monde.marais.bassins[vasiere].niveau()
 	prints("vasiere :", avant, "->", apres, "en 20 s")
-	assert_float(apres - avant).is_greater(0.08)
+	# La vasière part à 0,13 et la mer est à 0,21 : la montée possible est de
+	# huit centimètres, atteinte asymptotiquement. Quatre et demi en vingt
+	# secondes, c'est l'eau qu'on VOIT monter — et c'est ce qu'on vérifie.
+	assert_float(apres - avant).is_greater(0.045)
+
+func test_la_chaine_des_bassins_descend_vraiment() -> void:
+	# « Tout descend, rien ne remonte » est LA règle du lore. Elle était violée
+	# par le niveau lui-même : la chaîne montait de −1,10 à +0,04, si bien que
+	# l'eau ne pouvait pas atteindre les œillets et qu'ouvrir la vanne d'un
+	# œillet le VIDAIT au lieu de le remplir.
+	var marais: Marais = Etier.batir()
+	var chaine: Array[StringName] = [&"vasiere_nord", &"cobier", &"fares",
+		&"adernes", &"oeillet_nord_ouest"]
+	var precedent: float = 999.0
+	for nom: StringName in chaine:
+		var i: int = marais.bassin_nomme(nom)
+		assert_int(i).override_failure_message("bassin absent : %s" % nom).is_greater_equal(0)
+		var fond: float = marais.bassins[i].fond
+		prints("   %-22s fond %6.2f m" % [nom, fond])
+		assert_float(fond).override_failure_message(
+			"%s est PLUS HAUT que le bassin qui le précède" % nom).is_less(precedent)
+		precedent = fond
+	# Et la marée haute doit rester au-dessus du premier bassin, sinon rien
+	# n'entre jamais dans le marais.
+	var vasiere: int = marais.bassin_nomme(&"vasiere_nord")
+	assert_float(Etier.MAREE_HAUTE).is_greater(marais.bassins[vasiere].fond)
+
+func test_ouvrir_la_vanne_de_l_oeillet_trop_tot_ne_condamne_pas_la_partie() -> void:
+	# Défaut BLOQUANT rapporté : la vanne de l'œillet est à 2,1 m du seul chemin
+	# vers l'est. L'ouvrir était légal, IRRÉVERSIBLE, et noyait puis diluait
+	# l'œillet — la fleur ne prenait plus jamais et le tutoriel devenait
+	# infinissable. Le remède est celui du métier : les vannes basculent dans
+	# les deux sens, et le dosage plus l'évaporation ramènent la saumure.
+	# Ce test joue le pire cas : ouverte tôt, laissée ouverte une minute
+	# entière, puis la partie arrive à l'étape de la fleur.
+	var monde: Monde = _monde()
+	monde.ladure = Etier.LADURE
+	var vanne: int = monde.marais.vanne_nommee(&"vanne_oeillet")
+	assert_int(vanne).is_greater_equal(0)
+	monde.marais.vannes[vanne].ouverte = true
+	var simulation: Simulation = Simulation.new()
+	for _i: int in range(60 * Reglages.TICKS_PAR_SECONDE):
+		simulation.avancer(monde, {})
+	var bassin: int = monde.marais.bassin_sous(Etier.OEILLET_DE_LA_FLEUR)
+	prints("œillet inondé 60 s : eau %.3f m, salinité %.2f" % [
+		monde.marais.bassins[bassin].profondeur(),
+		monde.marais.bassins[bassin].salinite])
+	# L'étape FLEUR arrive : le tutoriel dose (referme la vanne) et le vent
+	# d'est évapore — exactement ce que fait Tutoriel.progresser.
+	var tutoriel: Tutoriel = Tutoriel.new()
+	monde.vent_est = 0.5
+	monde.evaporation = 0.0020 * 0.5
+	monde.marais.vannes[vanne].ouverte = true
+	for _i: int in range(180 * Reglages.TICKS_PAR_SECONDE):
+		tutoriel._doser_l_oeillet(monde)
+		simulation.avancer(monde, {})
+		if monde.marais.fleur_prete(bassin):
+			break
+	prints("après dosage : eau %.3f m, salinité %.2f, fleur %.2f" % [
+		monde.marais.bassins[bassin].profondeur(),
+		monde.marais.bassins[bassin].salinite,
+		monde.marais.bassins[bassin].fleur])
+	assert_bool(monde.marais.fleur_prete(bassin)).override_failure_message(
+		"la fleur ne prend plus après une vanne ouverte trop tôt").is_true()
+
+func test_une_fleur_prise_survit_a_l_hesitation() -> void:
+	# Défaut BLOQUANT rapporté : la fenêtre de cueillette ne durait que quatre
+	# secondes et demie. Une croûte déjà cristallisée ne se dissout pas parce
+	# que le vent tombe ou que l'œillet sèche.
+	var monde: Monde = _monde()
+	monde.ladure = Etier.LADURE
+	monde.vent_est = 0.5
+	monde.evaporation = 0.0020
+	var simulation: Simulation = Simulation.new()
+	var bassin: int = monde.marais.bassin_sous(Etier.OEILLET_DE_LA_FLEUR)
+	var pris_au_tick: int = -1
+	for i: int in range(180 * Reglages.TICKS_PAR_SECONDE):
+		simulation.avancer(monde, {})
+		if pris_au_tick < 0 and monde.marais.fleur_prete(bassin):
+			pris_au_tick = i
+	assert_int(pris_au_tick).override_failure_message(
+		"la fleur ne prend jamais").is_greater_equal(0)
+	prints("fleur prête au tick", pris_au_tick, "— encore cueillable après 180 s :",
+		monde.marais.fleur_prete(bassin))
+	assert_bool(monde.marais.fleur_prete(bassin)).override_failure_message(
+		"la fleur a disparu pendant que le joueur hésitait").is_true()
+
+func test_la_course_coute_de_l_endurance() -> void:
+	# ENDURANCE_COURSE existait et n'était lue nulle part : on sprintait
+	# indéfiniment, 85 % plus vite, gratuitement.
+	var monde: Monde = _monde()
+	monde.ladure = Etier.LADURE
+	var joueur: Acteur = monde.joueur()
+	var simulation: Simulation = Simulation.new()
+	var c: Commande = Commande.new()
+	c.direction = Vector2(0.0, 1.0)
+	c.court = true
+	var commandes: Dictionary[int, Commande] = {}
+	commandes[joueur.id] = c
+	var depart: float = joueur.endurance
+	for _i: int in range(3 * Reglages.TICKS_PAR_SECONDE):
+		simulation.avancer(monde, commandes)
+	prints("endurance après 3 s de course :", joueur.endurance, "sur", depart)
+	assert_float(joueur.endurance).override_failure_message(
+		"courir ne coûte rien").is_less(depart - 20.0)

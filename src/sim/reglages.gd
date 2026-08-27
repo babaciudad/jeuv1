@@ -23,6 +23,12 @@ const DUREE_TICK: float = 1.0 / float(TICKS_PAR_SECONDE)
 ## et il ne se voit sur aucune capture d'écran.
 const VITESSE_MARCHE: float = 2.00
 const VITESSE_COURSE: float = 3.70
+## Endurance dépensée par seconde de course.
+##
+## ENDURANCE_COURSE existait déjà et n'était LUE NULLE PART : on sprintait
+## indéfiniment, 85 % plus vite, gratuitement. Il n'y avait aucune raison de
+## marcher, ce qui vide de son sens la moitié du vocabulaire souls-like.
+const ENDURANCE_PAR_SECONDE_DE_COURSE: float = 18.0
 ## Accélération et freinage, en mètres par seconde carrée. Un corps qui porte
 ## un las de cinq mètres ne pivote pas sur place.
 const ACCELERATION: float = 26.0
@@ -39,9 +45,34 @@ const LARGEUR_TALUS: float = 0.70
 const HAUTEUR_TALUS: float = 0.45
 ## Au-delà de cette profondeur d'eau, on ne marche plus : on patauge.
 const EAU_GENANTE: float = 0.12
-## Facteur de vitesse dans l'eau. On n'y meurt pas — le marais n'est pas
-## profond — mais on y est lent, bruyant et vulnérable.
+## Facteur de vitesse dans l'eau peu profonde. « On ne meurt pas de tomber d'un
+## talus, on devient lent, bruyant et exposé. »
 const FACTEUR_EAU: float = 0.45
+
+## Au-delà de cette hauteur d'eau, en mètres, on ne patauge plus : on coule.
+##
+## Le lore distingue deux eaux et le jeu doit les distinguer aussi. Un bassin
+## fait trois à sept centimètres : on y tombe, on s'y traîne, on s'en relève.
+## L'étier fait UN MÈTRE TRENTE : c'est un chenal de mer, et un paludier chargé
+## d'un las de cinq mètres n'y nage pas.
+##
+## Sans cette règle, le joueur marchait au FOND du chenal, immergé jusqu'au
+## torse, la caméra sous la nappe — et comme le shader d'eau ne s'affiche que
+## par-dessus, il voyait le ciel à travers l'eau. C'était le défaut le plus
+## visible du jeu.
+const EAU_MORTELLE: float = 0.55
+## Ticks passés sous l'eau avant que le sel ne reprenne son dû. Une seconde et
+## trois dixièmes : le temps de comprendre qu'on coule et de faire demi-tour —
+## à quarante-deux ticks, un pas de côté depuis la première digue du tutoriel
+## tuait en neuf dixièmes de seconde, ce qui se lit comme un bug et non comme
+## une règle.
+const TICKS_DE_NOYADE: int = 78
+
+## Rayon d'encombrement d'un corps, en mètres. Deux corps ne s'interpénètrent
+## pas : on se cale contre un cristallisé, on ne le traverse pas comme du
+## brouillard. C'est aussi ce qui rend l'espacement au combat réel — reculer
+## contre un corps, c'est être coincé.
+const RAYON_CORPS: float = 0.30
 
 # --- Endurance --------------------------------------------------------------
 const ENDURANCE_MAX: float = 100.0
@@ -84,7 +115,10 @@ const FLEUR_SALINITE: float = 0.90
 ## La fleur ne prend que sur une lame d'eau : trop peu, l'œillet est sec ;
 ## trop, la pellicule coule et rejoint le gros sel au fond.
 const FLEUR_EAU_MIN: float = 0.006
-const FLEUR_EAU_MAX: float = 0.060
+const FLEUR_EAU_MAX: float = 0.120
+## Au-delà de cette hauteur d'eau, une pellicule déjà prise coule et rejoint le
+## gros sel au fond. C'est la SEULE façon de perdre une fleur formée.
+const FLEUR_NOYEE: float = 0.250
 ## Vent d'est minimal. « Un souffle d'est en fin de journée, pas de pluie, pas
 ## trop de vent — sinon elle coule. »
 const FLEUR_VENT_MIN: float = 0.18

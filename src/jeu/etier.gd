@@ -83,25 +83,42 @@ static func batir() -> Marais:
 	marais.bassins[etier].tenu_par_la_maree = true
 	marais.bassins[etier].niveau_impose = MAREE_BASSE
 
+	# LA CHAÎNE DESCEND, et c'est la règle centrale du lore : « l'eau entre à
+	# marée haute par l'étier et commence une descente qui dure des semaines, de
+	# bassin en bassin ». Les œillets sont donc le point le PLUS BAS du marais,
+	# et la vasière le plus haut.
+	#
+	# Elle montait. Vasière à −0,38, œillets à +0,04 : l'eau ne pouvait pas
+	# atteindre les œillets, et ouvrir la vanne d'un œillet le VIDAIT au lieu de
+	# le remplir — ce qui rendait la fleur impossible et le tutoriel infinissable.
+	# C'était une erreur de conception, pas un réglage.
+	#
+	# Deux contraintes tiennent ces chiffres, et elles sont mesurées par les
+	# tests : les FONDS descendent (0,12 > 0,08 > 0,04 > 0,00 > −0,06) et les
+	# NIVEAUX initiaux descendent aussi (0,13 > 0,11 > 0,09 > 0,06 > …) — sans
+	# quoi l'eau refluerait vers l'amont au premier tick, puisque les vannes
+	# suivent les niveaux et non les noms. La marée haute (0,21 m) domine tout :
+	# c'est elle qui remplit la chaîne, et chaque bassin reste une lame d'eau
+	# où l'on patauge sans jamais s'y noyer.
 	# La vasière : vaste réserve où l'eau se repose et se réchauffe. Elle est
 	# coupée en deux par une CHAUSSÉE de talus, et ce n'est pas un ornement :
 	# c'est le chemin du joueur. Tout le tutoriel se marche sur des talus de
 	# quatre-vingts centimètres, jamais sur une place.
 	var vasiere: int = marais.creuser(&"vasiere_nord",
-		rectangle(9.5, 4.0, 25.0, 21.0), -0.38, 0.07, 0.05)
+		rectangle(9.5, 4.0, 25.0, 21.0), 0.12, 0.01, 0.05)
 	var vasiere_sud: int = marais.creuser(&"vasiere_sud",
-		rectangle(9.5, 21.75, 25.0, 40.0), -0.36, 0.06, 0.06)
+		rectangle(9.5, 21.75, 25.0, 40.0), 0.11, 0.01, 0.06)
 
 	# Le cobier, premier bassin d'évaporation, puis les fares où l'eau serpente.
 	var cobier: int = marais.creuser(&"cobier",
-		rectangle(25.75, 4.0, 34.0, 21.0), -0.18, 0.10, 0.34)
+		rectangle(25.75, 4.0, 34.0, 21.0), 0.08, 0.03, 0.34)
 	var fares: int = marais.creuser(&"fares",
-		rectangle(25.75, 21.75, 34.0, 40.0), -0.10, 0.09, 0.58)
+		rectangle(25.75, 21.75, 34.0, 40.0), 0.04, 0.05, 0.58)
 	# Les adernes : les réserves de saumure mûre, gardées. Elles n'occupent que
 	# le sud : au nord, l'argile reste pleine et forme la LADURE, la plateforme
 	# où l'on entasse ce qu'on a tiré du fond.
 	var adernes: int = marais.creuser(&"adernes",
-		rectangle(34.75, 21.75, 41.5, 40.0), -0.02, 0.08, 0.76)
+		rectangle(34.75, 21.75, 41.5, 40.0), 0.00, 0.06, 0.76)
 
 	# La marqueterie : six œillets, deux colonnes de trois. C'est là que tout
 	# se joue, et c'est le seul bassin où le sel cristallise.
@@ -122,8 +139,10 @@ static func batir() -> Marais:
 	var k: int = 0
 	for ligne: int in range(3):
 		for colonne: int in range(2):
+			# Le point le PLUS BAS du marais : c'est là que l'eau finit, et c'est
+			# là que le sel cristallise. Tout le sens de la chaîne tient à ça.
 			oeillets.append(marais.creuser(noms[k],
-				oeillet(coin, colonne, ligne), 0.04,
+				oeillet(coin, colonne, ligne), -0.06,
 				profondeurs[k], salinites[k]))
 			k += 1
 

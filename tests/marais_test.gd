@@ -123,7 +123,59 @@ func test_une_saumure_jeune_ne_donne_pas_de_fleur() -> void:
 func test_le_gros_sel_ne_se_tire_que_d_un_oeillet_sec() -> void:
 	var marais: Marais = _marais_a_deux_bassins(0.30, 0.00)
 	marais.bassins[0].salinite = 0.96
+	# Le stock existe : ce test mesure la règle de l'EAU, pas l'épuisement.
+	marais.bassins[0].gros_sel = 5
 	marais.bassins[0].volume = marais.bassins[0].surface * 0.30
 	assert_bool(marais.sel_au_fond(0)).is_false()
 	marais.bassins[0].volume = marais.bassins[0].surface * 0.01
 	assert_bool(marais.sel_au_fond(0)).is_true()
+
+func test_on_ne_marche_pas_au_fond_de_l_etier() -> void:
+	# Le défaut le plus visible du jeu : le joueur descendait dans un chenal
+	# d'un mètre trente et y MARCHAIT, immergé jusqu'au torse, la caméra sous
+	# la nappe — et comme le shader d'eau ne s'affichait que par-dessus, il
+	# voyait le ciel à travers l'eau. Le lore distingue deux eaux ; le jeu doit
+	# les distinguer aussi.
+	var monde: Monde = Monde.new()
+	monde.marais = Etier.batir()
+	monde.marais.maree(Etier.MAREE_HAUTE)
+	monde.ladure = Etier.LADURE
+	var joueur: Acteur = Acteur.new()
+	joueur.camp = Acteur.Camp.PALUDIER
+	joueur.position = Vector2(5.0, 12.0)
+	var _p: Acteur = monde.ajouter(joueur)
+
+	var profondeur: float = monde.marais.profondeur_eau(joueur.position)
+	prints("profondeur au milieu de l'étier :", profondeur, "m")
+	assert_float(profondeur).is_greater(Reglages.EAU_MORTELLE)
+
+	var simulation: Simulation = Simulation.new()
+	for _i: int in range(Reglages.TICKS_DE_NOYADE + 4):
+		simulation.avancer(monde, {})
+	assert_bool(joueur.vivant()).override_failure_message(
+		"le joueur survit dans 1,31 m d'eau").is_false()
+
+	# Et il est redéposé à la ladure, pas effacé.
+	for _i: int in range(Reglages.REPOS_APRES_MORT + 2):
+		simulation.avancer(monde, {})
+	assert_bool(joueur.vivant()).is_true()
+	assert_vector(joueur.position).is_equal(Etier.LADURE)
+
+func test_une_flaque_de_bassin_ne_noie_personne() -> void:
+	# L'autre moitié de la règle : « on ne meurt pas de tomber d'un talus ».
+	# Trois centimètres d'eau au fond d'un œillet doivent rester inoffensifs.
+	var monde: Monde = Monde.new()
+	monde.marais = Etier.batir()
+	monde.marais.maree(Etier.MAREE_HAUTE)
+	monde.ladure = Etier.LADURE
+	var joueur: Acteur = Acteur.new()
+	joueur.camp = Acteur.Camp.PALUDIER
+	joueur.position = Etier.OEILLET_DE_LA_FLEUR
+	var _p: Acteur = monde.ajouter(joueur)
+	prints("profondeur dans l'œillet :",
+		monde.marais.profondeur_eau(joueur.position), "m")
+	var simulation: Simulation = Simulation.new()
+	for _i: int in range(20 * Reglages.TICKS_PAR_SECONDE):
+		simulation.avancer(monde, {})
+	assert_bool(joueur.vivant()).override_failure_message(
+		"le joueur se noie dans une flaque").is_true()

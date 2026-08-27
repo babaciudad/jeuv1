@@ -34,8 +34,9 @@ class Bassin extends RefCounted:
 	## Pellicule de fleur de sel en surface, de 0 à 1. Elle ne se tire pas : elle
 	## se cueille, et seulement si le ciel le permet.
 	var fleur: float = 0.0
-	## Gros sel cristallisé au fond, en parts récoltables.
-	var gros_sel: float = 0.0
+	## Gros sel cristallisé au fond, en parts récoltables. Un entier : on tire
+	## des PARTS, pas un fluide.
+	var gros_sel: int = 0
 	## Vrai pour un bassin dont le niveau est imposé de l'extérieur : l'étier,
 	## que la marée remplit et vide. Un tel bassin est une réserve infinie —
 	## on ne le vide pas en lui prenant de l'eau, et on ne le remplit pas en
@@ -137,6 +138,13 @@ func creuser(nom: StringName, polygone: PackedVector2Array, fond: float,
 
 	bassin.surface = float(cases) * PAS * PAS
 	bassin.volume = bassin.surface * maxf(0.0, profondeur_initiale)
+	# Un bassin qui naît mûr porte sa récolte : le sel d'une saison, fini. Le
+	# compteur montait sans fin — cent quatre-vingt-six parts en cinq minutes
+	# de raclage au même endroit — parce que rien, nulle part, ne s'épuisait.
+	# Trente parts, c'est une ladure pleine ; après, l'œillet est raclé et il
+	# faudra une saison — un acte — pour qu'il redonne.
+	if salinite >= Reglages.SEL_SALINITE:
+		bassin.gros_sel = 30
 	return indice
 
 ## Relie deux bassins par une vanne.
@@ -379,7 +387,16 @@ func former_fleur(vent: float, duree: float) -> void:
 			and vent <= Reglages.FLEUR_VENT_MAX
 		if accord:
 			bassin.fleur = minf(1.0, bassin.fleur + Reglages.FLEUR_POUSSE * duree)
-		else:
+		elif profondeur > Reglages.FLEUR_NOYEE or vent > Reglages.FLEUR_VENT_MAX:
+			# « Sinon elle coule et rejoint le gros sel. » Deux causes, et deux
+			# seulement : trop d'eau, ou trop de vent — c'est le lore mot pour
+			# mot, et un test tient chacune.
+			#
+			# Elle fondait AUSSI dès que l'œillet séchait ou que le vent tombait,
+			# si bien que la fenêtre de cueillette ne durait que quatre secondes
+			# et demie : quatre secondes d'hésitation et le tutoriel ne pouvait
+			# plus jamais se terminer. Une croûte déjà cristallisée ne se
+			# dissout pas parce que le vent est retombé ou que l'eau a séché.
 			bassin.fleur = maxf(0.0, bassin.fleur - Reglages.FLEUR_FONTE * duree)
 
 ## Vrai si ce bassin a de quoi être cueilli.
@@ -395,13 +412,23 @@ func cueillir(indice: int) -> float:
 	bassins[indice].fleur -= Reglages.FLEUR_PRISE
 	return Reglages.FLEUR_PRISE
 
-## Vrai si ce bassin a du gros sel au fond, tirable au las : mûr, et sec.
+## Vrai si ce bassin a du gros sel au fond, tirable au las : mûr, sec, et pas
+## encore raclé jusqu'à l'argile.
 func sel_au_fond(indice: int) -> bool:
 	if indice < 0 or indice >= bassins.size():
 		return false
 	var bassin: Bassin = bassins[indice]
 	return bassin.salinite >= Reglages.SEL_SALINITE \
-		and bassin.profondeur() <= Reglages.SEL_EAU_MAX
+		and bassin.profondeur() <= Reglages.SEL_EAU_MAX \
+		and bassin.gros_sel > 0
+
+## Tire une part de gros sel du fond. Renvoie vrai si le geste a ramené
+## quelque chose — le las racle l'argile nue sinon.
+func tirer_gros_sel(indice: int) -> bool:
+	if not sel_au_fond(indice):
+		return false
+	bassins[indice].gros_sel -= 1
+	return true
 
 ## La vanne la plus proche d'un point, dans la portée d'un bras. -1 sinon.
 func vanne_a_portee(position: Vector2) -> int:

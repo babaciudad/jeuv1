@@ -37,6 +37,7 @@ func avancer(monde: Monde, commandes: Dictionary[int, Commande]) -> void:
 		_avancer_acteur(monde, acteur, commande, duree)
 
 	_resoudre_coups(monde)
+	_separer_les_corps(monde)
 
 	monde.marais.ecouler(duree)
 	if monde.evaporation > 0.0:
@@ -91,6 +92,7 @@ func _avancer_acteur(monde: Monde, acteur: Acteur, commande: Commande,
 				acteur.ticks_etat = geste.duree
 				acteur.ticks_geste = 0
 				acteur.geste = geste.nom
+				acteur.touches.clear()
 
 	_deplacer(monde, acteur, commande, duree)
 	_endurance(acteur, duree)
@@ -102,8 +104,15 @@ func _deplacer(monde: Monde, acteur: Acteur, commande: Commande,
 	match acteur.etat:
 		Acteur.Etat.LIBRE:
 			var allure: float = Reglages.VITESSE_MARCHE
-			if commande.court and acteur.endurance > 0.0:
+			if commande.court and acteur.endurance > 0.0 \
+					and commande.direction.length_squared() > 0.001:
 				allure = Reglages.VITESSE_COURSE
+				# La course se PAIE. Sans ça il n'y a aucune raison de marcher,
+				# et la moitié du vocabulaire souls-like perd son sens.
+				acteur.endurance = maxf(0.0, acteur.endurance
+					- Reglages.ENDURANCE_PAR_SECONDE_DE_COURSE * duree)
+				acteur.repos_avant_regen = int(
+					Reglages.ENDURANCE_DELAI * float(Reglages.TICKS_PAR_SECONDE))
 			voulue = commande.direction.limit_length(1.0) * allure
 			# Le cap suit la direction de marche ; à l'arrêt, il suit la caméra.
 			if commande.direction.length_squared() > 0.001:
@@ -137,11 +146,41 @@ func _deplacer(monde: Monde, acteur: Acteur, commande: Commande,
 	if monde.marais.dans_la_grille(suivante):
 		acteur.position = suivante
 	else:
-		acteur.vitesse = Vector2.ZERO
+		# On GLISSE le long du bord au lieu de se figer. Annuler tout le
+		# mouvement gelait le joueur dès qu'une diagonale poussait contre la
+		# limite de la carte : seul l'axe bloqué s'annule.
+		var en_x: Vector2 = Vector2(suivante.x, acteur.position.y)
+		var en_y: Vector2 = Vector2(acteur.position.x, suivante.y)
+		if monde.marais.dans_la_grille(en_x):
+			acteur.position = en_x
+			acteur.vitesse.y = 0.0
+		elif monde.marais.dans_la_grille(en_y):
+			acteur.position = en_y
+			acteur.vitesse.x = 0.0
+		else:
+			acteur.vitesse = Vector2.ZERO
 
 	acteur.eau_sous_les_pieds = monde.marais.profondeur_eau(acteur.position)
 	if avant_sur_talus and not monde.marais.est_talus(acteur.position):
 		acteur.vient_de_tomber = true
+	_noyade(acteur, duree)
+
+## Ce qui arrive à qui entre dans une eau où l'on ne marche plus.
+##
+## Pas de mort instantanée : on laisse au joueur le temps de comprendre et de
+## ressortir — quarante-deux ticks, soit sept dixièmes de seconde. Passé ce
+## délai, le sel reprend son dû et le corps est redéposé à la ladure.
+func _noyade(acteur: Acteur, duree: float) -> void:
+	if acteur.eau_sous_les_pieds <= Reglages.EAU_MORTELLE:
+		acteur.ticks_immerge = 0
+		return
+	# On coule : plus de course, plus d'élan. On se débat.
+	acteur.vitesse = acteur.vitesse.limit_length(
+		Reglages.VITESSE_MARCHE * Reglages.FACTEUR_EAU * 0.6)
+	acteur.ticks_immerge += 1
+	if acteur.ticks_immerge >= Reglages.TICKS_DE_NOYADE:
+		acteur.ticks_immerge = 0
+		acteur.blesser(acteur.vie_max * 4.0)
 
 func _endurance(acteur: Acteur, duree: float) -> void:
 	if acteur.repos_avant_regen > 0:
@@ -167,6 +206,7 @@ func _saumurer(monde: Monde, acteur: Acteur) -> void:
 	if acteur.ticks_mort < Reglages.REPOS_APRES_MORT:
 		return
 	acteur.ticks_mort = 0
+	acteur.ticks_immerge = 0
 	acteur.etat = Acteur.Etat.LIBRE
 	acteur.ticks_etat = 0
 	acteur.ticks_geste = 0
@@ -191,11 +231,17 @@ func _saumurer(monde: Monde, acteur: Acteur) -> void:
 func _interagir(monde: Monde, acteur: Acteur) -> void:
 	if acteur.camp != Acteur.Camp.PALUDIER:
 		return
-	# Une vanne d'abord : c'est le geste qui commande le lieu.
+	# Une vanne d'abord : c'est le geste qui commande le lieu — et il va dans
+	# les DEUX sens. Un paludier ne fait pas qu'ouvrir : il DOSE. Une vanne
+	# qu'on ne pouvait qu'ouvrir rendait le geste irréversible, et ouvrir
+	# celle de l'œillet trop tôt noyait la fleur pour toujours : la saumure
+	# d'aval se diluait sans retour possible. Fermer est le retour.
 	var vanne: int = monde.marais.vanne_a_portee(acteur.position)
-	if vanne >= 0 and not monde.marais.vannes[vanne].ouverte:
-		monde.marais.vannes[vanne].ouverte = true
-		monde.vanne_ouverte_ce_tick = vanne
+	if vanne >= 0:
+		var ouverte: bool = not monde.marais.vannes[vanne].ouverte
+		monde.marais.vannes[vanne].ouverte = ouverte
+		if ouverte:
+			monde.vanne_ouverte_ce_tick = vanne
 		return
 	# Sinon, la fleur, si le ciel l'a laissée prendre là où on se tient.
 	var bassin: int = monde.marais.bassin_sous(acteur.position)
@@ -217,18 +263,17 @@ func _resoudre_coups(monde: Monde) -> void:
 		var geste: Geste = monde.geste_nomme(attaquant.geste)
 		if geste == null or not geste.coup_actif(attaquant.ticks_geste):
 			continue
-		# Un seul tick de la fenêtre porte réellement le coup, sinon une
-		# fenêtre de neuf ticks infligerait neuf fois les dégâts.
-		if attaquant.ticks_geste != geste.debut_coup:
-			continue
-
 		# Le las TRAVAILLE avant de frapper. Tiré au fond d'un œillet mûr et
 		# presque sec, il ramène du gros sel — c'est son seul emploi véritable,
 		# et c'est ce qui rend les cristallisés tristes plutôt que monstrueux :
 		# ils refont exactement ce geste-là.
-		if attaquant.camp == Acteur.Camp.PALUDIER:
+		# Une part par GESTE, au premier tick de la fenêtre — pas une par tick :
+		# la fenêtre en compte onze, et le compteur montait de onze par coup.
+		# Et une part PRISE au bassin : le stock s'épuise, l'œillet se racle.
+		if attaquant.ticks_geste == geste.debut_coup \
+				and attaquant.camp == Acteur.Camp.PALUDIER:
 			var sous: int = monde.marais.bassin_sous(attaquant.position)
-			if monde.marais.sel_au_fond(sous):
+			if monde.marais.tirer_gros_sel(sous):
 				monde.gros_sel += 1
 				monde.sel_tire_ce_tick = true
 
@@ -240,6 +285,12 @@ func _resoudre_coups(monde: Monde) -> void:
 				continue
 			if cible.intouchable:
 				continue
+			# La fenêtre est une FENÊTRE : chaque tick peut toucher, mais jamais
+			# deux fois le même corps dans le même geste. Sans cette garde, un
+			# corps présent dès l'ouverture prenait un coup PAR TICK — onze fois
+			# les dégâts — et mourait dans un seul balayage.
+			if attaquant.touches.has(cible.id):
+				continue
 			var ecart: Vector2 = cible.position - attaquant.position
 			var distance: float = ecart.length()
 			if distance > geste.portee or distance < 0.001:
@@ -247,6 +298,7 @@ func _resoudre_coups(monde: Monde) -> void:
 			var angle: float = rad_to_deg(absf(avant.angle_to(ecart)))
 			if angle > geste.demi_angle:
 				continue
+			attaquant.touches.append(cible.id)
 			cible.blesser(geste.degats)
 			if cible.vivant():
 				cible.etat = Acteur.Etat.DOULEUR
@@ -254,6 +306,37 @@ func _resoudre_coups(monde: Monde) -> void:
 				cible.ticks_geste = 0
 				cible.geste = &"douleur"
 				cible.vitesse = ecart.normalized() * 2.2
+
+## Deux corps ne s'interpénètrent pas.
+##
+## On traversait le cristallisé comme du brouillard : on ressortait dans son
+## dos, l'esquive n'avait pas de raison d'être latérale, et l'espace du combat
+## ne voulait rien dire. La résolution est déterministe — ordre fixe des
+## paires, chacun recule de la moitié du chevauchement — donc rejouable.
+func _separer_les_corps(monde: Monde) -> void:
+	var minimum: float = Reglages.RAYON_CORPS * 2.0
+	for i: int in range(monde.acteurs.size()):
+		var a: Acteur = monde.acteurs[i]
+		if not a.vivant():
+			continue
+		for j: int in range(i + 1, monde.acteurs.size()):
+			var b: Acteur = monde.acteurs[j]
+			if not b.vivant():
+				continue
+			var ecart: Vector2 = b.position - a.position
+			var distance: float = ecart.length()
+			if distance >= minimum:
+				continue
+			# Deux corps exactement superposés n'ont pas d'axe : on en impose un.
+			var axe: Vector2 = ecart / distance if distance > 0.0001 \
+				else Vector2(1.0, 0.0)
+			var pousse: float = (minimum - distance) * 0.5
+			var recul_a: Vector2 = a.position - axe * pousse
+			var recul_b: Vector2 = b.position + axe * pousse
+			if monde.marais.dans_la_grille(recul_a):
+				a.position = recul_a
+			if monde.marais.dans_la_grille(recul_b):
+				b.position = recul_b
 
 # ---------------------------------------------------------------------------
 # Les cristallisés

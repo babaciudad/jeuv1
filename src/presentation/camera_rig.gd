@@ -19,6 +19,8 @@ const TANGAGE_MIN: float = -0.50
 const TANGAGE_MAX: float = 0.62
 ## Garde au-dessus du sol, en mètres.
 const GARDE: float = 0.35
+## Garde au-dessus de la surface de l'eau.
+const GARDE_EAU: float = 0.28
 ## Lissage de la position, en secondes.
 const TAU: float = 0.055
 
@@ -63,8 +65,13 @@ func cadrer(cible: Vector3, delta: float) -> void:
 	var voulue: Vector3 = vise + direction * DISTANCE
 
 	if _marais != null:
-		var sol: float = _marais.hauteur_sol(Vector2(voulue.x, voulue.z))
+		var plan: Vector2 = Vector2(voulue.x, voulue.z)
+		var sol: float = _marais.hauteur_sol(plan)
 		voulue.y = maxf(voulue.y, sol + GARDE)
+		# Jamais sous une nappe d'eau. Le shader d'eau ne s'affiche que par
+		# dessus : une caméra passée dessous voyait le CIEL à travers le chenal,
+		# ce qui est le genre de chose qui fait dire qu'un jeu est cassé.
+		voulue.y = maxf(voulue.y, _marais.niveau_eau(plan) + GARDE_EAU)
 
 	if not _amorce:
 		_camera.global_position = voulue

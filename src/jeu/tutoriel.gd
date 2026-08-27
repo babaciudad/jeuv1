@@ -115,6 +115,23 @@ func progresser(monde: Monde, commande: Commande, duree: float) -> void:
 		# Le ciel change pendant qu'on joue, il ne bascule pas d'un coup.
 		monde.vent_est = minf(0.62, monde.vent_est + MONTEE_DU_VENT * duree)
 		monde.evaporation = EVAPORATION_VENT * monde.vent_est
+		_doser_l_oeillet(monde)
+
+## Le dosage : le geste central du métier, fait ici PAR le tutoriel.
+##
+## « Le paludier ouvre et ferme des passages à la main, au pied, pour doser ce
+## qui descend. » La fleur exige une lame d'eau précise : trop peu, l'œillet
+## est sec ; trop, la pellicule coule et la saumure se dilue. On admet donc
+## une lame de trois centimètres puis on referme — et l'évaporation du vent
+## d'est fait le reste. Le joueur VOIT le geste juste ; l'acte II le lui
+## mettra dans les mains.
+func _doser_l_oeillet(monde: Monde) -> void:
+	var vanne: int = monde.marais.vanne_nommee(&"vanne_oeillet")
+	if vanne < 0 or not monde.marais.vannes[vanne].ouverte:
+		return
+	var bassin: int = monde.marais.bassin_sous(Etier.OEILLET_DE_LA_FLEUR)
+	if bassin >= 0 and monde.marais.bassins[bassin].profondeur() >= 0.030:
+		monde.marais.vannes[vanne].ouverte = false
 
 func _accompli(monde: Monde, joueur: Acteur, commande: Commande) -> bool:
 	match etape:

@@ -48,9 +48,15 @@ var geste: StringName = &""
 var ticks_geste: int = 0
 ## Vrai pendant la fenêtre d'invulnérabilité d'une esquive.
 var intouchable: bool = false
+## Cibles déjà touchées pendant le geste en cours. Vidée à chaque nouveau
+## geste. C'est elle qui permet à la fenêtre de coup d'être une vraie fenêtre :
+## chaque tick de la fenêtre peut toucher, mais jamais deux fois le même corps.
+var touches: PackedInt32Array = PackedInt32Array()
 ## Profondeur d'eau sous les pieds au dernier tick, en mètres. Recopiée par la
 ## simulation pour que la présentation n'ait pas à réinterroger le marais.
 var eau_sous_les_pieds: float = 0.0
+## Ticks passés dans une eau où l'on ne marche plus.
+var ticks_immerge: int = 0
 ## Ticks écoulés depuis la mort. Sert au délai avant d'être redéposé.
 var ticks_mort: int = 0
 ## Ticks d'attente avant qu'un cristallisé reprenne son geste.
@@ -107,6 +113,8 @@ func copier() -> Acteur:
 	a.geste = geste
 	a.ticks_geste = ticks_geste
 	a.intouchable = intouchable
+	a.touches = touches.duplicate()
+	a.ticks_immerge = ticks_immerge
 	a.ticks_mort = ticks_mort
 	a.attente = attente
 	a.eau_sous_les_pieds = eau_sous_les_pieds

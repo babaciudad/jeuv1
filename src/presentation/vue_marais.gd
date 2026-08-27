@@ -56,9 +56,13 @@ func rafraichir(vent: float) -> void:
 		# dépasser.
 		materiau.set_shader_parameter(&"profondeur_nappe", profondeur)
 		materiau.set_shader_parameter(&"vent", vent)
-		# La fleur ne prend que sur une saumure mûre, et seulement au vent d'est.
-		var fleur: float = clampf((bassin.salinite - 0.82) / 0.18, 0.0, 1.0) * vent
-		materiau.set_shader_parameter(&"fleur", fleur)
+		# La pellicule affichée est EXACTEMENT celle que la simulation fait
+		# pousser — pas une recomposition depuis la salinité et le vent. La
+		# version recalculée blanchissait tous les bassins salés dès que le
+		# vent tournait, y compris ceux où appuyer sur E ne donnait rien : le
+		# rendu mentait sur la seule chose que l'étape demande de lire.
+		materiau.set_shader_parameter(&"fleur",
+			clampf(bassin.fleur / Reglages.FLEUR_PRISE, 0.0, 1.0))
 
 # ---------------------------------------------------------------------------
 # Le sol

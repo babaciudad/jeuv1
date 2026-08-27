@@ -14,7 +14,10 @@
 // Le vent d'est n'est pas un décor : il ride la surface, et c'est ce
 // frémissement qui annonce au joueur que la fleur va prendre.
 shader_type spatial;
-render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+// `cull_disabled` : la nappe reste visible par en dessous. Une eau qui
+// disparait des qu'on la regarde du fond d'un chenal laisse voir le ciel a
+// travers, et c'est exactement ce qui arrivait.
+render_mode blend_mix, depth_draw_always, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
 // Couleur de l'eau en faible épaisseur, quand on voit surtout l'argile.
 uniform vec3 teinte_fond : source_color = vec3(0.336, 0.318, 0.268);
