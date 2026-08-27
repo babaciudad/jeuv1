@@ -69,3 +69,8 @@ desktop.ini
 # Arbres de travail crees par les agents parallelles. Ce sont des depots git
 # a part entiere : les versionner ici en ferait des sous-modules fantomes.
 .claude/worktrees/
+
+# gdUnit4 est récupéré par outils/tester.sh à une version épinglée : le dépôt
+# ne porte pas 4 Mo de code tiers.
+/addons/
+/reports/
