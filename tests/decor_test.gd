@@ -159,3 +159,96 @@ func test_un_modele_aberrant_est_ecarte_du_semis() -> void:
 		assert_float(rapport).override_failure_message(
 			"%s est %.0f fois plus large que haut" % [nom, rapport]) \
 			.is_less_equal(Semis.ANISOTROPIE_MAX)
+
+func test_le_chemin_du_joueur_reste_degage() -> void:
+	# Une digue fait soixante-quinze centimètres. Si on y laisse pousser des
+	# roseaux, le joueur marche dans un champ de tiges qui lui montent aux
+	# épaules et ne voit plus rien du marais — c'est ce qu'une capture a montré.
+	# On vérifie donc qu'aucune plante de plus de quarante centimètres ne se
+	# tient sur le chemin du tutoriel.
+	var marais: Marais = Etier.batir()
+	marais.maree(Etier.MAREE_HAUTE)
+	var semis: Semis = Semis.new()
+	add_child(semis)
+	var _g: Variant = auto_free(semis)
+	semis.semer(marais, 0.0)
+
+	var chemin: Array[Vector2] = []
+	var z: float = 4.0
+	while z < 22.0:
+		chemin.append(Vector2(Etier.AXE_DIGUE, z))
+		z += 0.5
+	var x: float = 10.0
+	while x < 41.0:
+		chemin.append(Vector2(x, Etier.AXE_CHAUSSEE))
+		x += 0.5
+
+	var genantes: int = 0
+	var plus_proche: float = 99.0
+	for enfant: Node in semis.get_children():
+		var mm: MultiMeshInstance3D = enfant as MultiMeshInstance3D
+		if mm == null or mm.multimesh == null:
+			continue
+		var boite: AABB = mm.multimesh.mesh.get_aabb()
+		for i: int in range(mm.multimesh.instance_count):
+			var t: Transform3D = mm.multimesh.get_instance_transform(i)
+			var hauteur: float = boite.size.y * t.basis.get_scale().y
+			# En headless, l'échelle relue vaut 1 : on se rabat sur la hauteur
+			# maximale enregistrée pour cette espèce, qui est la vraie mesure.
+			var nom: String = String(mm.name).replace("Semis_", "")
+			for espece: String in semis.hauteurs:
+				if espece.get_basename() == nom:
+					hauteur = semis.hauteurs[espece]
+			if hauteur < 0.40:
+				continue
+			var p: Vector2 = Vector2(t.origin.x, t.origin.z)
+			for point: Vector2 in chemin:
+				var d: float = p.distance_to(point)
+				plus_proche = minf(plus_proche, d)
+				if d < 0.30:
+					genantes += 1
+					break
+	prints("plantes hautes sur le chemin :", genantes,
+		" la plus proche à", plus_proche, "m de l'axe")
+	for nom: String in semis.instances:
+		if nom.begins_with("roseau") or nom.begins_with("jonc"):
+			prints("   ", nom, "x", semis.instances[nom],
+				"hauteur max", semis.hauteurs[nom])
+	# Où sont-ils, ces roseaux ? On regarde le plus proche de la digue.
+	var proche_digue: float = 99.0
+	for enfant2: Node in semis.get_children():
+		var m2: MultiMeshInstance3D = enfant2 as MultiMeshInstance3D
+		if m2 == null or not String(m2.name).contains("roseau"):
+			continue
+		for i2: int in range(m2.multimesh.instance_count):
+			var o: Vector3 = m2.multimesh.get_instance_transform(i2).origin
+			proche_digue = minf(proche_digue,
+				absf(o.x - Etier.AXE_DIGUE) if o.z > 4.0 and o.z < 21.0 else 99.0)
+	prints("   roseau le plus proche de la digue :", proche_digue, "m")
+	assert_int(genantes).is_equal(0)
+
+func test_les_oeillets_restent_propres() -> void:
+	# Un paludier tient ses œillets propres : c'est là qu'il récolte, et rien
+	# ne pousse dans une saumure mûre. Sans cette règle, les roseaux
+	# envahissaient toute la marqueterie et le dessin du lieu — qui EST le
+	# sujet — disparaissait sous eux.
+	var marais: Marais = Etier.batir()
+	marais.maree(Etier.MAREE_HAUTE)
+	var semis: Semis = Semis.new()
+	add_child(semis)
+	var _g: Variant = auto_free(semis)
+	semis.semer(marais, 0.0)
+	var intrus: int = 0
+	for enfant: Node in semis.get_children():
+		var mm: MultiMeshInstance3D = enfant as MultiMeshInstance3D
+		if mm == null or mm.multimesh == null:
+			continue
+		for i: int in range(mm.multimesh.instance_count):
+			var o: Vector3 = mm.multimesh.get_instance_transform(i).origin
+			var bassin: int = marais.bassin_sous(Vector2(o.x, o.z))
+			if bassin < 0:
+				continue
+			if marais.bassins[bassin].salinite >= Reglages.SEL_SALINITE:
+				intrus += 1
+	prints("plantes dans un œillet mûr :", intrus)
+	assert_int(intrus).is_equal(0)

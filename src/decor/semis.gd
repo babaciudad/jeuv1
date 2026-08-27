@@ -40,9 +40,17 @@ class Espece extends RefCounted:
 	var hauteur_max: float = 1.2
 	## Profondeur d'eau maximale acceptée, en mètres.
 	var eau_max: float = 0.0
+	## Salinité maximale du bassin où l'espèce accepte de pousser.
+	##
+	## Règle de métier autant que de botanique : rien ne pousse dans une saumure
+	## mûre, et un paludier tient ses œillets PROPRES — c'est là qu'il récolte.
+	## Sans cette règle, les roseaux envahissaient toute la marqueterie et le
+	## dessin des œillets, qui est le sujet du lieu, disparaissait sous eux.
+	var salinite_max: float = 1.0
 
 	static func neuve(noms: PackedStringArray, dmin: float, dmax: float,
-			densite_: float, hmin: float, hmax: float, eau: float) -> Espece:
+			densite_: float, hmin: float, hmax: float, eau: float,
+			sel: float = 1.0) -> Espece:
 		var e: Espece = Espece.new()
 		e.fichiers = noms
 		e.distance_min = dmin
@@ -51,6 +59,7 @@ class Espece extends RefCounted:
 		e.hauteur_min = hmin
 		e.hauteur_max = hmax
 		e.eau_max = eau
+		e.salinite_max = sel
 		return e
 
 var _maillages: Array[Mesh] = []
@@ -98,12 +107,19 @@ func souffler(vent: float) -> void:
 ## Qui pousse où. Les fourchettes sont en mètres depuis le bord de l'eau.
 func _catalogue() -> Array[Espece]:
 	return [
-		# Les roseaux tiennent la rive, un pied dans l'eau. C'est la plante du
-		# bord d'étier, et c'est elle qui donne au marais sa silhouette.
+		# Les roseaux tiennent la rive, un pied DANS l'eau — et pas un pas plus
+		# loin. Une digue fait soixante-quinze centimètres : tolérer un roseau
+		# à cinquante centimètres du bord, c'est en planter sur toute la
+		# largeur du chemin, et le joueur marche alors dans un champ de tiges
+		# qui lui montent aux épaules sans rien voir du marais. C'est ce qui
+		# arrivait, et c'est la première chose qu'une capture a montrée.
 		Espece.neuve(PackedStringArray(["roseau_touffe.glb", "roseau_grand.glb",
-			"roseau_jeune.glb"]), -0.40, 0.50, 0.11, 0.95, 1.70, 0.09),
+		# La bande est LARGE côté eau et NULLE côté berge : un roseau pousse les
+		# pieds dans l'eau, jusqu'à un mètre du bord, et jamais sur le talus.
+		# C'est ce qui fait un lit de roseaux au lieu d'une haie sur le chemin.
+			"roseau_jeune.glb"]), -1.15, 0.05, 0.13, 0.90, 1.50, 0.085, 0.40),
 		Espece.neuve(PackedStringArray(["jonc_haut.glb", "jonc_bas.glb"]),
-			-0.28, 0.62, 0.07, 0.45, 0.80, 0.06),
+			-0.85, 0.03, 0.10, 0.40, 0.74, 0.060, 0.45),
 		# L'herbe rase tient les talus : c'est le tapis, il en faut partout.
 		Espece.neuve(PackedStringArray(["herbe_rase_01.glb", "herbe_rase_02.glb",
 			"herbe_rase_03.glb"]), 0.05, 4.0, 0.24, 0.09, 0.20, 0.0),
@@ -121,7 +137,7 @@ func _catalogue() -> Array[Espece]:
 		Espece.neuve(PackedStringArray(["souche_ronde.glb", "souche_vieille.glb"]),
 			1.60, 9.0, 0.012, 0.20, 0.38, 0.0),
 		Espece.neuve(PackedStringArray(["bois_flotte_01.glb", "bois_flotte_03.glb",
-			"tronc_mort.glb"]), -0.20, 0.80, 0.010, 0.18, 0.32, 0.06),
+			"tronc_mort.glb"]), -0.20, 0.80, 0.010, 0.18, 0.32, 0.06, 0.60),
 	]
 
 ## Distance de chaque case au bord d'un bassin, en mètres, signée : négative
@@ -231,6 +247,9 @@ func _poses(marais: Marais, taille: Vector2i, distances: PackedFloat32Array,
 			var ou: Vector2 = centre + Vector2(
 				alea.randf_range(-0.5, 0.5), alea.randf_range(-0.5, 0.5)) * Marais.PAS
 			if marais.profondeur_eau(ou) > espece.eau_max:
+				continue
+			var bassin: int = marais.bassin_sous(ou)
+			if bassin >= 0 and marais.bassins[bassin].salinite > espece.salinite_max:
 				continue
 			var hauteur: float = alea.randf_range(
 				espece.hauteur_min, espece.hauteur_max)

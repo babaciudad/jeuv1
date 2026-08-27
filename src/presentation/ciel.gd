@@ -55,8 +55,8 @@ func regler(vent: float) -> void:
 	if _ciel != null:
 		_ciel.sky_horizon_color = Color(0.900, 0.492, 0.212).lerp(
 			Color(0.935, 0.660, 0.400), t)
-		_ciel.ground_horizon_color = Color(0.470, 0.360, 0.255).lerp(
-			Color(0.556, 0.470, 0.360), t)
+		_ciel.ground_horizon_color = Color(0.820, 0.470, 0.215).lerp(
+			Color(0.870, 0.630, 0.400), t)
 	if _atmosphere != null:
 		# Le vent d'est chasse la brume basse et la remplace par une lumière
 		# plus sèche : moins de voile, plus de contraste.
@@ -87,9 +87,17 @@ func _batir_environnement() -> void:
 	_ciel.sky_top_color = Color(0.128, 0.205, 0.360)
 	_ciel.sky_horizon_color = Color(0.900, 0.492, 0.212)
 	_ciel.sky_curve = 0.13
-	_ciel.ground_bottom_color = Color(0.215, 0.190, 0.160)
-	_ciel.ground_horizon_color = Color(0.470, 0.360, 0.255)
-	_ciel.ground_curve = 0.06
+	# L'HÉMISPHÈRE BAS DU CIEL EST CE QUE L'EAU REFLÈTE.
+	#
+	# Une nappe vue en rasant renvoie le ciel juste au-dessus de l'horizon,
+	# c'est-à-dire sa partie la plus lumineuse. Mais le ciel procédural de Godot
+	# a un « sol » sous l'horizon, et c'est LUI que la réflexion va chercher
+	# quand le regard descend. Peint en brun, il transformait tout le marais en
+	# boue : le miroir du lore ne réfléchissait que de la terre. On le peint
+	# donc dans la couleur du couchant, à peine assombri.
+	_ciel.ground_bottom_color = Color(0.520, 0.330, 0.190)
+	_ciel.ground_horizon_color = Color(0.820, 0.470, 0.215)
+	_ciel.ground_curve = 0.02
 	_ciel.sun_angle_max = 4.0
 	_ciel.sun_curve = 0.06
 	_ciel.energy_multiplier = 1.0
