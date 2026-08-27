@@ -20,6 +20,14 @@ static func au_vent(chemin: String) -> Mesh:
 	_cache[chemin] = maille
 	return maille
 
+## Vide le cache. Un cache statique survit à la scène : sans ceci, Godot
+## signale à la fermeture douze ressources encore vivantes et trente-deux
+## objets fuités. Ce n'est pas une fuite au sens strict — le processus s'arrête
+## juste après — mais un message d'erreur à la sortie d'un jeu est un message
+## d'erreur de trop.
+static func vider() -> void:
+	_cache.clear()
+
 static func _extraire(chemin: String) -> Mesh:
 	if not ResourceLoader.exists(chemin):
 		push_warning("Modèle introuvable : %s" % chemin)

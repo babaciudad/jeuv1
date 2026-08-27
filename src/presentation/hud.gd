@@ -50,6 +50,16 @@ func _ready() -> void:
 	_indication.position = Vector2(0.0, -56.0)
 	_indication.custom_minimum_size = Vector2(900.0, 0.0)
 
+	# La seule ligne hors-fiction du jeu, et elle est nécessaire : la souris est
+	# capturée au démarrage, et sans ce mot personne ne devine comment la
+	# rendre. Elle se tient dans un coin et n'occupe pas la place de la consigne.
+	var souris: Label = _texte(racine, 13, Color(0.72, 0.68, 0.60, 0.55))
+	souris.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	souris.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	souris.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	souris.position = Vector2(-MARGE - 210.0, -MARGE - 18.0)
+	souris.text = "Échap : libérer la souris"
+
 func rafraichir(monde: Monde, tutoriel: Tutoriel) -> void:
 	var joueur: Acteur = monde.joueur()
 	if joueur == null:

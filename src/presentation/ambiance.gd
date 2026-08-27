@@ -151,6 +151,26 @@ func _gestes_du_joueur(monde: Monde, joueur: Acteur) -> void:
 				_jouer(_geste, GESTES, "impact_mat_", 4, -5.0)
 	_etat_precedent = joueur.etat
 
+## Coupe tout avant que le moteur ne compte ce qui reste.
+##
+## Les nappes d'ambiance tournent EN BOUCLE : à la fermeture, elles jouent
+## encore, et chaque flux Ogg en lecture retient son objet de lecture. Godot
+## sortait donc sur « 32 ObjectDB instances leaked / 12 resources still in
+## use » — trente-deux objets qui sont, à un près, les quatre nappes, les six
+## vannes et leurs lectures. Ce n'est pas une fuite qui grossit ; c'est un
+## message d'erreur à la fermeture d'un jeu, et c'en est un de trop.
+func _exit_tree() -> void:
+	for enfant: Node in get_children():
+		var deux_d: AudioStreamPlayer = enfant as AudioStreamPlayer
+		if deux_d != null:
+			deux_d.stop()
+			deux_d.stream = null
+			continue
+		var trois_d: AudioStreamPlayer3D = enfant as AudioStreamPlayer3D
+		if trois_d != null:
+			trois_d.stop()
+			trois_d.stream = null
+
 # ---------------------------------------------------------------------------
 
 func _boucle(chemin: String, volume: float) -> AudioStreamPlayer:

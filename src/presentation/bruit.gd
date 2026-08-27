@@ -17,6 +17,10 @@ const COTE: int = 512
 
 static var _cache: ImageTexture = null
 
+## Vide le cache, pour que la fermeture du jeu soit silencieuse.
+static func vider() -> void:
+	_cache = null
+
 static func _couche(graine: int, frequence: float, octaves: int) -> FastNoiseLite:
 	var bruit: FastNoiseLite = FastNoiseLite.new()
 	bruit.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH

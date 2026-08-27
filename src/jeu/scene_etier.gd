@@ -130,6 +130,12 @@ func _process(delta: float) -> void:
 	_ambiance.suivre(monde, delta)
 	_hud.rafraichir(monde, tutoriel)
 
+func _exit_tree() -> void:
+	# Les caches statiques survivent à la scène : on les rend avant que le
+	# moteur ne compte ce qui reste, sinon il sort sur un message d'erreur.
+	Maillage.vider()
+	Bruit.vider()
+
 ## Monte un corps pour chaque acteur qui n'en a pas encore. C'est ainsi qu'un
 ## cristallisé apparaît : le tutoriel l'ajoute au monde, et la présentation le
 ## découvre au tick suivant sans qu'on ait rien à lui dire.
