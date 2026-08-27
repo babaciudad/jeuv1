@@ -38,11 +38,13 @@ extends GdUnitTestSuite
 ## Portee du fer mesuree en jeu, par geste, en metres.
 const FER: Dictionary = {
 	"gardien_lourd": 1.82,
+	"gardien_rapide": 1.82,
 	"soigneur_lame": 1.51,
 }
 ## Balayage mesure en jeu : centre et demi-ouverture, en degres.
 const BALAYAGE: Dictionary = {
 	"gardien_lourd": Vector2(30.0, 30.0),
+	"gardien_rapide": Vector2(28.0, 28.0),
 	"soigneur_lame": Vector2(47.0, 30.0),
 }
 ## Ce qu'on s'autorise en plus du fer, en metres. Un souls-like pardonne un
