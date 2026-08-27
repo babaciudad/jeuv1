@@ -138,6 +138,13 @@ const SEL_EAU_MAX: float = 0.022
 ## Portée d'une interaction, en mètres. On ouvre une vanne à bout de bras.
 const PORTEE_GESTE: float = 2.1
 
+## Durées des gestes de travail, en ticks. Le corps s'arrête pour les faire :
+## on n'ouvre pas une vanne en marchant, on ne cueille pas en courant.
+const TICKS_TRAVAIL_VANNE: int = 66
+const TICKS_TRAVAIL_CUEILLETTE: int = 72
+## La levée d'un cristallisé : le temps du clip, à sa cadence naturelle.
+const TICKS_LEVEE: int = 203
+
 ## Ticks entre la mort et le dépôt à la ladure.
 ##
 ## « Le sel garde ce qui s'y dissout. Sa mort ne l'efface pas, elle le dépose. »

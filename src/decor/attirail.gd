@@ -13,7 +13,13 @@ extends Node3D
 
 const DOSSIER: String = "res://models/marais/props/"
 
+var _marais: Marais = null
+## Altitude imposée pour l'assemblage en cours (les cadres de vanne se posent
+## sur le SEUIL de leur vanne, pas sur le fond du chenal qu'ils enjambent).
+var _sol_impose: float = -1000.0
+
 func garnir(marais: Marais) -> void:
+	_marais = marais
 	_ladure()
 	_vannes(marais)
 	_digue(marais)
@@ -50,6 +56,10 @@ func _vannes(marais: Marais) -> void:
 	for vanne: Marais.Vanne in marais.vannes:
 		var ou: Vector2 = vanne.position
 		var large: bool = vanne.section >= 3.0
+		# Tout le cadre se pose sur le SEUIL : les pieds décalés d'une porte
+		# tombaient dans le chenal qu'elle enjambe, et la porte de marée — le
+		# deuxième geste du tutoriel — pendait à 1,53 m au-dessus du fond.
+		_sol_impose = marais.hauteur_sol(vanne.position)
 		_poser("pieu.glb", ou + Vector2(-0.55, 0.0), 0.0, 1.0)
 		_poser("pieu.glb", ou + Vector2(0.55, 0.0), 0.0, 1.0)
 		_poser("poutre.glb", ou + Vector2(0.0, 0.10), PI * 0.5, 1.0)
@@ -60,6 +70,7 @@ func _vannes(marais: Marais) -> void:
 			_poser("panneau_bois.glb", ou + Vector2(-1.10, 0.55), 0.6, 1.0)
 		else:
 			_poser("planche.glb", ou + Vector2(0.0, -0.28), PI * 0.5, 0.9)
+		_sol_impose = -1000.0
 
 ## Des pieux le long de la digue, à intervalles inégaux : un talus d'argile se
 ## tient, et une régularité parfaite trahirait tout de suite la machine.
@@ -130,5 +141,11 @@ func _poser(fichier: String, ou: Vector2, cap: float, echelle: float) -> void:
 		var _f: float = Echelle.caler_hauteur(objet, voulue * echelle)
 	else:
 		objet.scale = Vector3.ONE * echelle
-	objet.position = Vector3(ou.x, Reglages.HAUTEUR_TALUS - 0.02, ou.y)
+	# Le sol RÉEL, pas une constante : treize props sur cinquante-six posés à
+	# « hauteur de talus » flottaient au-dessus d'un bassin ou d'un chenal.
+	var sol: float = _sol_impose
+	if sol < -999.0:
+		sol = _marais.hauteur_sol(ou) if _marais != null \
+			else Reglages.HAUTEUR_TALUS
+	objet.position = Vector3(ou.x, sol - 0.02, ou.y)
 	objet.rotation.y = cap

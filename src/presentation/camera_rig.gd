@@ -41,6 +41,11 @@ func _ready() -> void:
 	_camera.make_current()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
+## Altitude minimale hors de la grille du marais, posée par la scène : le
+## lointain est un miroir d'eau, et hors grille `hauteur_sol` rend zéro — la
+## caméra tombait quatre centimètres SOUS ce miroir dès qu'on longeait un bord.
+var plancher_hors_grille: float = -1000.0
+
 func regarder(marais: Marais) -> void:
 	_marais = marais
 
@@ -66,8 +71,17 @@ func cadrer(cible: Vector3, delta: float) -> void:
 
 	if _marais != null:
 		var plan: Vector2 = Vector2(voulue.x, voulue.z)
+		# Le sol le plus HAUT autour de l'œil, pas seulement sous lui : le
+		# dénivelé talus/fond d'œillet fait 51 cm, et une garde qui ne
+		# regardait que sous la caméra laissait la crête voisine traverser le
+		# plan rapproché — l'écran se remplissait d'argile.
 		var sol: float = _marais.hauteur_sol(plan)
+		for autour: Vector2 in [Vector2(0.3, 0.0), Vector2(-0.3, 0.0),
+				Vector2(0.0, 0.3), Vector2(0.0, -0.3)]:
+			sol = maxf(sol, _marais.hauteur_sol(plan + autour))
 		voulue.y = maxf(voulue.y, sol + GARDE)
+		if not _marais.dans_la_grille(plan):
+			voulue.y = maxf(voulue.y, plancher_hors_grille)
 		# Jamais sous une nappe d'eau. Le shader d'eau ne s'affiche que par
 		# dessus : une caméra passée dessous voyait le CIEL à travers le chenal,
 		# ce qui est le genre de chose qui fait dire qu'un jeu est cassé.

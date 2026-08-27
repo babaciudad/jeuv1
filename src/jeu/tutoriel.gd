@@ -58,6 +58,8 @@ func consigne() -> String:
 		Etape.LEVEE:
 			return "Il refait le seul geste qu'il ait jamais fait."
 		Etape.ESQUIVE:
+			if _cristallise != null and not _cristallise.vivant():
+				return "Il est retombé. Garde le geste — il resservira."
 			return "Le las est lent, et large. Sors de son arc."
 		Etape.LADURE:
 			return "La ladure. On y pose ce qu'on a tiré du fond."
@@ -145,8 +147,10 @@ func _accompli(monde: Monde, joueur: Acteur, commande: Commande) -> bool:
 		Etape.LEVEE:
 			# Le cristallisé a porté son geste : le joueur a vu que son arme et
 			# celle de l'ennemi sont le même outil. C'est là qu'on enseigne
-			# l'esquive, et pas avant.
-			return _cristallise != null and _cristallise.geste == &"las_lourd"
+			# l'esquive — et s'il l'a abattu pendant qu'il se levait, la leçon
+			# passe quand même : exiger un geste d'un mort bloquait le tutoriel.
+			return _cristallise != null and (_cristallise.geste == &"las_lourd"
+				or not _cristallise.vivant())
 		Etape.ESQUIVE:
 			# Cette étape enseigne l'esquive, pas la victoire. Exiger en plus
 			# que le cristallisé soit mort menait à une impasse : un joueur qui
@@ -173,6 +177,10 @@ func _entrer(monde: Monde) -> void:
 		Etape.LEVEE:
 			_lever_le_cristallise(monde)
 		Etape.FLEUR:
+			# Se reposer à la ladure l'a RÉCLAMÉE : c'est ici qu'on renaît
+			# désormais. Avant ce repos, mourir redéposait à trente mètres du
+			# premier pas — le checkpoint se gagne, comme tout dans ce jeu.
+			monde.ladure = Etier.LADURE
 			# On rouvre la vanne de l'œillet pour que sa saumure soit à la bonne
 			# lame d'eau : trop peu, il est sec ; trop, la pellicule coule.
 			var vanne: int = monde.marais.vanne_nommee(&"vanne_oeillet")
@@ -192,6 +200,12 @@ func _lever_le_cristallise(monde: Monde) -> void:
 	corps.position = Etier.LEVEE_DU_CRISTALLISE
 	corps.vie = Reglages.VIE_CRISTALLISE
 	corps.vie_max = Reglages.VIE_CRISTALLISE
+	# Il SE LÈVE — trois secondes et demie de Zombie_Rise, le moment que le
+	# lore promet. Le clip était chargé dans le rig et jamais joué : le
+	# cristallisé apparaissait debout, comme posé là par l'éditeur.
+	corps.etat = Acteur.Etat.TRAVAIL
+	corps.ticks_etat = Reglages.TICKS_LEVEE
+	corps.geste = &"levee"
 	_cristallise = monde.ajouter(corps)
 
 func cristallise() -> Acteur:

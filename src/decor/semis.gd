@@ -73,13 +73,16 @@ var _maillages: Array[Mesh] = []
 ## le défaut qu'on a laissé passer.
 var hauteurs: Dictionary[String, float] = {}
 var instances: Dictionary[String, int] = {}
+var _niveau_lointain: float = Reglages.HAUTEUR_TALUS - 0.08
 
 ## Sème. `lointain` ajoute une frange au-delà du niveau, pour que l'horizon ne
 ## soit pas une ligne nue.
 ## `facteur` allège uniformément le semis. Le jeu tourne à 1 ; les captures de
 ## contrôle descendent plus bas, parce que ce conteneur rend en logiciel et
 ## qu'une image à quarante mille brins y coûte treize minutes.
-func semer(marais: Marais, lointain: float, facteur: float = 1.0) -> void:
+func semer(marais: Marais, lointain: float, facteur: float = 1.0,
+		niveau_lointain: float = Reglages.HAUTEUR_TALUS - 0.08) -> void:
+	_niveau_lointain = niveau_lointain
 	var taille: Vector2i = marais.dimensions()
 	var distances: PackedFloat32Array = _distances_au_bord(marais, taille)
 	var especes: Array[Espece] = _catalogue()
@@ -313,7 +316,9 @@ func _franger(marais: Marais, rayon: float, densite: float) -> void:
 			var base: Transform3D = Transform3D.IDENTITY
 			base = base.scaled(Vector3.ONE * hauteur * facteur)
 			base = base.rotated(Vector3.UP, alea.randf_range(0.0, TAU))
-			base.origin = Vector3(ou.x, Reglages.HAUTEUR_TALUS - 0.08, ou.y)
+			# Plantée SUR le plan du lointain : elle poussait deux centimètres
+			# SOUS le miroir d'eau qui fait l'horizon.
+			base.origin = Vector3(ou.x, _niveau_lointain + 0.01, ou.y)
 			poses.append(base)
 		if not poses.is_empty():
 			_planter(maille, poses, "lointain_" + fichier.get_basename())

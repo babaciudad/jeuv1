@@ -249,7 +249,12 @@ func _gestes(acteur: Acteur, duree_geste: float) -> void:
 	if acteur.etat == Acteur.Etat.MORT:
 		if not _mort:
 			_mort = true
-			_arbre.set(&"parameters/mort/transition_request", &"1")
+			# « state_1 », et pas « 1 » : Godot nomme les entrées d'un
+			# AnimationNodeTransition « state_%d », et une requête qui ne
+			# correspond à aucun nom est IGNORÉE avec une erreur console.
+			# Résultat mesuré : le joueur mourait debout, en pose d'attente,
+			# puis se téléportait — le clip de mort n'était jamais joué.
+			_arbre.set(&"parameters/mort/transition_request", &"state_1")
 		return
 
 	var attendu: StringName = acteur.geste
@@ -260,6 +265,8 @@ func _gestes(acteur: Acteur, duree_geste: float) -> void:
 	match acteur.etat:
 		Acteur.Etat.ESQUIVE:
 			_tirer(&"esquive")
+		Acteur.Etat.TRAVAIL:
+			_jouer_travail(acteur)
 		Acteur.Etat.FRAPPE:
 			if _geste_clip != null and _lecteur.has_animation(Allures.CLIP_LAS):
 				_geste_clip.animation = Allures.CLIP_LAS
@@ -273,6 +280,32 @@ func _gestes(acteur: Acteur, duree_geste: float) -> void:
 			_tirs += 1
 		Acteur.Etat.DOULEUR:
 			_tirer(&"douleur")
+
+## Les clips du métier, par nom de geste simulé, avec la durée du clip source
+## pour l'étirement. Ils étaient chargés dans le rig et jamais joués : on
+## ouvrait une vanne sans bouger un doigt.
+const TRAVAUX: Dictionary[StringName, Array] = {
+	&"vanne": [Allures.CLIP_VANNE, Allures.DUREE_VANNE],
+	&"cueillette": [Allures.CLIP_CUEILLIR, Allures.DUREE_CUEILLIR],
+	&"levee": [Allures.CLIP_CRISTALLISE_LEVEE, Allures.DUREE_CRISTALLISE_LEVEE],
+}
+
+func _jouer_travail(acteur: Acteur) -> void:
+	if not TRAVAUX.has(acteur.geste):
+		return
+	var infos: Array = TRAVAUX[acteur.geste]
+	var clip: StringName = infos[0]
+	var duree_clip: float = infos[1]
+	if _geste_clip == null or not _lecteur.has_animation(clip):
+		return
+	_geste_clip.animation = clip
+	if _geste_vitesse != null and acteur.ticks_etat > 0:
+		# Invariant 8 : le clip s'étire sur la durée décidée par la simulation.
+		var duree_sim: float = float(acteur.ticks_etat + acteur.ticks_geste) \
+			/ float(Reglages.TICKS_PAR_SECONDE)
+		_arbre.set(&"parameters/geste_vitesse/scale", duree_clip / maxf(duree_sim, 0.05))
+	_tirer(&"geste")
+	_tirs += 1
 
 func _tirer(nom: StringName) -> void:
 	_arbre.set(StringName("parameters/%s/request" % nom),

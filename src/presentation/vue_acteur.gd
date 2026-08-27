@@ -20,9 +20,17 @@ const PREFIXE_PLUS: StringName = &"plus"
 const LAS: String = "res://models/marais/props/rateau.glb"
 ## Os de la main droite dans le squelette du mannequin.
 const OS_MAIN: StringName = &"hand_r"
-## Le râteau versé mesure 1,76 m ; un las en fait cinq. On l'étire sur son
-## manche, ce qui est exactement ce qui le distingue d'un outil de jardin.
-const ETIREMENT_LAS: Vector3 = Vector3(1.0, 2.7, 1.0)
+## Longueur d'un vrai las, en mètres. « Une raclette de bois au bout d'un
+## manche de cinq mètres. »
+const LONGUEUR_LAS: float = 5.0
+## Sous cette hauteur, dans le modèle source, on est dans la TÊTE de l'outil :
+## elle ne s'étire pas. Étirer tout le modèle donnait des dents de quarante
+## centimètres — un râteau de géant, pas un outil de précision.
+const TETE_LAS: float = 0.15
+## Distance entre la main et le bout du manche, en mètres : on tient un las
+## près du bout, et la tête balaie à quatre mètres et demi devant — la portée
+## simulée du geste (4,6 m) devient la portée VISIBLE de l'outil.
+const PRISE_LAS: float = 0.55
 
 ## Rotation à appliquer au modèle pour que son avant coïncide avec l'avant du
 ## jeu. Mesurée en regardant le personnage, pas devinée.
@@ -102,12 +110,57 @@ func _armer() -> void:
 	var outil: Node3D = paquet.instantiate() as Node3D
 	if outil == null:
 		return
+	_allonger_le_manche(outil)
 	# Posé dans la paume, manche vers l'avant, légèrement incliné : c'est la
 	# façon dont on porte un outil à long manche quand on marche avec.
 	outil.position = Vector3(0.0, 0.04, 0.02)
 	outil.rotation = Vector3(deg_to_rad(-96.0), 0.0, deg_to_rad(14.0))
-	outil.scale = ETIREMENT_LAS
 	attache.add_child(outil)
+
+## Chirurgie de sommets : seul le MANCHE s'étire, la tête garde sa taille, et
+## la prise en main se place près du bout — la tête pend alors à quatre mètres
+## et demi de la main, ce qui est la portée du geste simulé.
+static var _las_opere: Mesh = null
+
+static func _allonger_le_manche(outil: Node3D) -> void:
+	var instance: MeshInstance3D = _premier_maillage(outil)
+	if instance == null or instance.mesh == null:
+		return
+	if _las_opere != null:
+		instance.mesh = _las_opere
+		return
+	var source: Mesh = instance.mesh
+	var haut: float = source.get_aabb().size.y
+	if haut <= TETE_LAS + 0.05:
+		return
+	var facteur: float = (LONGUEUR_LAS - TETE_LAS) / (haut - TETE_LAS)
+	var opere: ArrayMesh = ArrayMesh.new()
+	for surface: int in range(source.get_surface_count()):
+		var tableaux: Array = source.surface_get_arrays(surface)
+		var positions: PackedVector3Array = tableaux[Mesh.ARRAY_VERTEX]
+		for i: int in range(positions.size()):
+			var p: Vector3 = positions[i]
+			if p.y > TETE_LAS:
+				p.y = TETE_LAS + (p.y - TETE_LAS) * facteur
+			# La prise se place près du BOUT du manche : tout descend pour que
+			# la main (l'origine) tienne l'outil à PRISE_LAS du sommet.
+			p.y -= LONGUEUR_LAS - PRISE_LAS
+			positions[i] = p
+		tableaux[Mesh.ARRAY_VERTEX] = positions
+		opere.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, tableaux)
+		opere.surface_set_material(surface, source.surface_get_material(surface))
+	_las_opere = opere
+	instance.mesh = opere
+
+static func _premier_maillage(noeud: Node) -> MeshInstance3D:
+	var instance: MeshInstance3D = noeud as MeshInstance3D
+	if instance != null and instance.mesh != null:
+		return instance
+	for enfant: Node in noeud.get_children():
+		var trouve: MeshInstance3D = VueActeur._premier_maillage(enfant)
+		if trouve != null:
+			return trouve
+	return null
 
 func _squelette(noeud: Node) -> Skeleton3D:
 	var squelette: Skeleton3D = noeud as Skeleton3D

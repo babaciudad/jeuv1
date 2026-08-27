@@ -54,16 +54,16 @@ func _ready() -> void:
 	vue.name = "Marais"
 	add_child(vue)
 	vue.construire(marais, Bruit.commun())
-	# Le lointain se cale juste sous la crête des talus : de loin, le marais
-	# continue à perte de vue, et c'est un miroir.
-	vue.prolonger(420.0, Reglages.HAUTEUR_TALUS - 0.06, Bruit.commun())
+	# Le lointain est un miroir au niveau de la MER : de loin, le marais
+	# continue à perte de vue.
+	vue.prolonger(420.0, Etier.MAREE_HAUTE - 0.01, Bruit.commun())
 	vue.rafraichir(vent)
 
 	if avec_decor:
 		var semis: Semis = Semis.new()
 		semis.name = "Semis"
 		add_child(semis)
-		semis.semer(marais, 90.0, densite)
+		semis.semer(marais, 90.0, densite, Etier.MAREE_HAUTE - 0.01)
 		semis.souffler(maxf(vent, 0.22))
 
 		var attirail: Attirail = Attirail.new()

@@ -15,6 +15,11 @@ enum Etat {
 	FRAPPE,
 	## Encaissement. Court, mais on ne fait rien pendant.
 	DOULEUR,
+	## Un geste de travail sans coup : ouvrir une vanne, cueillir, se relever.
+	## Il immobilise — on n'ouvre pas une vanne en marchant — et c'est lui qui
+	## donne un corps aux gestes du métier : ils avaient leurs clips chargés
+	## dans le rig et rien ne les jouait jamais.
+	TRAVAIL,
 	## Fin.
 	MORT,
 }

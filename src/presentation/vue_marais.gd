@@ -134,23 +134,32 @@ func _hauteurs_lissees(taille: Vector2i) -> PackedFloat32Array:
 		courantes = suivantes
 	return courantes
 
-## Hauteur d'un COIN de case : la moyenne des cases qui s'y touchent.
-func _sommet(hauteurs: PackedFloat32Array, taille: Vector2i, origine: Vector2,
-		pas: float, nx: int, ny: int) -> Vector3:
-	var somme: float = 0.0
-	var compte: int = 0
+## Hauteur d'un COIN de case : le MAXIMUM des cases qui s'y touchent.
+##
+## La moyenne rabotait une demi-case de chaque côté de la crête : une digue de
+## soixante-quinze centimètres — trois cases — n'en montrait que vingt-cinq,
+## une lame de couteau, et le corps marchait dans le vide dès qu'il s'écartait
+## de l'axe. Le maximum garde la crête à sa pleine largeur ; la pente descend
+## dans la PREMIÈRE case du bassin, comme la berge d'une vraie digue d'argile.
+static func hauteur_de_coin(hauteurs: PackedFloat32Array, taille: Vector2i,
+		nx: int, ny: int) -> float:
+	var haut: float = -1000.0
+	var vu: bool = false
 	for dy: int in range(-1, 1):
 		for dx: int in range(-1, 1):
 			var cx: int = nx + dx
 			var cy: int = ny + dy
 			if cx < 0 or cx >= taille.x or cy < 0 or cy >= taille.y:
 				continue
-			somme += hauteurs[cy * taille.x + cx]
-			compte += 1
-	var hauteur: float = 0.0
-	if compte > 0:
-		hauteur = somme / float(compte)
-	return Vector3(origine.x + float(nx) * pas, hauteur, origine.y + float(ny) * pas)
+			haut = maxf(haut, hauteurs[cy * taille.x + cx])
+			vu = true
+	return haut if vu else 0.0
+
+func _sommet(hauteurs: PackedFloat32Array, taille: Vector2i, origine: Vector2,
+		pas: float, nx: int, ny: int) -> Vector3:
+	return Vector3(origine.x + float(nx) * pas,
+		VueMarais.hauteur_de_coin(hauteurs, taille, nx, ny),
+		origine.y + float(ny) * pas)
 
 ## Ce que le sol raconte de lui-même, porté par la couleur de sommet :
 ## rouge = mouillé, vert = croûte de sel.

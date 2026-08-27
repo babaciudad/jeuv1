@@ -242,12 +242,23 @@ func _interagir(monde: Monde, acteur: Acteur) -> void:
 		monde.marais.vannes[vanne].ouverte = ouverte
 		if ouverte:
 			monde.vanne_ouverte_ce_tick = vanne
+		_travailler(acteur, &"vanne", Reglages.TICKS_TRAVAIL_VANNE)
 		return
 	# Sinon, la fleur, si le ciel l'a laissée prendre là où on se tient.
 	var bassin: int = monde.marais.bassin_sous(acteur.position)
 	if monde.marais.cueillir(bassin) > 0.0:
 		monde.fleur += 1
 		monde.fleur_cueillie_ce_tick = true
+		_travailler(acteur, &"cueillette", Reglages.TICKS_TRAVAIL_CUEILLETTE)
+
+## Engage un geste de travail : le corps s'immobilise le temps de le faire.
+## C'est ce qui permet à la présentation de jouer le clip du métier — et ce
+## qui donne au geste son petit coût d'engagement, comme tout dans ce jeu.
+func _travailler(acteur: Acteur, nom: StringName, ticks: int) -> void:
+	acteur.etat = Acteur.Etat.TRAVAIL
+	acteur.ticks_etat = ticks
+	acteur.ticks_geste = 0
+	acteur.geste = nom
 
 # ---------------------------------------------------------------------------
 # Les coups

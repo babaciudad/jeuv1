@@ -7,6 +7,11 @@
 class_name SceneEtier
 extends Node3D
 
+## Altitude du miroir d'eau qui fait l'horizon : le niveau de la MER, pas la
+## crête des talus. À dix-huit centimètres au-dessus de la marée haute, le
+## lointain était une étagère d'eau flottant au-dessus de la mer réelle.
+const NIVEAU_LOINTAIN: float = Etier.MAREE_HAUTE - 0.01
+
 var monde: Monde = null
 var simulation: Simulation = Simulation.new()
 var tutoriel: Tutoriel = Tutoriel.new()
@@ -25,7 +30,10 @@ func _ready() -> void:
 	monde = Monde.new()
 	monde.marais = Etier.batir()
 	monde.marais.maree(Etier.MAREE_HAUTE)
-	monde.ladure = Etier.LADURE
+	# Le point de renaissance suit la progression : le départ d'abord, la
+	# ladure une fois qu'on s'y est reposé. Mourir au premier pas ne coûte
+	# plus trente mètres de marche.
+	monde.ladure = Etier.DEPART
 	var las: Geste = load("res://data/combat/las_lourd.tres") as Geste
 	if las != null:
 		monde.gestes[las.nom] = las
@@ -45,12 +53,12 @@ func _ready() -> void:
 	_vue_marais.name = "Marais"
 	add_child(_vue_marais)
 	_vue_marais.construire(monde.marais, Bruit.commun())
-	_vue_marais.prolonger(420.0, Reglages.HAUTEUR_TALUS - 0.06, Bruit.commun())
+	_vue_marais.prolonger(420.0, NIVEAU_LOINTAIN, Bruit.commun())
 
 	_semis = Semis.new()
 	_semis.name = "Semis"
 	add_child(_semis)
-	_semis.semer(monde.marais, 320.0)
+	_semis.semer(monde.marais, 320.0, 1.0, NIVEAU_LOINTAIN)
 	_semis.souffler(0.22)
 
 	var attirail: Attirail = Attirail.new()
@@ -67,6 +75,7 @@ func _ready() -> void:
 	_camera.name = "Camera"
 	add_child(_camera)
 	_camera.regarder(monde.marais)
+	_camera.plancher_hors_grille = NIVEAU_LOINTAIN + CameraRig.GARDE_EAU
 	_camera.lacet = PI
 
 	_ambiance = Ambiance.new()
@@ -125,8 +134,12 @@ func _process(delta: float) -> void:
 	# Le vent d'est plie la végétation avant qu'on en parle : c'est le lieu qui
 	# annonce la fleur, pas le bandeau.
 	_semis.souffler(maxf(0.22, monde.vent_est))
-	_camera.cadrer(Vector3(joueur.position.x,
-		monde.marais.hauteur_sol(joueur.position), joueur.position.y), delta)
+	# La cible de la caméra reste AU-DESSUS de l'eau quand le corps y est :
+	# viser un point immergé mettait l'œil un centimètre sous la nappe et
+	# l'écran devenait illisible au moment précis où le joueur se noie.
+	var base_cible: float = maxf(monde.marais.hauteur_sol(joueur.position),
+		monde.marais.niveau_eau(joueur.position) - 0.85)
+	_camera.cadrer(Vector3(joueur.position.x, base_cible, joueur.position.y), delta)
 	_ambiance.suivre(monde, delta)
 	_hud.rafraichir(monde, tutoriel)
 
