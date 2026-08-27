@@ -51,6 +51,15 @@ var intouchable: bool = false
 ## Profondeur d'eau sous les pieds au dernier tick, en mètres. Recopiée par la
 ## simulation pour que la présentation n'ait pas à réinterroger le marais.
 var eau_sous_les_pieds: float = 0.0
+## Ticks écoulés depuis la mort. Sert au délai avant d'être redéposé.
+var ticks_mort: int = 0
+## Ticks d'attente avant qu'un cristallisé reprenne son geste.
+##
+## Sans ce répit, il enchaîne le las sans jamais s'arrêter et le combat devient
+## une salve continue : le joueur n'a plus qu'à esquiver, il ne peut plus jamais
+## frapper, et l'endurance des deux camps s'effondre. Un cristallisé est LENT —
+## c'est un geste qui continue, pas un fauve.
+var attente: int = 0
 ## Vrai si l'acteur est tombé du talus depuis le dernier tick. La présentation
 ## s'en sert pour l'éclaboussure, le jeu pour un éventuel dégât de chute.
 var vient_de_tomber: bool = false
@@ -76,6 +85,7 @@ func blesser(degats: float) -> void:
 	vie = maxf(0.0, vie - degats)
 	if vie <= 0.0:
 		etat = Etat.MORT
+		ticks_mort = 0
 		ticks_etat = 0
 		geste = &"mort"
 		ticks_geste = 0
@@ -97,6 +107,8 @@ func copier() -> Acteur:
 	a.geste = geste
 	a.ticks_geste = ticks_geste
 	a.intouchable = intouchable
+	a.ticks_mort = ticks_mort
+	a.attente = attente
 	a.eau_sous_les_pieds = eau_sous_les_pieds
 	a.vient_de_tomber = vient_de_tomber
 	return a

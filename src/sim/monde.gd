@@ -11,11 +11,28 @@ var marais: Marais = Marais.new()
 var acteurs: Array[Acteur] = []
 ## Les gestes disponibles, par nom.
 var gestes: Dictionary[StringName, Geste] = {}
+## La ladure : la plateforme d'argile où l'on entasse le sel, et le seul point
+## du monde où un paludier revient. « Le feu de camp du souls-like devient ici
+## une ladure — la plateforme où on entasse ce qu'on a tiré du fond. »
+var ladure: Vector2 = Vector2.ZERO
+
 ## Vitesse d'évaporation courante, en mètres d'eau par seconde. Le vent d'est
 ## de fin de tutoriel la fait monter : c'est lui qui fait naître la fleur.
 var evaporation: float = 0.0
 ## Force du vent d'est, de 0 à 1. Zéro tant que le ciel n'a pas tourné.
 var vent_est: float = 0.0
+
+## Ce qu'on a récolté. Deux sels, deux comptes : « Le gros sel est arraché au
+## fond. La fleur de sel est cueillie à la surface, et seulement si le ciel le
+## permet. » Le jeu ne doit jamais les confondre.
+var gros_sel: int = 0
+var fleur: int = 0
+## Journal des faits du dernier tick, pour que la présentation et le tutoriel
+## sachent ce qui vient d'arriver sans avoir à le deviner.
+var vanne_ouverte_ce_tick: int = -1
+var joueur_redepose_ce_tick: bool = false
+var sel_tire_ce_tick: bool = false
+var fleur_cueillie_ce_tick: bool = false
 
 func ajouter(acteur: Acteur) -> Acteur:
 	acteur.id = acteurs.size() + 1

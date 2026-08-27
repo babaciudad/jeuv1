@@ -46,8 +46,8 @@ const FACTEUR_EAU: float = 0.45
 # --- Endurance --------------------------------------------------------------
 const ENDURANCE_MAX: float = 100.0
 const ENDURANCE_COURSE: float = 18.0
-const ENDURANCE_ESQUIVE: float = 22.0
-const ENDURANCE_COUP_LAS: float = 28.0
+const ENDURANCE_ESQUIVE: float = 18.0
+const ENDURANCE_COUP_LAS: float = 24.0
 ## Régénération par seconde, et délai avant qu'elle reprenne, en secondes.
 const ENDURANCE_REGEN: float = 34.0
 const ENDURANCE_DELAI: float = 0.55
@@ -55,6 +55,11 @@ const ENDURANCE_DELAI: float = 0.55
 # --- Vie --------------------------------------------------------------------
 const VIE_JOUEUR: float = 100.0
 const VIE_CRISTALLISE: float = 62.0
+
+## Répit d'un cristallisé entre deux gestes, en ticks. « Il ne poursuit jamais
+## très loin. » Ce silence-là est ce qui rend le combat lisible : c'est dans ce
+## trou que le joueur place son propre geste.
+const REPIT_CRISTALLISE: int = 54
 
 # --- Hydraulique ------------------------------------------------------------
 ## Débit d'une vanne ouverte, en mètres cubes par seconde et par mètre de
@@ -72,3 +77,36 @@ const DEBIT_VANNE: float = 3.5
 ## deux bassins sont à l'équilibre et le débit s'arrête. Sans ce seuil, deux
 ## bassins échangent éternellement des millilitres.
 const CHARGE_MINIMALE: float = 0.004
+
+# --- La fleur -------------------------------------------------------------
+## Salinité en deçà de laquelle rien ne cristallise en surface.
+const FLEUR_SALINITE: float = 0.90
+## La fleur ne prend que sur une lame d'eau : trop peu, l'œillet est sec ;
+## trop, la pellicule coule et rejoint le gros sel au fond.
+const FLEUR_EAU_MIN: float = 0.006
+const FLEUR_EAU_MAX: float = 0.060
+## Vent d'est minimal. « Un souffle d'est en fin de journée, pas de pluie, pas
+## trop de vent — sinon elle coule. »
+const FLEUR_VENT_MIN: float = 0.18
+const FLEUR_VENT_MAX: float = 0.86
+## Vitesse de formation et de dissolution, par seconde.
+const FLEUR_POUSSE: float = 0.085
+const FLEUR_FONTE: float = 0.055
+## Ce qu'une cueillette prend à la pellicule.
+const FLEUR_PRISE: float = 0.34
+
+# --- Le gros sel ----------------------------------------------------------
+## Un œillet ne rend du gros sel que mûr et presque sec : c'est le fond qui a
+## cristallisé contre l'argile, et c'est pour ça qu'il est gris.
+const SEL_SALINITE: float = 0.92
+const SEL_EAU_MAX: float = 0.022
+
+## Portée d'une interaction, en mètres. On ouvre une vanne à bout de bras.
+const PORTEE_GESTE: float = 2.1
+
+## Ticks entre la mort et le dépôt à la ladure.
+##
+## « Le sel garde ce qui s'y dissout. Sa mort ne l'efface pas, elle le dépose. »
+## Ce n'est donc pas un écran de défaite : c'est un transport. Le monde, lui, ne
+## se remet pas à zéro — l'eau qu'on a fait descendre est toujours descendue.
+const REPOS_APRES_MORT: int = 156

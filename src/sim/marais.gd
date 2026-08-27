@@ -31,6 +31,11 @@ class Bassin extends RefCounted:
 	var surface: float = 0.0
 	## Salinité, de 0 (eau de mer) à 1 (saturée, le sel cristallise).
 	var salinite: float = 0.0
+	## Pellicule de fleur de sel en surface, de 0 à 1. Elle ne se tire pas : elle
+	## se cueille, et seulement si le ciel le permet.
+	var fleur: float = 0.0
+	## Gros sel cristallisé au fond, en parts récoltables.
+	var gros_sel: float = 0.0
 	## Vrai pour un bassin dont le niveau est imposé de l'extérieur : l'étier,
 	## que la marée remplit et vide. Un tel bassin est une réserve infinie —
 	## on ne le vide pas en lui prenant de l'eau, et on ne le remplit pas en
@@ -350,3 +355,61 @@ func maree(niveau_mer: float) -> void:
 	for bassin: Bassin in bassins:
 		if bassin.tenu_par_la_maree:
 			bassin.niveau_impose = niveau_mer
+
+
+## Fait prendre — ou fondre — la pellicule de fleur de sel.
+##
+## « Elle ne se tire pas : elle se cueille à la surface, où elle se forme en une
+## pellicule fragile, et seulement quand le vent et la chaleur s'accordent. Un
+## souffle d'est en fin de journée, pas de pluie, pas trop de vent — sinon elle
+## coule et rejoint le gros sel. »
+##
+## Les trois conditions sont donc mécaniques : une saumure mûre, une lame d'eau
+## dans une fourchette étroite, et un vent d'est ni trop faible ni trop fort.
+## Hors de cet accord, la pellicule se défait.
+func former_fleur(vent: float, duree: float) -> void:
+	for bassin: Bassin in bassins:
+		if bassin.tenu_par_la_maree:
+			continue
+		var profondeur: float = bassin.profondeur()
+		var accord: bool = bassin.salinite >= Reglages.FLEUR_SALINITE \
+			and profondeur >= Reglages.FLEUR_EAU_MIN \
+			and profondeur <= Reglages.FLEUR_EAU_MAX \
+			and vent >= Reglages.FLEUR_VENT_MIN \
+			and vent <= Reglages.FLEUR_VENT_MAX
+		if accord:
+			bassin.fleur = minf(1.0, bassin.fleur + Reglages.FLEUR_POUSSE * duree)
+		else:
+			bassin.fleur = maxf(0.0, bassin.fleur - Reglages.FLEUR_FONTE * duree)
+
+## Vrai si ce bassin a de quoi être cueilli.
+func fleur_prete(indice: int) -> bool:
+	if indice < 0 or indice >= bassins.size():
+		return false
+	return bassins[indice].fleur >= Reglages.FLEUR_PRISE
+
+## Cueille la fleur d'un bassin. Renvoie la part prise, ou zéro.
+func cueillir(indice: int) -> float:
+	if not fleur_prete(indice):
+		return 0.0
+	bassins[indice].fleur -= Reglages.FLEUR_PRISE
+	return Reglages.FLEUR_PRISE
+
+## Vrai si ce bassin a du gros sel au fond, tirable au las : mûr, et sec.
+func sel_au_fond(indice: int) -> bool:
+	if indice < 0 or indice >= bassins.size():
+		return false
+	var bassin: Bassin = bassins[indice]
+	return bassin.salinite >= Reglages.SEL_SALINITE \
+		and bassin.profondeur() <= Reglages.SEL_EAU_MAX
+
+## La vanne la plus proche d'un point, dans la portée d'un bras. -1 sinon.
+func vanne_a_portee(position: Vector2) -> int:
+	var meilleure: int = -1
+	var distance: float = Reglages.PORTEE_GESTE
+	for i: int in range(vannes.size()):
+		var ecart: float = vannes[i].position.distance_to(position)
+		if ecart <= distance:
+			distance = ecart
+			meilleure = i
+	return meilleure

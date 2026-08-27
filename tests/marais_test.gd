@@ -86,3 +86,44 @@ func test_un_talus_n_est_pas_un_bassin() -> void:
 	assert_bool(marais.est_talus(Vector2(4.0, 5.0))).is_false()
 	assert_float(marais.profondeur_eau(Vector2(10.0, 5.0))).is_equal(0.0)
 	assert_float(marais.profondeur_eau(Vector2(4.0, 5.0))).is_greater(0.0)
+
+func test_la_fleur_ne_prend_qu_au_vent_d_est() -> void:
+	var marais: Marais = _marais_a_deux_bassins(0.30, 0.00)
+	# Une saumure mûre, une lame d'eau juste, mais pas un souffle.
+	marais.bassins[0].salinite = 0.96
+	marais.bassins[0].volume = marais.bassins[0].surface * 0.03
+	for _i: int in range(600):
+		marais.former_fleur(0.0, Reglages.DUREE_TICK)
+	assert_float(marais.bassins[0].fleur).is_equal_approx(0.0, 0.0001)
+	for _i: int in range(600):
+		marais.former_fleur(0.5, Reglages.DUREE_TICK)
+	assert_float(marais.bassins[0].fleur).is_greater(Reglages.FLEUR_PRISE)
+
+func test_trop_de_vent_et_la_fleur_coule() -> void:
+	var marais: Marais = _marais_a_deux_bassins(0.30, 0.00)
+	marais.bassins[0].salinite = 0.96
+	marais.bassins[0].volume = marais.bassins[0].surface * 0.03
+	for _i: int in range(600):
+		marais.former_fleur(0.5, Reglages.DUREE_TICK)
+	var prise: float = marais.bassins[0].fleur
+	assert_float(prise).is_greater(0.0)
+	# Au-dessus du seuil haut, la pellicule se défait.
+	for _i: int in range(600):
+		marais.former_fleur(0.98, Reglages.DUREE_TICK)
+	assert_float(marais.bassins[0].fleur).is_less(prise)
+
+func test_une_saumure_jeune_ne_donne_pas_de_fleur() -> void:
+	var marais: Marais = _marais_a_deux_bassins(0.30, 0.00)
+	marais.bassins[0].salinite = 0.40
+	marais.bassins[0].volume = marais.bassins[0].surface * 0.03
+	for _i: int in range(900):
+		marais.former_fleur(0.5, Reglages.DUREE_TICK)
+	assert_float(marais.bassins[0].fleur).is_equal_approx(0.0, 0.0001)
+
+func test_le_gros_sel_ne_se_tire_que_d_un_oeillet_sec() -> void:
+	var marais: Marais = _marais_a_deux_bassins(0.30, 0.00)
+	marais.bassins[0].salinite = 0.96
+	marais.bassins[0].volume = marais.bassins[0].surface * 0.30
+	assert_bool(marais.sel_au_fond(0)).is_false()
+	marais.bassins[0].volume = marais.bassins[0].surface * 0.01
+	assert_bool(marais.sel_au_fond(0)).is_true()

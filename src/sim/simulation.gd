@@ -19,10 +19,15 @@ const DOULEUR_DUREE: int = 22
 ## cristallisés (leur intention vient de `decider`).
 func avancer(monde: Monde, commandes: Dictionary[int, Commande]) -> void:
 	monde.tick += 1
+	monde.vanne_ouverte_ce_tick = -1
+	monde.sel_tire_ce_tick = false
+	monde.fleur_cueillie_ce_tick = false
+	monde.joueur_redepose_ce_tick = false
 	var duree: float = Reglages.DUREE_TICK
 
 	for acteur: Acteur in monde.acteurs:
 		if not acteur.vivant():
+			_saumurer(monde, acteur)
 			continue
 		var commande: Commande = null
 		if commandes.has(acteur.id):
@@ -36,6 +41,7 @@ func avancer(monde: Monde, commandes: Dictionary[int, Commande]) -> void:
 	monde.marais.ecouler(duree)
 	if monde.evaporation > 0.0:
 		monde.marais.evaporer(monde.evaporation, duree)
+	monde.marais.former_fleur(monde.vent_est, duree)
 
 # ---------------------------------------------------------------------------
 # Un acteur, un tick
@@ -54,11 +60,19 @@ func _avancer_acteur(monde: Monde, acteur: Acteur, commande: Commande,
 			acteur.intouchable = acteur.ticks_geste >= ESQUIVE_INTOUCHABLE_DEBUT \
 				and acteur.ticks_geste <= ESQUIVE_INTOUCHABLE_FIN
 		if acteur.ticks_etat <= 0:
+			# Un cristallisé qui vient de finir son geste marque un temps. C'est
+			# dans ce temps-là que le joueur frappe.
+			if acteur.etat == Acteur.Etat.FRAPPE \
+					and acteur.camp == Acteur.Camp.CRISTALLISE:
+				acteur.attente = Reglages.REPIT_CRISTALLISE
 			acteur.etat = Acteur.Etat.LIBRE
 			acteur.ticks_etat = 0
 			acteur.intouchable = false
 			acteur.geste = &""
 			acteur.ticks_geste = 0
+
+	if acteur.peut_agir() and commande.interagit:
+		_interagir(monde, acteur)
 
 	if acteur.peut_agir():
 		if commande.esquive and acteur.depenser(Reglages.ENDURANCE_ESQUIVE):
@@ -141,6 +155,54 @@ func _tourner_vers(depuis: float, vers: float, duree: float) -> float:
 	var pas: float = Reglages.VITESSE_CAP * duree
 	return depuis + clampf(angle_difference(depuis, vers), -pas, pas)
 
+## Ce qu'il advient d'un corps mort.
+##
+## Un paludier n'est pas effacé : il est saumuré, puis redéposé à la ladure. Un
+## cristallisé, lui, reste où il est tombé — le sel le garde aussi, mais plus
+## personne ne vient le chercher.
+func _saumurer(monde: Monde, acteur: Acteur) -> void:
+	if acteur.camp != Acteur.Camp.PALUDIER:
+		return
+	acteur.ticks_mort += 1
+	if acteur.ticks_mort < Reglages.REPOS_APRES_MORT:
+		return
+	acteur.ticks_mort = 0
+	acteur.etat = Acteur.Etat.LIBRE
+	acteur.ticks_etat = 0
+	acteur.ticks_geste = 0
+	acteur.geste = &""
+	acteur.intouchable = false
+	acteur.vitesse = Vector2.ZERO
+	acteur.vie = acteur.vie_max
+	acteur.endurance = Reglages.ENDURANCE_MAX
+	acteur.repos_avant_regen = 0
+	acteur.position = monde.ladure
+	monde.joueur_redepose_ce_tick = true
+
+# ---------------------------------------------------------------------------
+# Le travail
+#
+# Ouvrir une vanne et cueillir la fleur sont des gestes de métier, donc des
+# règles de SIMULATION et non des scripts de niveau. C'est ce qui permet au
+# tutoriel de les enseigner sans rien câbler, et aux raccourcis d'un acte
+# entier d'être exactement le même geste.
+# ---------------------------------------------------------------------------
+
+func _interagir(monde: Monde, acteur: Acteur) -> void:
+	if acteur.camp != Acteur.Camp.PALUDIER:
+		return
+	# Une vanne d'abord : c'est le geste qui commande le lieu.
+	var vanne: int = monde.marais.vanne_a_portee(acteur.position)
+	if vanne >= 0 and not monde.marais.vannes[vanne].ouverte:
+		monde.marais.vannes[vanne].ouverte = true
+		monde.vanne_ouverte_ce_tick = vanne
+		return
+	# Sinon, la fleur, si le ciel l'a laissée prendre là où on se tient.
+	var bassin: int = monde.marais.bassin_sous(acteur.position)
+	if monde.marais.cueillir(bassin) > 0.0:
+		monde.fleur += 1
+		monde.fleur_cueillie_ce_tick = true
+
 # ---------------------------------------------------------------------------
 # Les coups
 # ---------------------------------------------------------------------------
@@ -159,6 +221,17 @@ func _resoudre_coups(monde: Monde) -> void:
 		# fenêtre de neuf ticks infligerait neuf fois les dégâts.
 		if attaquant.ticks_geste != geste.debut_coup:
 			continue
+
+		# Le las TRAVAILLE avant de frapper. Tiré au fond d'un œillet mûr et
+		# presque sec, il ramène du gros sel — c'est son seul emploi véritable,
+		# et c'est ce qui rend les cristallisés tristes plutôt que monstrueux :
+		# ils refont exactement ce geste-là.
+		if attaquant.camp == Acteur.Camp.PALUDIER:
+			var sous: int = monde.marais.bassin_sous(attaquant.position)
+			if monde.marais.sel_au_fond(sous):
+				monde.gros_sel += 1
+				monde.sel_tire_ce_tick = true
+
 		var avant: Vector2 = Vector2(sin(attaquant.cap), cos(attaquant.cap))
 		for cible: Acteur in monde.acteurs:
 			if cible.id == attaquant.id or not cible.vivant():
@@ -196,6 +269,8 @@ func decider(monde: Monde, acteur: Acteur) -> Commande:
 	var commande: Commande = Commande.new()
 	if acteur.camp != Acteur.Camp.CRISTALLISE or not acteur.peut_agir():
 		return commande
+	if acteur.attente > 0:
+		acteur.attente -= 1
 	var proie: Acteur = monde.joueur()
 	if proie == null or not proie.vivant():
 		return commande
@@ -210,6 +285,6 @@ func decider(monde: Monde, acteur: Acteur) -> Commande:
 	commande.cap = atan2(ecart.x, ecart.y)
 	if distance > portee:
 		commande.direction = ecart.normalized()
-	else:
+	elif acteur.attente <= 0:
 		commande.frappe = true
 	return commande
