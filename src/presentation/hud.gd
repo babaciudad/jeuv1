@@ -58,7 +58,7 @@ func _ready() -> void:
 	souris.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	souris.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	souris.position = Vector2(-MARGE - 210.0, -MARGE - 18.0)
-	souris.text = "Échap : libérer la souris"
+	souris.text = "Échap : pause"
 
 func rafraichir(monde: Monde, tutoriel: Tutoriel) -> void:
 	var joueur: Acteur = monde.joueur()

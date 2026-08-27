@@ -55,8 +55,7 @@ func _unhandled_input(evenement: InputEvent) -> void:
 		lacet -= souris.relative.x * SENSIBILITE
 		tangage = clampf(tangage - souris.relative.y * SENSIBILITE,
 			TANGAGE_MIN, TANGAGE_MAX)
-	if evenement.is_action_pressed(&"release_mouse"):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# Échap appartient aux menus (pause) : la caméra ne le vole plus.
 	var clic: InputEventMouseButton = evenement as InputEventMouseButton
 	if clic != null and clic.pressed and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

@@ -153,6 +153,14 @@ func _gestes_du_joueur(monde: Monde, joueur: Acteur) -> void:
 
 ## Coupe tout avant que le moteur ne compte ce qui reste.
 ##
+## HONNÊTETÉ DE FERMETURE : même avec ce ménage, le moteur signale à la toute
+## fin une poignée de lectures Ogg encore vivantes (les nappes et les vannes,
+## soit dix objets, constants d'une exécution à l'autre). Trois variantes ont
+## été mesurées — avec pause, sans pause, sans ce ménage — et le reliquat ne
+## bouge pas : il tient au cycle de fin de l'AudioServer, pas à une fuite qui
+## grossit. Le système d'exploitation récupère tout ; on le dit plutôt que de
+## le maquiller.
+##
 ## Les nappes d'ambiance tournent EN BOUCLE : à la fermeture, elles jouent
 ## encore, et chaque flux Ogg en lecture retient son objet de lecture. Godot
 ## sortait donc sur « 32 ObjectDB instances leaked / 12 resources still in

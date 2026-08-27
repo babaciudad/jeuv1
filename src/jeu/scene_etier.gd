@@ -20,6 +20,8 @@ var _vue_marais: VueMarais = null
 var _semis: Semis = null
 var _oiseaux: Oiseaux = null
 var _ambiance: Ambiance = null
+var _menus: Menus = null
+var _etape_vue: int = -1
 var _ciel: Ciel = null
 var _camera: CameraRig = null
 var _hud: Hud = null
@@ -80,11 +82,24 @@ func _ready() -> void:
 
 	_ambiance = Ambiance.new()
 	_ambiance.name = "Ambiance"
+	# L'ambiance vit AUSSI pendant la pause : le vent souffle sous l'écran-
+	# titre — c'est le lieu qui accueille, avant le premier pas. Et un flux
+	# audio gelé par la pause ne se libère pas à la fermeture : les nappes
+	# repartaient en fuite mémoire dès qu'on quittait depuis un menu.
+	_ambiance.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_ambiance)
 	_ambiance.monter(monde.marais)
 
 	_hud = Hud.new()
 	add_child(_hud)
+
+	_menus = Menus.new()
+	_menus.name = "Menus"
+	add_child(_menus)
+	var _c1: int = _menus.commencer.connect(_commencer)
+	var _c2: int = _menus.recommencer.connect(_recommencer)
+	var _c3: int = _menus.quitter.connect(_quitter)
+	_menus.ouvrir_titre(Sauvegarde.existe())
 
 	_suivre_les_corps()
 
@@ -105,6 +120,15 @@ func _physics_process(_delta: float) -> void:
 	simulation.avancer(monde, commandes)
 	tutoriel.progresser(monde, commande, Reglages.DUREE_TICK)
 	_suivre_les_corps()
+
+	# La sauvegarde suit la progression : à chaque étape franchie, la saison
+	# est retenue. Fermer le jeu ne perd plus qu'une étape au pire.
+	if int(tutoriel.etape) != _etape_vue:
+		_etape_vue = int(tutoriel.etape)
+		if _etape_vue > 0:
+			var _s: bool = Sauvegarde.ecrire(monde, tutoriel)
+		if tutoriel.etape == Tutoriel.Etape.FINI:
+			_menus.ouvrir_fin()
 
 	# La simulation redépose elle-même le joueur à la ladure : la présentation
 	# n'a qu'à remonter un corps neuf, l'arbre d'animation ayant une mort sans
@@ -164,6 +188,26 @@ func _suivre_les_corps() -> void:
 
 ## Le corps a joué sa mort : on le remonte à neuf plutôt que de rembobiner un
 ## arbre d'animation dont la mort est un aiguillage sans retour.
+func _commencer(reprendre: bool) -> void:
+	if reprendre:
+		var donnees: Dictionary = Sauvegarde.lire()
+		if not donnees.is_empty() and Sauvegarde.appliquer(donnees, monde, tutoriel):
+			_etape_vue = int(tutoriel.etape)
+			_suivre_les_corps()
+		else:
+			# Une sauvegarde illisible ne charge pas un monde faux : saison neuve.
+			Sauvegarde.effacer()
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func _recommencer() -> void:
+	Sauvegarde.effacer()
+	var _e: int = get_tree().reload_current_scene()
+
+func _quitter() -> void:
+	if tutoriel.etape != Tutoriel.Etape.FINI:
+		var _s: bool = Sauvegarde.ecrire(monde, tutoriel)
+	get_tree().quit()
+
 func _remonter_le_corps(joueur: Acteur) -> void:
 	if _corps.has(joueur.id):
 		var ancien: VueActeur = _corps[joueur.id]

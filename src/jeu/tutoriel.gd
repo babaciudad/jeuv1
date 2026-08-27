@@ -210,3 +210,22 @@ func _lever_le_cristallise(monde: Monde) -> void:
 
 func cristallise() -> Acteur:
 	return _cristallise
+
+## Remonte le cristallisé d'une sauvegarde : là où il était, dans l'état où il
+## était — mort compris. Le sel garde ce qui s'y dissout, la sauvegarde aussi.
+func relever_depuis_sauvegarde(monde: Monde, ou: Vector2, vie: float,
+		vivant: bool) -> void:
+	if _cristallise != null:
+		return
+	var corps: Acteur = Acteur.new()
+	corps.camp = Acteur.Camp.CRISTALLISE
+	corps.position = ou
+	corps.vie_max = Reglages.VIE_CRISTALLISE
+	corps.vie = maxf(vie, 0.0)
+	if not vivant:
+		corps.vie = 0.0
+		corps.etat = Acteur.Etat.MORT
+		corps.geste = &"mort"
+	_cristallise = monde.ajouter(corps)
+	# L'étape LEVEE n'a plus à se rejouer si on a rechargé plus loin.
+	_entre = true
